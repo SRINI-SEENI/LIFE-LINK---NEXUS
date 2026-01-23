@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organ Donation</title>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #ffffff 40%, #e0e7ff 70%, #d8b4fe 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 40px 20px;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .circle {
+        position: fixed;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        filter: blur(70px);
+        animation: float 10s infinite ease-in-out;
+        z-index: 0;
+    }
+
+    .circle:nth-child(1) {
+        width: 300px;
+        height: 300px;
+        top: 10%;
+        left: 10%;
+        background: rgba(173, 216, 255, 0.3);
+    }
+
+    .circle:nth-child(2) {
+        width: 400px;
+        height: 400px;
+        bottom: 15%;
+        right: 10%;
+        background: rgba(206, 188, 255, 0.3);
+    }
+
+    .circle:nth-child(3) {
+        width: 250px;
+        height: 250px;
+        top: 60%;
+        left: 70%;
+        background: rgba(180, 200, 255, 0.25);
+    }
+
+    .container {
+        width: 100%;
+        max-width: 750px;
+        background: white;
+        padding: 50px 45px;
+        border-radius: 24px;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 10px 40px rgba(8, 12, 40, 0.1);
+        animation: fadeIn 0.8s ease-out;
+        position: relative;
+        z-index: 1;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 35px;
+        padding-bottom: 25px;
+        border-bottom: 2px solid #f3f4f6;
+    }
+
+    h2 {
+        color: #1a1a1a;
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+
+    h2 span {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .subtitle {
+        color: #6b7280;
+        font-size: 15px;
+        font-weight: 500;
+        margin-top: 8px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    label {
+        font-weight: 600;
+        color: #374151;
+        font-size: 14px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    label::before {
+        content: '●';
+        color: #ef4444;
+        font-size: 8px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 13px 16px;
+        border-radius: 12px;
+        border: 1.5px solid #e5e7eb;
+        outline: none;
+        transition: all 0.2s ease;
+        background: #ffffff;
+        font-size: 15px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 400;
+        color: #1f2937;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: #9ca3af;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        transform: translateY(-1px);
+    }
+
+    select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        padding-right: 40px;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+        line-height: 1.6;
+    }
+
+    button {
+        width: 100%;
+        padding: 16px 20px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        color: #fff;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 0.5px;
+        margin-top: 30px;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(239, 68, 68, 0.4);
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    button[disabled] { 
+        opacity: 0.6; 
+        cursor: not-allowed; 
+        transform: none; 
+        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+    }
+
+    .back-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        padding: 5px 12px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #6b7280;
+        text-decoration: none;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        background: white;
+        z-index: 100;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .back-btn.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .back-btn:hover {
+        color: #374151;
+        border-color: #d1d5db;
+        background: #f9fafb;
+        transform: translateX(-3px);
+    }
+
+    .back-btn:hover {
+        color: #374151;
+        border-color: #d1d5db;
+        background: #f9fafb;
+        transform: translateX(-3px);
+    }
+
+    .info-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        border: 1.5px solid #fecaca;
+        border-radius: 10px;
+        font-size: 13px;
+        color: #991b1b;
+        font-weight: 600;
+        margin-bottom: 25px;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 40px 28px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        h2 {
+            font-size: 26px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="circle"></div>
+<div class="circle"></div>
+<div class="circle"></div>
+
+<div class="container">
+    <div class="header">
+        <h2>Welcome, <span id="username">Loading...</span> 👋</h2>
+        <p class="subtitle">Your decision can give someone a new life 💖 Donate Organs Save Lives</p>
+    </div>
+
+    <div class="info-badge">
+        🫀 Available organs: Heart, Kidney, Liver, Pancreas, Lungs, Cornea, Intestine
+    </div>
+
+    <form id="organForm">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Donor Name</label>
+                <input type="text" id="name" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" id="age" min="1" max="100" placeholder="Enter your age" required>
+            </div>
+
+            <div class="form-group">
+                <label>Gender</label>
+                <select id="gender" required>
+                    <option value="">Select Gender</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Organ Name</label>
+                <select id="organ" required>
+                    <option value="">Select Organ</option>
+                    <option>Heart</option>
+                    <option>Kidney</option>
+                    <option>Liver</option>
+                    <option>Pancreas</option>
+                    <option>Lungs</option>
+                    <option>Cornea</option>
+                    <option>Intestine</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Blood Group</label>
+                <select id="Bloodgroup" required>
+                    <option value="">Select Blood Group</option>
+                    <option>A+</option><option>A-</option>
+                    <option>B+</option><option>B-</option>
+                    <option>O+</option><option>O-</option>
+                    <option>AB+</option><option>AB-</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Any Drug Activities</label>
+                <select id="Drugactivities" required>
+                    <option value="">Select Yes / No</option>
+                    <option>NO</option>
+                    <option>YES</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Medically Fit/Not</label>
+                <select id="MedicallyFit/Not" required>
+                    <option value="">Select Yes / No</option>
+                    <option>YES</option>
+                    <option>NO</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Contact Number</label>
+                <input type="tel" id="phone" maxlength="10" placeholder="+91 9876543210" required>
+            </div>
+
+            <div class="form-group full-width">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="your.email@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label>State</label>
+                <input id="stateInput" list="stateList" placeholder="Select or type state" required>
+                <datalist id="stateList"></datalist>
+            </div>
+
+            <div class="form-group">
+                <label>District</label>
+                <select id="districtSelect" required></select>
+                <input type="text" id="districtManual" placeholder="Enter district manually" style="display:none;">
+            </div>
+
+            <div class="form-group full-width">
+                <label>Full Address</label>
+                <textarea id="address" rows="3" placeholder="Enter your complete address (Area, Street, House No.)" required></textarea>
+            </div>
+        </div>
+
+        <button type="submit">Register for Organ Donation</button>
+    </form>
+</div>
+
+<a href="user_dashboard.html" class="back-btn" id="backBtn">⬅ Back</a>
+
+<script>
+  window.addEventListener('scroll', function() {
+    const backBtn = document.getElementById('backBtn');
+    if (window.scrollY > 50) {
+      backBtn.classList.add('visible');
+    } else {
+      backBtn.classList.remove('visible');
+    }
+  });
+  
+  if (window.scrollY > 50) {
+    document.getElementById('backBtn').classList.add('visible');
+  }
+</script>
+
+<!-- AUTH + USERNAME -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUid = null;
+
+// ✅ Fetch logged-in user name
+onAuthStateChanged(auth, async (user) => {
+ if (!user) { window.location.href = "login.html"; return; }
+ currentUid = user.uid;
+
+ const snap = await getDoc(doc(db, "users", currentUid));
+ document.getElementById("username").textContent =
+ snap.exists() && snap.data().name ? snap.data().name : user.email.split("@")[0];
+});
+
+// ✅ Submit Form to Firestore (organdonations collection)
+document.getElementById("organForm").addEventListener("submit", async (e)=> {
+ e.preventDefault();
+
+ const nameInput      = document.getElementById("name");
+ const ageInput       = document.getElementById("age");
+ const genderInput    = document.getElementById("gender");
+ const organInput     = document.getElementById("organ");
+ const phoneInput     = document.getElementById("phone");
+ const emailInput     = document.getElementById("email");
+ const addressInput   = document.getElementById("address");
+ const DrugactivitiesInput = document.getElementById("Drugactivities");
+ const bloodgroupInput     = document.getElementById("Bloodgroup");
+ const medicallyfitnotInput= document.getElementById("MedicallyFit/Not");
+
+
+ await addDoc(collection(db, "organdonations"), {
+     uid: currentUid,
+     name: nameInput.value,
+     age: ageInput.value,
+     gender: genderInput.value,
+     organ: organInput.value,
+     bloodgroup: bloodgroupInput.value,
+     Drugactivities: DrugactivitiesInput.value,
+     MedicallyFitNot: medicallyfitnotInput.value,
+     phone: phoneInput.value,
+     email: emailInput.value,
+     state: stateInput.value,
+     district: districtSelect.style.display=="block" ? districtSelect.value : districtManual.value,
+     address: addressInput.value,
+     status: "Pending Verification",
+     timestamp: new Date()
+ });
+
+ alert("✅ Organ Donation Registered Successfully");
+ window.location.href = "user_dashboard.html";
+
+ e.target.reset();
+});
+
+</script>
+
+<!-- ✅ Your same STATE-DISTRICT SCRIPT here -->
+<script>
+const stateToDistricts = {
+"ASSAM":["BAJALI","BAKSA","BARPETA","BISWANATH","BONGAIGAON","CACHAR","CHARAIDEO","CHIRANG","DARRANG","DHEMAJI","DHUBRI","DIBRUGARH","DIMA HASAO","GOALPARA","GOLAGHAT","HAILAKANDI","HOJAI","JORHAT","KAMRUP","KAMRUP METROPOLITAN","KARBI ANGLONG","KARIMGANJ","KOKRAJHAR","LAKHIMPUR","MAJULI","MORIGAON","NAGAON","NALBARI","SIVASAGAR","SONITPUR","SOUTH SALMARA-MANKACHAR","TAMULPUR","TINSUKIA","UDALGURI","WEST KARBI ANGLONG"],
+"BIHAR":["ARARIA","ARWAL","AURANGABAD","BANKA","BEGUSARAI","BHAGALPUR","BHOJPUR","BUXAR","DARBHANGA","EAST CHAMPARAN","GAWA","GOPALGANJ","JAMUI","JEHANABAD","KHAGARIA","KISHANGANJ","KAIMUR","KATIHAR","LAKHISARAI","MADHEPURA","MADHUBANI","MUNGER","MUZAFFARPUR","NALANDA","NAWADA","PATNA","PURNIA","ROHTAS","SAHARSA","SAMASTIPUR","SARAN","SHEIKHPURA","SHEOHAR","SITAMARHI","SIWAN","SUPAUL","VAISHALI"],
+"CHHATTISGARH":["BALOD","BALODABAZAR-BHATAPARA","BALRAMPUR-RAMANUJGANJ","BASTAR","BEMETARA","BIJAPUR","BILASPUR","DAKSHIN BASTAR (DANTEWADA)","DHAMTARI","DURG","GARIABAND","GAURELLA-PENDRA-MARWAHI","JANJGIR-CHAMPA","JASHPUR","KABIRDHAM (KAWARDHA)","KANKER (UTTAR BASTAR)","KORIYA","KORBA","MAHASAMUND","MUNGELI","NARAYANPUR","RAIGARH","RAIPUR","RAJNANDGAON","SUKMA","SURGUJA","SURAJPUR","KONDA GAON","KHAIRAGARH-CHHUIKHADAN-GANDAI","MOHLA-MANPUR-AMBAGARH CHOWKI","SAKTI","SARANGARH-BILAIGARH"],
+"GOA":["NORTH GOA","SOUTH GOA"],
+"GUJARAT":["AHMEDABAD","AMRELI","ANAND","ARAVALLI","BANASKANTHA","BHARUCH","BHAVNAGAR","BOTAD","CHHOTA UDEPUR","DAHOD","DANGS","DEVBHOOMI DWARKA","GANDHINAGAR","GIR SOMNATH","JAMNAGAR","JUNAGADH","KACHCHH","KHEDA","MAHISAGAR","MEHSANA","MORBI","NARMADA","NAVSARI","PANCHMAHAL","PATAN","PORBANDAR","RAJKOT","SABARKANTHA","SURAT","SURENDRANAGAR","TAPI","VADODARA","VALSAD"],
+"HARYANA":["AMBALA","BHIWANI","CHARKHI DADRI","FARIDABAD","FATEHABAD","GURUGRAM","HISAR","JHAJJAR","JIND","KAITHAL","KARNAL","KURUKSHETRA","MAHENDRAGARH","NUH","PALWAL","PANCHKULA","PANIPAT","REWARI","ROHTAK","SIRSA","SONIPAT","YAMUNANAGAR"],
+"HIMACHAL PRADESH":["BILASPUR","CHAMBA","HAMIRPUR","KANGRA","KINNAUR","KULLU","LAHAUL AND SPITI","MANDI","SHIMLA","SIRMAUR","SOLAN","UNA"],
+"JHARKHAND":["BOKARO","CHATRA","DEOGHAR","DHANBAD","DUMKA","EAST SINGHBHUM","GARHWA","GIRIDIH","GODDA","GUMLA","HAZARIBAGH","JAMTARA","KHUNTI","KODERMA","LATEHAR","LOHARDAGA","PAKUR","PALAMU","RAMGARH","RANCHI","SAHEBGANJ","SARAIKELA-KHARSAWAN","SIMDEGA","WEST SINGHBHUM"],
+"KARNATAKA":["BAGALKOT","BALLARI","BELAGAVI","BENGALURU RURAL","BENGALURU URBAN","BIDAR","CHAMARAJANAGAR","CHIKBALLAPUR","CHIKKAMAGALURU","CHITRADURGA","DAKSHINA KANNADA","DAVANAGERE","DHARWAD","GADAG","HASSAN","HAVERI","KALABURAGI","KODAGU","KOLAR","KOPPAL","MANDYA","MYSURU","RAICHUR","RAMANAGARA","SHIVAMOGGA","TUMAKURU","UDUPI","UTTARA KANNADA","VIJAYAPURA","YADGIR"],
+"KERALA":["ALAPPUZHA","ERNAKULAM","IDUKKI","KANNUR","KASARAGOD","KOLLAM","KOTTAYAM","KOZHIKODE","MALAPPURAM","PALAKKAD","PATHANAMTHITTA","THIRUVANANTHAPURAM","THRISSUR","WAYANAD"],
+"MADHYA PRADESH":["AGAR MALWA","ALIRAJPUR","ANUPPUR","ASHOKNAGAR","BALAGHAT","BARWANI","BETUL","BHIND","BHOPAL","BURHANPUR","CHHATARPUR","CHHINDWARA","DAMOH","DATIA","DEWAS","DHAR","DINDORI","GWALIOR","HARDA","HOSHANGABAD","INDORE","JABALPUR","JHABUA","KATNI","KHANDWA","KHARGONE","MANDLA","MANDSAUR","MORENA","NARSINGHPUR","NEEMUCH","PANNA","RAISEN","RAJGARH","RATLAM","REWA","SAGAR","SATNA","SEHORE","SEONI","SHAHDOL","SHAJAPUR","SHEOPUR","SHIVPURI","SIDHI","SINGRAULI","TIKAMGARH","UJJAIN","UMARIA","VIDISHA"],
+"MAHARASHTRA":["AHMEDNAGAR","AKOLA","AMRAVATI","AURANGABAD","BEED","BHANDARA","BULDHANA","CHANDRAPUR","DHULE","GADCHIROLI","GONDIA","HINGOLI","JALGAON","JALNA","KOLHAPUR","LATUR","MUMBAI CITY","MUMBAI SUBURBAN","NAGPUR","NANDED","NANDURBAR","NASHIK","OSMANABAD","PALGHAR","PARBHANI","PUNE","RAIGAD","RATNAGIRI","SANGLI","SATARA","SINDHUDURG","SOLAPUR","THANE","WARDHA","WASHIM","YAVATMAL"],
+"MANIPUR":["BISHNUPUR","CHANDEL","CHURACHANDPUR","IMPHAL EAST","IMPHAL WEST","JIRIBAM","KAKCHING","KAMJONG","KANGPOKPI","NONEY","PHERZAWL","SENAPATI","TAMENGLONG","TENGNOUPAL","THOUBAL","UKHRUL"],
+"MEGHALAYA":["EAST GARO HILLS","EAST JAINTIA HILLS","EAST KHASI HILLS","EASTERN WEST KHASI HILLS","NORTH GARO HILLS","RI-BHOI","SOUTH GARO HILLS","SOUTH WEST GARO HILLS","SOUTH WEST KHASI HILLS","WEST GARO HILLS","WEST JAINTIA HILLS","WEST KHASI HILLS"],
+"MIZORAM":["AIZAWL","CHAMPHAI","HNAHTHIAL","KHAWZAWL","KOLASIB","LAWNGTLAI","LUNGLEI","MAMIT","SAITUAL","SERCHHIP"],
+"NAGALAND":["CHUMOUKEDIMA","DIMAPUR","KIPHIRE","KOHIMA","LONGLENG","MOKOKCHUNG","MON","NIULAND","NOKLAK","PEREN","PHEK","TUENSANG","WOKHA","ZUNHEBOTO"],
+"ODISHA":["ANGUL","BALANGIR","BALESHWAR","BARGARH","BHADRAK","BOUDH","CUTTACK","DEOGARH","DHENKANAL","GAJAPATI","GANJAM","JAGATSINGHPUR","JAJPUR","JHARSUGUDA","KALAHANDI","KANDHAMAL","KENDRAPARA","KENDUJHAR","KHORDHA","KORAPUT","MALKANGIRI","MAYURBHANJ","NABARANGPUR","NAYAGARH","NUAPADA","PURI","RAYAGADA","SAMBALPUR","SUBARNAPUR","SUNDARGARH"],
+"PUNJAB":["AMRITSAR","BARNALA","BATHINDA","FARIDKOT","FATEHGARH SAHIB","FAZILKA","FEROZEPUR","GURDASPUR","HOSHIARPUR","JALANDHAR","KAPURTHALA","LUDHIANA","MANSA","MOGA","PATHANKOT","PATIALA","RUPNAGAR","SANGRUR","SAS NAGAR (MOHALI)","SHAHEED BHAGAT SINGH NAGAR","SRI MUKTSAR SAHIB","TARN TARAN","MALERKOTLA"],
+"RAJASTHAN":["AJMER","ALWAR","BANSWARA","BARAN","BARMER","BHARATPUR","BHILWARA","BIKANER","BUNDI","CHITTORGARH","CHURU","DAUSA","DHOLPUR","DUNGARPUR","HANUMANGARH","JAIPUR","JAISALMER","JALORE","JHALAWAR","JHUNJHUNU","JODHPUR","KARAULI","KOTA","NAGAUR","PALI","PRATAPGARH","RAJSAMAND","SAWAI MADHOPUR","SIKAR","SIROHI","SRI GANGANAGAR","TONK","UDAIPUR"],
+"SIKKIM":["EAST SIKKIM","NORTH SIKKIM","SOUTH SIKKIM","WEST SIKKIM","SORANG"],
+"TAMIL NADU":["ARIYALUR","CHENGALPATTU","CHENNAI","COIMBATORE","CUDDALORE","DHARMAPURI","DINDIGUL","ERODE","KALLAKURICHI","KANCHIPURAM","KANNIYAKUMARI","KARUR","KRISHNAGIRI","MADURAI","MAYILADUTHURAI","NAGAPATTINAM","NAMAKKAL","PERAMBALUR","PUDUKKOTTAI","RAMANATHAPURAM","RANIPET","SALEM","SIVAGANGA","TENKASI","THANJAVUR","THENI","THIRUVALLUR","THIRUVARUR","THOOTHUKUDI","TIRUCHIRAPPALLI","TIRUNELVELI","TIRUPATHUR","TIRUPPUR","TIRUVANNAMALAI","TIRUVARUR","VELLORE","VILLUPURAM","VIRUDHUNAGAR"],
+"TELANGANA":["ADILABAD","BHADRADRI KOTHAGUDEM","HANUMAKONDA","HYDERABAD","JAGTIAL","JANGOAN","JAYASHANKAR BHUPALPALLY","JOGULAMBA GADWAL","KAMAREDDY","KARIMNAGAR","KHAMMAM","KOMARAM BHEEM ASIFABAD","MAHABUBABAD","MAHABUBNAGAR","MANCHERIAL","MEDAK","MEDCHAL–MALKAJGIRI","MULUGU","NAGARKURNOOL","NALGONDA","NARAYANPET","NIRMAL","NIZAMABAD","PEDDAPALLI","RAJANNA SIRCILLA","RANGAREDDY","SANGAREDDY","SIDDIPET","SURYAPET","VIKARABAD","WANAPARTHY","WARANGAL","YADADRI BHUVANAGIRI"],
+"TRIPURA":["DHALAI","GOMATI","KHOWAI","NORTH TRIPURA","SEPAHIJALA","SOUTH TRIPURA","UNAKOTI","WEST TRIPURA"],
+"UTTAR PRADESH":["AGRA","ALIGARH","AMBEDKAR NAGAR","AMETHI","AMROHA","AURAIYA","AYODHYA","AZAMGARH","BAGHPAT","BAHRAICH","BALLIA","BALRAMPUR","BANDA","BARABANKI","BAREILLY","BASTI","BHadohi","BIJNOR","BADAUN","BULANDSHAHR","CHANDAULI","CHITRAKOOT","DEORIA","ETAH","ETAWAH","FARRUKHABAD","FATEHPUR","FIROZABAD","GAUTAM BUDDHA NAGAR","GHAZIABAD","GHAZIPUR","GONDA","GORAKHPUR","HAMIRPUR","HAPUR","HARDOI","HATHRAS","JALAUN","JAUNPUR","JHANSI","KANNAUJ","KANPUR DEHAT","KANPUR NAGAR","KASGANJ","KAUSHAMBI","KHERI","KUSHINAGAR","LALITPUR","LUCKNOW","MAHARAJGANJ","MAHOBA","MAINPURI","MATHURA","MAU","MEERUT","MIRZAPUR","MORADABAD","MUZAFFARNAGAR","PILIBHIT","PRAYAGRAJ","RAE BARELI","RAMPUR","SAHARANPUR","SAMBHAL","SANT KABIR NAGAR","SHAHJAHANPUR","SHAMLI","SHRAVASTI","SIDDHARTHNAGAR","SIKAR","SITAPUR","SONBHADRA","SULTANPUR","UNNAO","VARANASI"],
+"HIMACHAL PRADESH": ["BILASPUR","CHAMBA","HAMIRPUR","KANGRA","KINNAUR","KULLU","LAHUL AND SPITI","MANDI","SHIMLA","SIRMOUR","SOLAN","UNA"],
+"JAMMU AND KASHMIR": ["ANANTNAG","BANDIPORA","BARAMULLA","BUDGAM","DODA","GANDERBAL","JAMMU","KATHUA","KISHTWAR","KULGAM","KUPWARA","POONCH","PULWAMA","RAJOURI","RAMBAN","REASI","SAMBA","SHOPIAN","SRINAGAR","UDHAMPUR"],
+"UTTARAKHAND": ["ALMORA","BAGESHWAR","CHAMPAWAT","DEHRADUN","HARIDWAR","NAINITAL","PAURI GARHWAL","PITHORAGARH","RUDRA PRAYAG","TEHRI GARHWAL","UDHAM SINGH NAGAR","UTTARKASHI"],
+"WEST BENGAL": ["ALIPURDUAR","BANKURA","BIRBHUM","COOCH BEHAR","DAKSHIN DINAJPUR","DARJEELING","HOOGHLY","HOWRAH","JALPAIGURI","JHARGRAM","KALIMPONG","KOLKATA","MALDA","MURSHIDABAD","NADIA","NORTH 24 PARGANAS","PASCHIM BARDHAMAN","PASCHIM MEDINIPUR","PURBA BARDHAMAN","PURBA MEDINIPUR","PURULIA","SOUTH 24 PARGANAS","UTTAR DINAJPUR"]
+};
+
+const stateInput = document.getElementById("stateInput");
+const stateList = document.getElementById("stateList");
+const districtSelect = document.getElementById("districtSelect");
+const districtManual = document.getElementById("districtManual");
+
+// Load states
+Object.keys(stateToDistricts).forEach(state => {
+  let opt = document.createElement("option");
+  opt.value = state;
+  stateList.appendChild(opt);
+});
+
+stateInput.addEventListener("change", () => {
+  let state = stateInput.value;
+  districtSelect.innerHTML = "";
+
+  if (stateToDistricts[state]) {
+    districtSelect.style.display = "block";
+    districtManual.style.display = "none";
+
+    stateToDistricts[state].forEach(d => {
+      let opt = document.createElement("option");
+      opt.value = d;
+      opt.text = d;
+      districtSelect.appendChild(opt);
+    });
+
+  } else {
+    districtSelect.style.display = "none";
+    districtManual.style.display = "block";
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>All Blood Requests — View</title>
+<style>
+  :root{
+    --bg:#f7fbff; --card:#ffffff; --muted:#6b7280; --accent:#0b69ff;
+    --table-border: rgba(0,30,80,0.08);
+  }
+  body{
+    margin:0; font-family:Poppins, system-ui, sans-serif; background:var(--bg); color:#042043;
+  }
+  header{
+    padding:18px; text-align:center; background:linear-gradient(90deg,#e6f2ff,#ffffff);
+    border-bottom:1px solid rgba(0,30,80,0.06); font-weight:600; color:var(--accent);
+  }
+  .wrap{ width:94%; max-width:1100px; margin:22px auto; }
+  .status { padding:12px 14px; background:var(--card); border-radius:12px; box-shadow:0 6px 18px rgba(2,6,23,0.06); border:1px solid var(--table-border); margin-bottom:14px; }
+  .controls { display:flex; gap:12px; align-items:center; margin-bottom:14px; }
+  .search{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid var(--table-border); background:rgba(255,255,255,0.9); }
+  .btn { padding:10px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:600; background:var(--accent); color:white; }
+  .table-wrap { overflow:auto; background:transparent; border-radius:10px; }
+  table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--table-border); }
+  th, td { padding:10px 12px; border-bottom:1px solid var(--table-border); font-size:13px; text-align:left; vertical-align:top; color:#05314d; }
+  th { background: rgba(11,105,255,0.06); font-weight:700; font-size:12px; color:var(--accent); text-transform:uppercase; }
+  tr:hover td { background: rgba(11,105,255,0.03); }
+  .muted { color:var(--muted); font-size:13px; }
+  .no-data { padding:28px; text-align:center; color:var(--muted); }
+  a.tel, a.mail { text-decoration:none; color:#0449b6; font-weight:600; }
+  .raw { font-family:monospace; font-size:12px; color:#334155; background:rgba(15,23,42,0.02); padding:6px; border-radius:6px; display:inline-block; max-width:400px; word-break:break-word; }
+
+  .fixed-back-btn {
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width:90%;
+  max-width: 200px;
+  background: #0056ff;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 30px;
+  text-align: center;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+  transition: .2s;
+  font-size: 11px;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+}
+.fixed-back-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.fixed-back-btn:hover {
+  background: #003fc7;
+  transform: translateX(-50%) translateY(-2px);
+}
+.fixed-back-btn:hover {
+  background: #003fc7;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+</style>
+</head>
+<body>
+<header>🩸 All Blood Requests here,Help by donating the blood and save life</header>
+
+<div class="wrap">
+  <div class="status" id="status">Checking authentication & loading...</div>
+
+  <div class="controls">
+    <input id="searchBox" class="search" placeholder="Search by name / district / blood group / contact..." />
+    <button id="refreshBtn" class="btn">Refresh</button>
+  </div>
+
+  <div id="tableContainer" class="table-wrap">
+    <!-- table will be inserted here -->
+    <div class="no-data" id="tableMessage">Waiting...</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const statusEl = document.getElementById('status');
+const tableContainer = document.getElementById('tableContainer');
+const tableMessage = document.getElementById('tableMessage');
+const searchBox = document.getElementById('searchBox');
+const refreshBtn = document.getElementById('refreshBtn');
+
+let rawRequests = []; // array of { id, data }
+
+/* helper to render table */
+function renderTable(items){
+  if(!items || items.length === 0){
+    tableContainer.innerHTML = `<div class="no-data">No requests found.</div>`;
+    return;
+  }
+
+  // columns without email
+const headers = ['Name','Blood Group','Age','Contact','Address','Submitted'];
+
+let html = '<table><thead><tr>';
+headers.forEach(h => html += `<th>${h}</th>`);
+html += '</tr></thead><tbody>';
+
+items.forEach(item => {
+  const d = item.data;
+  const submitted = d.timestamp 
+      ? (d.timestamp.toDate ? d.timestamp.toDate().toLocaleString() : new Date(d.timestamp.seconds*1000).toLocaleString()) 
+      : "-";
+
+  const phoneHtml = d.contact ? `<a class="tel" href="tel:${d.contact}">📞 ${d.contact}</a>` : '-';
+
+  html += `<tr>
+    <td>${d.name || '-'}</td>
+    <td>${d.bloodGroup || d.bloodgroup || '-'}</td>
+    <td>${d.age ?? '-'}</td>
+    <td>${phoneHtml}</td>
+    <td>${d.address ? `<div class="raw">${escapeHtml(String(d.address))}</div>` : '-'}</td>
+    <td>${submitted}</td>
+  </tr>`;
+});
+
+
+  html += '</tbody></table>';
+  tableContainer.innerHTML = html;
+}
+
+/* search/filter */
+function filterItems(q){
+  if(!q) return rawRequests;
+  q = q.toLowerCase();
+  return rawRequests.filter(r => {
+    const d = r.data;
+    // stringify relevant fields
+    const fields = [
+      d.name, d.bloodGroup, d.bloodgroup, d.age && String(d.age),
+      d.contact, d.email, d.address, d.state, d.district
+    ].filter(Boolean).join(' ').toLowerCase();
+    return fields.includes(q);
+  });
+}
+
+/* load from firestore */
+async function loadRequests(){
+  statusEl.textContent = '⏳ Loading requests...';
+  tableContainer.innerHTML = `<div class="no-data">Loading requests...</div>`;
+  try {
+    const snap = await getDocs(collection(db, "bloodrequest"));
+    rawRequests = snap.docs.map(doc => ({ id: doc.id, data: doc.data() }));
+    statusEl.textContent = `✅ Loaded ${rawRequests.length} request(s)`;
+    renderTable(rawRequests);
+  } catch (err) {
+    console.error("Failed to load requests:", err);
+    statusEl.textContent = `❌ Error loading: ${err.message || err}`;
+    tableContainer.innerHTML = `<div class="no-data">Error loading data. Check console and Firestore rules.</div>`;
+  }
+}
+
+/* small helper to escape HTML in address raw block */
+function escapeHtml(s){
+  return s.replace(/[&<>"'`]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;",'`':'&#96;'}[c]));
+}
+
+/* events */
+searchBox.addEventListener('input', () => {
+  const q = searchBox.value.trim();
+  const filtered = filterItems(q);
+  renderTable(filtered);
+});
+
+refreshBtn.addEventListener('click', () => loadRequests());
+
+/* Auth required: only load when signed in (adjust as needed) */
+onAuthStateChanged(auth, user => {
+  if(!user){
+    statusEl.innerHTML = `⚠️ Please sign in to view requests. <span class="muted">(Auth required by Firestore rules)</span>`;
+    tableContainer.innerHTML = `<div class="no-data">Sign in is required to view blood requests.</div>`;
+    rawRequests = [];
+    return;
+  }
+  // user signed in -> load
+  loadRequests();
+});
+</script>
+<a class="fixed-back-btn" id="backBtn" href="user_dashboard.html">⬅ Back</a>
+
+<script>
+  window.addEventListener('scroll', function() {
+    const backBtn = document.getElementById('backBtn');
+    if (window.scrollY > 150) {
+      backBtn.classList.add('visible');
+    } else {
+      backBtn.classList.remove('visible');
+    }
+  });
+</script>
+
+</body>
+</html>

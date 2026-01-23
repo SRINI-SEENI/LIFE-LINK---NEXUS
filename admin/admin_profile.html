@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Admin Profile Settings — Life Link Nexus</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<!--
+  Glassmorphism + Neon Glow profile settings page.
+  - Shows/edit: name, phone, address
+  - Role displayed (disabled)
+  - Change password (calls updatePassword; may require re-login)
+  - Gov ID optional (local preview; upload commented out)
+  - Delete account: marks deleted:true in Firestore then attempts auth.deleteUser()
+  - Back to dashboard & Logout provided
+-->
+<style>
+  :root{
+    --bg1:#0f172a;         /* deep navy backdrop tint */
+    --glass: rgba(255,255,255,0.06);
+    --glass-2: rgba(255,255,255,0.04);
+    --accent1: linear-gradient(135deg,#7c3aed,#6366f1);
+    --neon: #8b5cf6;
+    --muted: rgba(255,255,255,0.75);
+    --danger: #ef4444;
+  }
+
+  html,body{height:100%;margin:0;font-family:Inter, Poppins, "Segoe UI", Roboto, sans-serif;background:
+    radial-gradient(1000px 500px at -10% 10%, rgba(124,58,237,0.12), transparent 10%),
+    radial-gradient(800px 400px at 110% 90%, rgba(99,102,241,0.08), transparent 10%),
+    linear-gradient(180deg,var(--bg1), #081024);color:white;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  }
+
+  .page {
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+  }
+
+  /* Glass card */
+  .card {
+    width: 940px;
+    max-width: 96%;
+    display:grid;
+    grid-template-columns: 360px 1fr;
+    gap: 26px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    border-radius:18px;
+    padding:28px;
+    box-shadow: 0 8px 40px rgba(2,6,23,0.6), 0 1px 0 rgba(255,255,255,0.02) inset;
+    backdrop-filter: blur(10px) saturate(120%);
+    border: 1px solid rgba(255,255,255,0.06);
+    position:relative;
+    overflow:hidden;
+    transition: transform .35s cubic-bezier(.2,.9,.3,1);
+  }
+  .card::before{
+    content:"";
+    position:absolute; inset:-40% -40% auto auto; width:520px; height:520px;
+    background: radial-gradient(circle at 30% 30%, rgba(124,58,237,0.14), transparent 18%),
+                radial-gradient(circle at 80% 80%, rgba(99,102,241,0.10), transparent 14%);
+    transform: rotate(8deg);
+    pointer-events:none;
+  }
+  .card:hover{ transform: translateY(-6px); }
+
+  /* Left column - profile tile */
+  .profile {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+    padding:18px;
+  }
+  .avatar {
+    width:128px;height:128px;border-radius:20px;
+    background: linear-gradient(135deg,#111827,#0b1220);
+    display:flex;align-items:center;justify-content:center;
+    border: 2px solid rgba(255,255,255,0.06);
+    box-shadow: 0 6px 30px rgba(99,102,241,0.08), 0 4px 10px rgba(16,24,40,0.6) inset;
+    position:relative; overflow:hidden;
+  }
+  .avatar img{width:100%;height:100%;object-fit:cover;border-radius:16px;}
+  .avatar .initial{
+    font-weight:700;font-size:40px;color:var(--neon);text-shadow:0 6px 20px rgba(139,92,246,0.12);
+  }
+  .upload-hint{font-size:12px;color:rgba(255,255,255,0.6);margin-top:6px;}
+
+  .profile h3{margin:10px 0 0 0; font-size:20px; color: #fff;}
+  .badge {
+    margin-top:6px;padding:6px 12px;border-radius:999px;font-weight:700;font-size:12px;
+    background: linear-gradient(90deg, rgba(124,58,237,0.14), rgba(99,102,241,0.12));
+    color: #e9d5ff; border: 1px solid rgba(124,58,237,0.12);
+  }
+
+  .left-actions{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;}
+  .btn {cursor:pointer;padding:10px 14px;border-radius:10px;border:none;font-weight:700}
+  .btn-logout {background:transparent;border:1px solid rgba(255,255,255,0.06);color:#ffd9ff;}
+  .btn-back {background:var(--neon); color:#081024; box-shadow: 0 8px 30px rgba(139,92,246,0.12);}
+
+  /* Right column - form */
+  .form-area{padding:6px 2px 4px 2px; display:flex; flex-direction:column; gap:12px;}
+  .heading{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .heading h2{margin:0;font-size:20px;color:#fff;letter-spacing:-0.2px;}
+  .heading p{margin:0;color:rgba(255,255,255,0.7);font-size:13px;}
+
+  form {display:grid; grid-template-columns:1fr 1fr; gap:14px 18px; align-items:start;}
+  label{display:block;font-size:13px;color:rgba(255,255,255,0.85); margin-bottom:6px;font-weight:700}
+  .field{display:flex;flex-direction:column; margin-bottom:6px;}
+  input[type="text"], input[type="email"], input[type="password"], select {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.06);
+    color: #fff; font-size:14px; outline:none; transition: box-shadow .18s, transform .12s;
+  }
+  input:focus, select:focus { box-shadow: 0 8px 30px rgba(99,102,241,0.08); transform: translateY(-2px); border-color: rgba(124,58,237,0.28); }
+  input[disabled] { opacity:0.7; cursor:not-allowed; }
+
+  .full { grid-column: 1 / -1; }
+  .gov-upload {
+    display:flex;gap:12px;align-items:center;
+  }
+  .gov-preview{
+    width:78px;height:52px;border-radius:8px;background:#061028;border:1px dashed rgba(255,255,255,0.04);
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,0.45);
+  }
+  .small-note{font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px}
+
+  /* action bar */
+  .actions {display:flex;gap:12px; justify-content:flex-end; margin-top:8px; grid-column:1 / -1;}
+  .save {background:linear-gradient(90deg,#7c3aed,#6366f1); color:white; padding:12px 20px;border-radius:12px;border:none; font-weight:800; box-shadow:0 12px 40px rgba(99,102,241,0.12)}
+  .delete {background:linear-gradient(90deg,#ff6b6b,#ef4444); color:white; padding:12px 18px;border-radius:12px;border:none;font-weight:800}
+
+  /* center logout floating (mobile) */
+  @media (max-width:880px){
+    .card{grid-template-columns:1fr; padding:20px}
+    form {grid-template-columns:1fr}
+    .actions{justify-content:center}
+  }
+
+  /* neon animated accent */
+  .neon-line{
+    position:absolute; left:-10px; top:-12px; width:8px; height:140%; background: linear-gradient(180deg,#7c3aed,#6366f1);
+    filter: blur(18px); opacity:0.14; transform: rotate(8deg);
+  }
+
+  /* tiny toast */
+  .toast {position:fixed;right:20px;bottom:20px;background:rgba(7,8,16,0.9);padding:12px 16px;border-radius:12px;color:white;border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="card" id="card">
+      <div class="neon-line"></div>
+
+      <!-- LEFT: Profile tile -->
+      <div class="profile">
+        <div class="avatar" id="avatar">
+          <div class="initial" id="avatarInitial">A</div>
+        </div>
+        <div style="text-align:center;width:100%">
+          <h3 id="displayName">Admin Name</h3>
+          <div class="badge" id="roleBadge">Hospital</div>
+          <div class="upload-hint" style="margin-top:10px;">Pro profile</div>
+        </div>
+
+        <div class="left-actions">
+          <button class="btn btn-back" id="backBtn">Back to Dashboard</button>
+          <button class="btn btn-logout" id="logoutBtn">Logout</button>
+        </div>
+
+        <div style="margin-top:auto;text-align:center;font-size:12px;color:rgba(255,255,255,0.6)">
+          <div>Member since <span id="memberSince">—</span></div>
+          <div class="small-note">Gov ID upload disabled if storage not enabled</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Form -->
+      <div class="form-area">
+        <div class="heading">
+          <div>
+            <h2>Profile Settings</h2>
+            <p>Update your profile details and secure your account</p>
+          </div>
+          <div id="statusIndicator" style="text-align:right;font-size:13px;color:rgba(255,255,255,0.75)"></div>
+        </div>
+
+        <form id="profileForm" autocomplete="off">
+          <div class="field">
+            <label for="name">Full name</label>
+            <input id="name" type="text" placeholder="Your full name" />
+          </div>
+
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input id="phone" type="text" placeholder="+91 98xxxxxxxx" />
+          </div>
+
+          <div class="field full">
+            <label for="address">Address</label>
+            <input id="address" type="text" placeholder="Street, City, State, Pincode" />
+          </div>
+
+          <div class="field">
+            <label for="role">Role (locked)</label>
+            <select id="role" disabled>
+              <option value="Hospital">Hospital</option>
+              <option value="Clinic">Clinic</option>
+              <option value="Ambulance Driver">Ambulance Driver</option>
+              <option value="Pharmacy">Pharmacy</option>
+              <option value="Blood Bank">Blood Bank</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="password">Change password</label>
+            <input id="password" type="password" placeholder="Enter new password (optional)" />
+            <div class="small-note">Password changes may require you to re-login (Firebase security).</div>
+          </div>
+
+          <div class="field full">
+            <label>Government ID (optional)</label>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="gov-preview" id="govPreview">No file</div>
+              <div style="flex:1">
+                <input id="govFile" type="file" accept="image/*,application/pdf" />
+                <div class="small-note">Preview available locally. Storage upload requires Firebase Storage enabled.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="delete" id="deleteBtn">Delete Account</button>
+            <button type="button" class="save" id="saveBtn">Save Changes</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- toast area -->
+  <div id="toast" style="display:none" class="toast"></div>
+
+<script type="module">
+  // Firebase imports
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut,
+    updatePassword,
+    deleteUser
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    updateDoc,
+    setDoc,
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  import { firebaseConfig } from "../firebase-config.js";
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // UI refs
+  const nameEl = document.getElementById("name");
+  const phoneEl = document.getElementById("phone");
+  const addressEl = document.getElementById("address");
+  const roleEl = document.getElementById("role");
+  const passwordEl = document.getElementById("password");
+  const govFileEl = document.getElementById("govFile");
+  const govPreview = document.getElementById("govPreview");
+
+  const displayName = document.getElementById("displayName");
+  const roleBadge = document.getElementById("roleBadge");
+  const avatarInitial = document.getElementById("avatarInitial");
+  const memberSince = document.getElementById("memberSince");
+  const saveBtn = document.getElementById("saveBtn");
+  const deleteBtn = document.getElementById("deleteBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const backBtn = document.getElementById("backBtn");
+  const toastEl = document.getElementById("toast");
+  const statusIndicator = document.getElementById("statusIndicator");
+
+  let currentUID = null;
+  let currentAdminDoc = null;
+  let govFileDataUrl = null; // local preview only (no upload)
+
+  // helper
+  function showToast(msg, timeout=3500){
+    toastEl.textContent = msg;
+    toastEl.style.display = "block";
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> toastEl.style.display = "none", timeout);
+  }
+
+  // file preview
+  govFileEl.addEventListener("change", async (e)=>{
+    const f = e.target.files[0];
+    if(!f){ govPreview.textContent="No file"; govFileDataUrl = null; return; }
+    if(f.type.startsWith("image/")){
+      const reader = new FileReader();
+      reader.onload = () => {
+        govPreview.innerHTML = `<img src="${reader.result}" style="width:100%;height:100%;object-fit:cover;border-radius:6px" />`;
+        govFileDataUrl = reader.result;
+      };
+      reader.readAsDataURL(f);
+    } else {
+      govPreview.textContent = f.name;
+      govFileDataUrl = null;
+    }
+  });
+
+  // ensure only logged-in admin can see page
+  onAuthStateChanged(auth, async (user) => {
+    if(!user) {
+      // not logged in
+      window.location.href = "admin_login.html";
+      return;
+    }
+    currentUID = user.uid;
+    statusIndicator.textContent = "Signed in";
+    // fetch admin doc from firestore
+    try {
+      const docRef = doc(db, "admins", currentUID);
+      const snap = await getDoc(docRef);
+      if(!snap.exists()){
+        // maybe admin record still in adminRequests (not yet approved)
+        showToast("Admin record not found in 'admins' collection. If you were just approved, please re-login or check maintainer approval.");
+        displayName.textContent = user.displayName || user.email.split("@")[0];
+        roleBadge.textContent = "—";
+        return;
+      }
+      currentAdminDoc = snap.data();
+      // populate UI
+      displayName.textContent = currentAdminDoc.name || user.displayName || user.email.split("@")[0];
+      nameEl.value = currentAdminDoc.name || "";
+      phoneEl.value = currentAdminDoc.phone || "";
+      addressEl.value = currentAdminDoc.address || currentAdminDoc.AboutADMIN || "";
+      roleEl.value = currentAdminDoc.role || currentAdminDoc.Role || "";
+      roleBadge.textContent = currentAdminDoc.role || currentAdminDoc.Role || "Admin";
+      avatarInitial.textContent = (currentAdminDoc.name || "A").slice(0,1).toUpperCase();
+      memberSince.textContent = currentAdminDoc.createdAt ? (new Date(currentAdminDoc.createdAt)).toLocaleDateString() : "—";
+    } catch(err){
+      console.error(err);
+      showToast("Error fetching admin data: " + (err.message || err));
+    }
+  });
+
+  // Save changes
+  saveBtn.addEventListener("click", async ()=>{
+    if(!currentUID) return showToast("Not signed in");
+    const upd = {
+      name: nameEl.value.trim(),
+      phone: phoneEl.value.trim(),
+      address: addressEl.value.trim(),
+      role: roleEl.value, // role is disabled but still pass along
+      updatedAt: new Date().toISOString()
+    };
+
+    // If you later enable Storage, you could upload govFileDataUrl to storage and save URL.
+    if(govFileDataUrl){
+      // NOTE: storage upload requires enabling Firebase Storage & billing in your project.
+      // This code is a placeholder for when storage is available:
+      // const uploadedUrl = await uploadToStorage(govFile);
+      // upd.govIDUrl = uploadedUrl;
+      upd.govIDPreview = "local-preview"; // placeholder
+    }
+
+    try{
+      // update password if provided
+      const newPass = passwordEl.value.trim();
+      if(newPass){
+        try{
+          await updatePassword(auth.currentUser, newPass);
+          showToast("Password updated");
+        } catch(passErr){
+          // requires recent login
+          console.warn("Password update error:", passErr);
+          showToast("Password update failed: " + (passErr.message || passErr.code) + ". You may need to re-login and try again.");
+        }
+      }
+
+      // update firestore
+      await updateDoc(doc(db, "admins", currentUID), upd);
+      showToast("Profile saved");
+      // refresh displayed name/badge
+      displayName.textContent = upd.name || displayName.textContent;
+      roleBadge.textContent = upd.role || roleBadge.textContent;
+    } catch(e){
+      console.error(e);
+      showToast("Save failed: " + (e.message || e));
+    }
+  });
+
+  // Delete account
+  deleteBtn.addEventListener("click", async ()=>{
+    if(!currentUID) return showToast("Not signed in");
+    if(!confirm("⚠️ Are you sure? This marks your admin record deleted and attempts to remove your account.")) return;
+    try {
+      // mark deleted in firestore
+      await updateDoc(doc(db, "admins", currentUID), { deleted: true, deletedAt: new Date().toISOString() });
+      // attempt to delete auth user
+      try {
+        await deleteUser(auth.currentUser);
+        showToast("Account deleted");
+        window.location.href = "admin_login.html";
+      } catch(delErr){
+        // likely requires reauthentication
+        console.warn("Auth delete error:", delErr);
+        showToast("Account marked deleted in DB. To remove auth user, re-login and delete. (" + (delErr.message||delErr.code) + ")");
+      }
+    } catch(e){
+      console.error(e);
+      showToast("Delete failed: " + (e.message||e));
+    }
+  });
+
+  // Back & Logout
+  backBtn.addEventListener("click", ()=> window.location.href = "admin_dashboard.html");
+  logoutBtn.addEventListener("click", async ()=>{
+    await signOut(auth);
+    window.location.href = "index.html";
+  });
+
+  // small helpful note if admin doc missing
+  // (maintainer may have set adminRequests->admins differently; ensure your maintainer code creates admins/{uid} doc).
+</script>
+</body>
+</html>

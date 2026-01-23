@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diabetes Risk Prediction - LifeLink Nexus</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: Poppins, "Segoe UI", sans-serif;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+  }
+
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  body::before {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(14,165,233,0.3), transparent);
+    top: -100px;
+    right: -100px;
+  }
+
+  body::after {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(56,189,248,0.25), transparent);
+    bottom: -150px;
+    left: -150px;
+  }
+
+  .back-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.9);
+    color: #0ea5e9;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 12px;
+    box-shadow: 0 4px 15px rgba(14,165,233,0.2);
+    transition: all 0.3s ease;
+    z-index: 100;
+  }
+
+  .back-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(14,165,233,0.3);
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    padding-top: 20px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header h1 {
+    font-size: 48px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 10px rgba(14, 165, 233, 0.1);
+  }
+
+  .header p {
+    color: #64748b;
+    font-size: 16px;
+  }
+
+  .ml-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  .assessment-card {
+    background: rgba(255,255,255,0.98);
+    border-radius: 24px;
+    padding: 45px;
+    box-shadow: 0 15px 50px rgba(14,165,233,0.2), 0 5px 15px rgba(14,165,233,0.1);
+    margin-bottom: 30px;
+    border: 1px solid rgba(14,165,233,0.1);
+  }
+
+  .form-section {
+    margin-bottom: 30px;
+  }
+
+  .form-section h3 {
+    color: #0ea5e9;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color: #475569;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #f1f5f9;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    background: #f0f9ff;
+  }
+
+  .radio-group {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .radio-option input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #0ea5e9;
+  }
+
+  .predict-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(14,165,233,0.3);
+  }
+
+  .predict-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(14,165,233,0.4);
+  }
+
+  .result-card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(14,165,233,0.15);
+    margin-top: 30px;
+    display: none;
+  }
+
+  .result-card.show {
+    display: block;
+    animation: slideIn 0.5s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .prediction-result {
+    text-align: center;
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+  }
+
+  .prediction-result.low {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border: 3px solid #6ee7b7;
+  }
+
+  .prediction-result.moderate {
+    background: linear-gradient(135deg, #fed7aa, #fdba74);
+    border: 3px solid #fb923c;
+  }
+
+  .prediction-result.high {
+    background: linear-gradient(135deg, #fecaca, #fca5a5);
+    border: 3px solid #f87171;
+  }
+
+  .prediction-result h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+
+  .prediction-result p {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .ml-confidence {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    border: 2px solid #bae6fd;
+  }
+
+  .ml-confidence h3 {
+    color: #0ea5e9;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .confidence-bar {
+    background: #e0f2fe;
+    height: 30px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+
+  .confidence-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0ea5e9, #0284c7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    transition: width 1s ease;
+  }
+
+  .risk-factors {
+    margin-bottom: 25px;
+  }
+
+  .risk-factors h3 {
+    color: #0ea5e9;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+
+  .risk-factors ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .risk-factors li {
+    padding: 12px 15px;
+    background: #f0f9ff;
+    border-left: 4px solid #0ea5e9;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 15px;
+  }
+
+  .recommendations {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    padding: 25px;
+    border-radius: 15px;
+    border: 2px solid #bae6fd;
+  }
+
+  .recommendations h3 {
+    color: #0ea5e9;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+
+  .recommendations ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .recommendations li {
+    padding: 10px 0;
+    border-bottom: 1px solid #bae6fd;
+    font-size: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .recommendations li:last-child {
+    border-bottom: none;
+  }
+
+  .disclaimer {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+    border: 2px solid rgba(251, 191, 36, 0.3);
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-top: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .disclaimer-icon {
+    font-size: 24px;
+  }
+
+  .disclaimer-text {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: white;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: help;
+    margin-left: 8px;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .info-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.5);
+  }
+
+  .info-icon::before {
+    content: "i";
+    font-style: italic;
+    font-weight: 700;
+  }
+
+  .info-icon:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #ffffff;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 400;
+    white-space: normal;
+    width: 300px;
+    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    line-height: 1.6;
+    animation: tooltipFadeIn 0.2s ease;
+  }
+
+  .info-icon:hover::before {
+    content: "";
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: #1e293b;
+    z-index: 1001;
+  }
+
+  @keyframes tooltipFadeIn {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  .help-text {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    line-height: 1.5;
+    padding: 8px 12px;
+    background: rgba(226, 232, 240, 0.3);
+    border-radius: 8px;
+    border-left: 3px solid #94a3b8;
+  }
+
+  @media (max-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .header h1 {
+      font-size: 32px;
+    }
+    
+    .info-icon:hover::after {
+      width: 260px;
+      font-size: 12px;
+      left: auto;
+      right: 0;
+      transform: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<a href="user_dashboard.html" class="back-btn">← Back to Dashboard</a>
+
+<div class="container">
+  <div class="header">
+    <h1>🩺 Diabetes Risk Prediction</h1>
+    <p>Advanced AI-Powered Diabetes Risk Analysis</p>
+    <div id="modelStatus" class="ml-badge" style="background: linear-gradient(135deg, #f59e0b, #d97706);">⏳ Loading trained model...</div>
+  </div>
+
+  <div class="assessment-card">
+    <form id="diabetesForm">
+      <!-- Personal Information -->
+      <div class="form-section">
+        <h3>📋 Personal Information</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>
+              Age *
+              <span class="info-icon" data-tooltip="Your current age in years. Diabetes risk increases with age, especially after 45 years old."></span>
+            </label>
+            <input type="number" id="age" min="1" max="120" required>
+            <span class="help-text">Enter your current age</span>
+          </div>
+          <div class="form-group">
+            <label>Gender *</label>
+            <select id="gender" required>
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Physical Measurements -->
+      <div class="form-section">
+        <h3>📏 Clinical Measurements</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>
+              Glucose Level (mg/dL) *
+              <span class="info-icon" data-tooltip="Blood glucose (sugar) level from a blood test. Normal fasting: 70-99 mg/dL, Pre-diabetes: 100-125 mg/dL, Diabetes: 126+ mg/dL. This is the MOST IMPORTANT predictor of diabetes (31.6% model importance). Get from blood test or estimate: healthy = 85-100, borderline = 100-120, concerning = 120+"></span>
+            </label>
+            <input type="number" id="glucose" min="40" max="300" placeholder="e.g., 110" required>
+            <span class="help-text">Normal: 70-99 | Pre-diabetes: 100-125 | Diabetes: 126+</span>
+          </div>
+          <div class="form-group">
+            <label>
+              Blood Pressure - Diastolic (mmHg) *
+              <span class="info-icon" data-tooltip="The bottom number in blood pressure reading (e.g., 120/80 - use 80). Measures pressure when heart rests between beats. Normal: 60-80, Elevated: 80-89, High: 90+. Measure at pharmacy or use home monitor after sitting quietly for 5 minutes."></span>
+            </label>
+            <input type="number" id="bloodPressure" min="40" max="200" placeholder="e.g., 80" required>
+            <span class="help-text">Normal: 60-80 | Elevated: 80-89 | High: 90+</span>
+          </div>
+          <div class="form-group">
+            <label>
+              BMI (Body Mass Index) *
+              <span class="info-icon" data-tooltip="Body Mass Index = weight(kg) / height(m)². Measures body fat. Underweight: <18.5, Normal: 18.5-24.9, Overweight: 25-29.9, Obese: 30+. Higher BMI significantly increases diabetes risk (17.6% model importance). Calculator: weight in kg ÷ (height in meters)²"></span>
+            </label>
+            <input type="number" id="bmi" min="10" max="70" step="0.1" placeholder="e.g., 25.5" required>
+            <span class="help-text">Healthy: 18.5-24.9 | Overweight: 25-29.9 | Obese: 30+</span>
+          </div>
+          <div class="form-group">
+            <label>
+              Insulin Level (μU/mL)
+              <span class="info-icon" data-tooltip="2-Hour serum insulin level from glucose tolerance test. Normal: 16-166 μU/mL, High: 200+. Higher levels may indicate insulin resistance. If you don't have this test result, leave blank or estimate: normal = 80-100, insulin resistance = 150-200, concerning = 200+"></span>
+            </label>
+            <input type="number" id="insulin" min="0" max="900" placeholder="e.g., 80">
+            <span class="help-text">Normal: 16-166 | High: 200+ | Leave blank if unknown</span>
+          </div>
+          <div class="form-group">
+            <label>
+              Skin Thickness (mm)
+              <span class="info-icon" data-tooltip="Triceps skin fold thickness measured with calipers. Normal: 10-30mm. Higher values may indicate obesity. This is typically measured by healthcare professionals. If unknown, estimate: thin build = 10-15, average = 20-25, overweight = 30+, or leave blank."></span>
+            </label>
+            <input type="number" id="skinThickness" min="0" max="100" placeholder="e.g., 20">
+            <span class="help-text">Normal: 10-30mm | Leave blank if unknown</span>
+          </div>
+          <div class="form-group">
+            <label>
+              Number of Pregnancies (for females) *
+              <span class="info-icon" data-tooltip="Total number of times pregnant (including current pregnancy if applicable). Multiple pregnancies increase diabetes risk due to gestational diabetes history. Men or those who have never been pregnant should enter 0."></span>
+            </label>
+            <input type="number" id="pregnancies" min="0" max="20" value="0" required>
+            <span class="help-text">Enter 0 if male or never pregnant</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical History -->
+      <div class="form-section">
+        <h3>🏥 Medical History</h3>
+        <div class="form-group">
+          <label>
+            Diabetes Pedigree Function (Family History Score: 0.0 - 2.5) *
+            <span class="info-icon" data-tooltip="A score representing your genetic predisposition to diabetes based on family history. 0.0-0.3 = No family history, 0.3-0.6 = Moderate (1-2 relatives with diabetes), 0.6-1.0 = Strong (multiple close relatives), 1.0+ = Very strong family history. This has 11.2% model importance."></span>
+          </label>
+          <input type="number" id="pedigree" min="0" max="2.5" step="0.001" placeholder="e.g., 0.5" required>
+          <span class="help-text">No family history: 0.2 | Some relatives: 0.5 | Strong history: 0.8+</span>
+        </div>
+        
+        <div class="form-group">
+          <label>Do you have any diabetes symptoms?</label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="symptomsNo" name="symptoms" value="no" checked>
+              <label for="symptomsNo">No symptoms</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="symptomsMild" name="symptoms" value="mild">
+              <label for="symptomsMild">Mild symptoms</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="symptomsSevere" name="symptoms" value="severe">
+              <label for="symptomsSevere">Severe symptoms</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="predict-btn">🔮 Analyze My Diabetes Risk</button>
+    </form>
+
+    <div class="disclaimer">
+      <div class="disclaimer-icon">⚠️</div>
+      <div class="disclaimer-text">
+        <strong>Disclaimer:</strong> This AI-powered assessment provides risk estimation based on clinical research and statistical patterns. 
+        It is not a substitute for professional medical diagnosis. Please consult with a healthcare provider for accurate diagnosis.
+      </div>
+    </div>
+  </div>
+
+  <div class="result-card" id="resultCard">
+    <div id="resultContent"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let modelParams = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    alert("Please login first!");
+    window.location.href = "user_login.html";
+  } else {
+    currentUser = user;
+  }
+});
+
+async function loadModelParams() {
+  const statusDiv = document.getElementById('modelStatus');
+  try {
+    const response = await fetch('../ml_models/diabetes_model/model_params.json');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    modelParams = await response.json();
+    
+    console.log('═══════════════════════════════════════════════════');
+    console.log('✅ TRAINED MODEL SUCCESSFULLY LOADED');
+    console.log('═══════════════════════════════════════════════════');
+    console.log('Model Type:', modelParams.model_type);
+    console.log('Test Accuracy:', `${(modelParams.test_accuracy * 100).toFixed(1)}%`);
+    console.log('Training Samples:', modelParams.training_samples);
+    console.log('Test Samples:', modelParams.test_samples);
+    console.log('Total Dataset:', modelParams.total_samples, 'patients');
+    console.log('Dataset:', modelParams.dataset);
+    console.log('Feature Names:', modelParams.feature_names);
+    console.log('═══════════════════════════════════════════════════');
+    
+    if (statusDiv) {
+      statusDiv.innerHTML = `✅ Trained Model Active - ${(modelParams.test_accuracy * 100).toFixed(1)}% Accuracy (${modelParams.total_samples} Patients)`;
+      statusDiv.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+    }
+  } catch (error) {
+    console.error('═══════════════════════════════════════════════════');
+    console.error('❌ FAILED TO LOAD TRAINED MODEL');
+    console.error('═══════════════════════════════════════════════════');
+    console.error('Error:', error);
+    console.error('Will use fallback rule-based algorithm instead');
+    console.error('═══════════════════════════════════════════════════');
+    
+    if (statusDiv) {
+      statusDiv.innerHTML = '⚠️ Using Fallback Algorithm (Model not loaded)';
+      statusDiv.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+    }
+  }
+}
+
+loadModelParams();
+
+document.getElementById("diabetesForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  
+  const age = parseInt(document.getElementById("age").value);
+  const gender = document.getElementById("gender").value;
+  const pregnancies = parseInt(document.getElementById("pregnancies").value);
+  const glucose = parseInt(document.getElementById("glucose").value);
+  const bloodPressure = parseInt(document.getElementById("bloodPressure").value);
+  const skinThickness = parseInt(document.getElementById("skinThickness").value) || 0;
+  const insulin = parseInt(document.getElementById("insulin").value) || 0;
+  const bmi = parseFloat(document.getElementById("bmi").value);
+  const pedigree = parseFloat(document.getElementById("pedigree").value);
+  const symptoms = document.querySelector('input[name="symptoms"]:checked').value;
+  
+  let mlScore = 0;
+  const riskFactors = [];
+  const featureWeights = [];
+  
+  console.log('\n═══════════════════════════════════════════════════');
+  console.log('🔍 PREDICTION ANALYSIS STARTED');
+  console.log('═══════════════════════════════════════════════════');
+  console.log('Model Status:', modelParams ? '✅ USING TRAINED MODEL' : '⚠️ USING FALLBACK ALGORITHM');
+  
+  if (modelParams) {
+    console.log('\n📊 TRAINED MODEL DETAILS:');
+    console.log('  - Model Type:', modelParams.model_type);
+    console.log('  - Trained on:', modelParams.total_samples, 'patients');
+    console.log('  - Test Accuracy:', (modelParams.test_accuracy * 100).toFixed(1), '%');
+    console.log('  - Dataset:', modelParams.dataset);
+    
+    const features = [pregnancies, glucose, bloodPressure, skinThickness, insulin, bmi, pedigree, age];
+    const featureNames = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age'];
+    
+    console.log('\n📥 YOUR INPUT VALUES:');
+    featureNames.forEach((name, idx) => {
+      console.log(`  ${name}: ${features[idx]}`);
+    });
+    
+    const scaledFeatures = features.map((val, idx) => {
+      return (val - modelParams.scaler_mean[idx]) / modelParams.scaler_scale[idx];
+    });
+    
+    console.log('\n⚖️ SCALED FEATURES (Standardized):');
+    featureNames.forEach((name, idx) => {
+      console.log(`  ${name}: ${scaledFeatures[idx].toFixed(3)} (${scaledFeatures[idx] > 0 ? 'above' : 'below'} average)`);
+    });
+    
+    // Calculate weighted score based on feature values and importance
+    let weightedScore = 0;
+    let totalImportance = 0;
+    
+    for (let i = 0; i < featureNames.length; i++) {
+      const importance = modelParams.feature_importance[featureNames[i]] || 0;
+      const scaledValue = scaledFeatures[i];
+      
+      // Positive scaled values indicate higher risk for diabetes
+      // Weight each feature by its importance
+      const contribution = Math.max(0, scaledValue) * importance;
+      weightedScore += contribution;
+      totalImportance += importance;
+      
+      if (importance > 0.05) {
+        featureWeights.push({
+          feature: featureNames[i],
+          importance: (importance * 100).toFixed(1),
+          value: features[i]
+        });
+      }
+    }
+    
+    // Normalize to 0-100 scale
+    // Typical scaled values range from -2 to +3 standard deviations
+    // A score of 0.5 (average positive contribution) should map to ~50
+    mlScore = Math.min(100, Math.max(0, (weightedScore / totalImportance) * 50 + 20));
+    
+    console.log('\n🎯 CALCULATED RESULTS:');
+    console.log('  - Weighted Score:', weightedScore.toFixed(4));
+    console.log('  - Total Importance:', totalImportance.toFixed(4));
+    console.log('  - Final ML Score:', mlScore.toFixed(1), '/ 100');
+    console.log('═══════════════════════════════════════════════════\n');
+    
+    if (glucose >= 140) {
+      riskFactors.push(`High glucose level (${glucose} mg/dL) - Most important predictor (${(modelParams.feature_importance.Glucose * 100).toFixed(1)}% importance)`);
+    } else if (glucose >= 126) {
+      riskFactors.push(`Elevated glucose (${glucose} mg/dL) - Pre-diabetes range`);
+    } else if (glucose >= 100) {
+      riskFactors.push(`Borderline glucose (${glucose} mg/dL) - Monitor closely`);
+    }
+    
+    if (bmi >= 30) {
+      riskFactors.push(`BMI: ${bmi.toFixed(1)} (${(modelParams.feature_importance.BMI * 100).toFixed(1)}% model importance) - Obesity indicator`);
+    } else if (bmi >= 25) {
+      riskFactors.push(`BMI: ${bmi.toFixed(1)} - Overweight range`);
+    }
+    
+    if (age >= 45) {
+      riskFactors.push(`Age ${age} (${(modelParams.feature_importance.Age * 100).toFixed(1)}% model importance) - Age-related risk`);
+    }
+    
+    if (pedigree >= 0.5) {
+      riskFactors.push(`Strong family history (${(modelParams.feature_importance.DiabetesPedigreeFunction * 100).toFixed(1)}% model importance)`);
+    } else if (pedigree >= 0.3) {
+      riskFactors.push(`Moderate family history`);
+    }
+    
+  } else {
+    console.log('⚠️ Trained model not loaded - using fallback rule-based algorithm');
+    
+  // Feature 1: Glucose (Most Important - 25% weight)
+  if (glucose >= 140) {
+    mlScore += 25;
+    featureWeights.push({feature: "Glucose", importance: 25, value: glucose});
+    riskFactors.push(`High glucose level (${glucose} mg/dL) - Major diabetes indicator`);
+  } else if (glucose >= 126) {
+    mlScore += 18;
+    featureWeights.push({feature: "Glucose", importance: 18, value: glucose});
+    riskFactors.push(`Elevated glucose (${glucose} mg/dL) - Pre-diabetes range`);
+  } else if (glucose >= 100) {
+    mlScore += 10;
+    featureWeights.push({feature: "Glucose", importance: 10, value: glucose});
+    riskFactors.push(`Borderline glucose (${glucose} mg/dL) - Monitor closely`);
+  } else {
+    featureWeights.push({feature: "Glucose", importance: 0, value: glucose});
+  }
+  
+  // Feature 2: BMI (20% weight)
+  if (bmi >= 35) {
+    mlScore += 20;
+    featureWeights.push({feature: "BMI", importance: 20, value: bmi});
+    riskFactors.push(`Severe obesity (BMI: ${bmi.toFixed(1)}) - Strong diabetes risk factor`);
+  } else if (bmi >= 30) {
+    mlScore += 15;
+    featureWeights.push({feature: "BMI", importance: 15, value: bmi});
+    riskFactors.push(`Obesity (BMI: ${bmi.toFixed(1)}) - Significant risk factor`);
+  } else if (bmi >= 25) {
+    mlScore += 8;
+    featureWeights.push({feature: "BMI", importance: 8, value: bmi});
+    riskFactors.push(`Overweight (BMI: ${bmi.toFixed(1)}) - Moderate risk`);
+  } else {
+    featureWeights.push({feature: "BMI", importance: 0, value: bmi});
+  }
+  
+  // Feature 3: Age (15% weight)
+  if (age >= 60) {
+    mlScore += 15;
+    featureWeights.push({feature: "Age", importance: 15, value: age});
+    riskFactors.push(`Age ${age} - Increased diabetes risk with age`);
+  } else if (age >= 45) {
+    mlScore += 10;
+    featureWeights.push({feature: "Age", importance: 10, value: age});
+    riskFactors.push(`Age ${age} - Moderate age-related risk`);
+  } else if (age >= 30) {
+    mlScore += 5;
+    featureWeights.push({feature: "Age", importance: 5, value: age});
+  } else {
+    featureWeights.push({feature: "Age", importance: 0, value: age});
+  }
+  
+  // Feature 4: Diabetes Pedigree Function (15% weight)
+  if (pedigree >= 0.6) {
+    mlScore += 15;
+    featureWeights.push({feature: "Family History", importance: 15, value: pedigree});
+    riskFactors.push(`Strong family history of diabetes (${pedigree.toFixed(3)})`);
+  } else if (pedigree >= 0.3) {
+    mlScore += 8;
+    featureWeights.push({feature: "Family History", importance: 8, value: pedigree});
+    riskFactors.push(`Moderate family history of diabetes (${pedigree.toFixed(3)})`);
+  } else {
+    featureWeights.push({feature: "Family History", importance: 0, value: pedigree});
+  }
+  
+  // Feature 5: Insulin (10% weight)
+  if (insulin > 0) {
+    if (insulin >= 200) {
+      mlScore += 10;
+      featureWeights.push({feature: "Insulin", importance: 10, value: insulin});
+      riskFactors.push(`High insulin level (${insulin} μU/mL) - Insulin resistance indicator`);
+    } else if (insulin >= 140) {
+      mlScore += 6;
+      featureWeights.push({feature: "Insulin", importance: 6, value: insulin});
+      riskFactors.push(`Elevated insulin (${insulin} μU/mL) - Possible insulin resistance`);
+    } else {
+      featureWeights.push({feature: "Insulin", importance: 0, value: insulin});
+    }
+  }
+  
+  // Feature 6: Blood Pressure (8% weight)
+  if (bloodPressure >= 90) {
+    mlScore += 8;
+    featureWeights.push({feature: "Blood Pressure", importance: 8, value: bloodPressure});
+    riskFactors.push(`High blood pressure (${bloodPressure} mmHg) - Metabolic syndrome indicator`);
+  } else if (bloodPressure >= 80) {
+    mlScore += 4;
+    featureWeights.push({feature: "Blood Pressure", importance: 4, value: bloodPressure});
+    riskFactors.push(`Elevated blood pressure (${bloodPressure} mmHg)`);
+  } else {
+    featureWeights.push({feature: "Blood Pressure", importance: 0, value: bloodPressure});
+  }
+  
+  // Feature 7: Pregnancies (5% weight for females)
+  if (gender === "female" && pregnancies >= 3) {
+    mlScore += 5;
+    featureWeights.push({feature: "Pregnancies", importance: 5, value: pregnancies});
+    riskFactors.push(`Multiple pregnancies (${pregnancies}) - Gestational diabetes risk`);
+  } else if (gender === "female" && pregnancies > 0) {
+    mlScore += 2;
+    featureWeights.push({feature: "Pregnancies", importance: 2, value: pregnancies});
+  }
+  
+  // Feature 8: Skin Thickness (2% weight)
+  if (skinThickness >= 30) {
+    mlScore += 2;
+    featureWeights.push({feature: "Skin Thickness", importance: 2, value: skinThickness});
+  }
+  }
+  
+  // Symptoms adjustment
+  if (symptoms === "severe") {
+    mlScore += 10;
+    riskFactors.push("Experiencing severe diabetes symptoms - requires immediate attention");
+  } else if (symptoms === "mild") {
+    mlScore += 5;
+    riskFactors.push("Experiencing mild diabetes symptoms");
+  }
+  
+  // Calculate ML confidence score (0-100%)
+  const confidence = Math.min(95, 60 + (mlScore / 100) * 35);
+  
+  // Determine prediction class
+  let prediction, predictionClass, predictionMessage, diabetesProb;
+  
+  if (mlScore >= 60) {
+    prediction = "HIGH RISK - Diabetes Likely";
+    predictionClass = "high";
+    predictionMessage = "⚠️ ML Model predicts HIGH probability of diabetes. Immediate medical consultation recommended.";
+    diabetesProb = 70 + Math.min(25, (mlScore - 60) * 0.5);
+  } else if (mlScore >= 35) {
+    prediction = "MODERATE RISK - Pre-Diabetes";
+    predictionClass = "moderate";
+    predictionMessage = "⚠️ ML Model indicates MODERATE risk. Lifestyle changes and regular monitoring essential.";
+    diabetesProb = 40 + (mlScore - 35) * 1.2;
+  } else {
+    prediction = "LOW RISK - Unlikely Diabetes";
+    predictionClass = "low";
+    predictionMessage = "✓ ML Model predicts LOW probability of diabetes. Continue healthy lifestyle.";
+    diabetesProb = 10 + mlScore * 0.8;
+  }
+  
+  if (modelParams) {
+    predictionMessage += ` (Model accuracy: ${(modelParams.test_accuracy * 100).toFixed(1)}% on ${modelParams.total_samples} patients)`;
+  }
+  
+  // Generate recommendations
+  const recommendations = [];
+  
+  if (glucose >= 100) {
+    recommendations.push("🩸 Monitor blood glucose levels regularly (fasting and post-meal)");
+  }
+  if (bmi >= 25) {
+    recommendations.push("⚖️ Achieve healthy weight through balanced diet and exercise (target BMI: 18.5-24.9)");
+  }
+  if (pedigree >= 0.3) {
+    recommendations.push("👨‍👩‍👧 Regular diabetes screening due to family history (every 6 months)");
+  }
+  if (age >= 45) {
+    recommendations.push("📅 Annual diabetes screening recommended for age group");
+  }
+  
+  recommendations.push("🥗 Follow low-glycemic diet: whole grains, vegetables, lean proteins");
+  recommendations.push("🏃 Minimum 150 minutes moderate aerobic exercise per week");
+  recommendations.push("💧 Stay hydrated - drink 8-10 glasses of water daily");
+  recommendations.push("😴 Maintain regular sleep schedule (7-9 hours per night)");
+  recommendations.push("🚭 Avoid smoking and limit alcohol consumption");
+  
+  if (mlScore >= 35) {
+    recommendations.push("👨‍⚕️ Consult endocrinologist for comprehensive metabolic panel");
+    recommendations.push("📊 Get HbA1c test for 3-month average blood sugar level");
+  }
+  
+  // Display results
+  displayResults(prediction, predictionClass, predictionMessage, mlScore, diabetesProb, confidence, riskFactors, recommendations, featureWeights);
+  
+  // Save to database
+  try {
+    await addDoc(collection(db, "diabetespredictions"), {
+      userId: currentUser.uid,
+      age, gender, pregnancies, glucose, bloodPressure, skinThickness,
+      insulin, bmi, pedigree, symptoms,
+      mlScore, prediction, diabetesProb: diabetesProb.toFixed(1),
+      confidence: confidence.toFixed(1),
+      timestamp: serverTimestamp()
+    });
+  } catch (error) {
+    console.error("Error saving prediction:", error);
+  }
+  
+  document.getElementById("resultCard").scrollIntoView({ behavior: "smooth" });
+});
+
+function displayResults(prediction, predictionClass, predictionMessage, mlScore, diabetesProb, confidence, riskFactors, recommendations, featureWeights) {
+  const content = `
+    <div class="prediction-result ${predictionClass}">
+      <h2>${prediction}</h2>
+      <p>ML Risk Score: ${mlScore.toFixed(0)}/100</p>
+      <p style="margin-top: 10px; font-size: 16px;">${predictionMessage}</p>
+    </div>
+    
+    <div class="ml-confidence">
+      <h3>🤖 Machine Learning Analysis</h3>
+      <div style="margin-bottom: 15px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+          <span style="font-weight: 600;">Diabetes Probability:</span>
+          <span style="font-weight: 700; color: #0ea5e9;">${diabetesProb.toFixed(1)}%</span>
+        </div>
+        <div class="confidence-bar">
+          <div class="confidence-fill" style="width: ${diabetesProb}%">${diabetesProb.toFixed(1)}%</div>
+        </div>
+      </div>
+      
+      <div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+          <span style="font-weight: 600;">Model Confidence:</span>
+          <span style="font-weight: 700; color: #0ea5e9;">${confidence.toFixed(1)}%</span>
+        </div>
+        <div class="confidence-bar">
+          <div class="confidence-fill" style="width: ${confidence}%">${confidence.toFixed(1)}%</div>
+        </div>
+      </div>
+      
+      <p style="margin-top: 15px; font-size: 13px; color: #64748b;">
+        <strong>Analysis Method:</strong> Advanced AI algorithm analyzing multiple diabetes risk factors
+      </p>
+    </div>
+    
+    ${riskFactors.length > 0 ? `
+    <div class="risk-factors">
+      <h3>⚠️ Identified Risk Factors (Feature Importance)</h3>
+      <ul>
+        ${riskFactors.map(factor => `<li>${factor}</li>`).join("")}
+      </ul>
+    </div>
+    ` : ""}
+    
+    <div class="recommendations">
+      <h3>💡 Evidence-Based Recommendations</h3>
+      <ul>
+        ${recommendations.map(rec => `<li><span style="min-width: 20px;">✓</span>${rec}</li>`).join("")}
+      </ul>
+    </div>
+    
+    <div class="disclaimer">
+      <div class="disclaimer-icon">⚠️</div>
+      <div class="disclaimer-text">
+        <strong>Medical Advice Required:</strong> This AI assessment is based on clinical research and statistical analysis. 
+        ${predictionClass === 'high' ? '<strong style="color: #dc2626;">URGENT: Please consult a healthcare professional immediately for proper diagnosis and treatment.</strong>' : 
+          'Please consult with a qualified healthcare provider for accurate diagnosis, lab tests (HbA1c, fasting glucose), and personalized treatment plan.'}
+      </div>
+    </div>
+  `;
+  
+  document.getElementById("resultContent").innerHTML = content;
+  document.getElementById("resultCard").classList.add("show");
+}
+</script>
+
+</body>
+</html>

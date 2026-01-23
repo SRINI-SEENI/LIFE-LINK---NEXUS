@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Book Doctor Appointment - Life Link Nexus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #ffffff 40%, #e0e7ff 70%, #d8b4fe 100%);
+    min-height: 100vh;
+    padding: 20px;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Animated Background Elements */
+  .bg-decoration {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.3;
+    animation: float 15s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .bg-decoration:nth-child(1) {
+    width: 300px;
+    height: 300px;
+    top: 10%;
+    left: 10%;
+    background: rgba(173, 216, 255, 0.3);
+    animation-delay: 0s;
+  }
+
+  .bg-decoration:nth-child(2) {
+    width: 400px;
+    height: 400px;
+    bottom: 15%;
+    right: 10%;
+    background: rgba(206, 188, 255, 0.3);
+    animation-delay: 3s;
+  }
+
+  .bg-decoration:nth-child(3) {
+    width: 250px;
+    height: 250px;
+    top: 60%;
+    left: 70%;
+    background: rgba(180, 200, 255, 0.25);
+    animation-delay: 6s;
+  }
+
+  @keyframes float {
+    0%, 100% { 
+      transform: translateY(0); 
+    }
+    50% { 
+      transform: translateY(-20px); 
+    }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 30px;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.25), 
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    padding: 50px;
+    animation: slideUp 0.6s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header-content {
+    width: 100%;
+  }
+
+  .header h1 {
+    font-size: 42px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+  }
+
+  .header p {
+    color: #6b7280;
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  .my-appointments-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+    position: absolute;
+    overflow: hidden;
+  }
+
+  .my-appointments-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+  }
+
+  .my-appointments-btn:hover::before {
+    left: 100%;
+  }
+
+  .my-appointments-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(16, 185, 129, 0.35);
+  }
+
+  .my-appointments-btn:active {
+    transform: translateY(0);
+  }
+
+  .search-box {
+    margin-bottom: 40px;
+    display: flex;
+    gap: 18px;
+    animation: fadeIn 0.8s ease-out 0.2s both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .search-box input, .search-box select {
+    padding: 16px 20px;
+    border: 2px solid rgba(102, 126, 234, 0.15);
+    border-radius: 15px;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    flex: 1;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .search-box input:focus, .search-box select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2),
+                0 0 0 4px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .search-box input::placeholder {
+    color: #9ca3af;
+  }
+
+  .doctors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+    animation: fadeIn 1s ease-out 0.4s both;
+  }
+
+  .doctor-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+    border: 2px solid rgba(102, 126, 234, 0.08);
+    border-radius: 24px;
+    padding: 30px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .doctor-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .doctor-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .doctor-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.15);
+  }
+
+  .doctor-card h3 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+
+  .doctor-card .specialty {
+    display: inline-block;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    letter-spacing: 0.3px;
+  }
+
+  .doctor-info {
+    font-size: 15px;
+    color: #6b7280;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+  }
+
+  .doctor-info::before {
+    content: '●';
+    color: #667eea;
+    margin-right: 10px;
+    font-size: 10px;
+  }
+
+  .doctor-info strong {
+    color: #374151;
+    margin-right: 5px;
+  }
+
+  .book-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .book-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.35);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  }
+
+  .book-btn:active {
+    transform: translateY(0);
+  }
+
+  .back-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #667eea;
+    text-decoration: none;
+    border: 1.5px solid #667eea;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    background: white;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .back-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .back-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 6px 18px rgba(102, 126, 234, 0.25);
+  }
+
+  /* Modal for booking form */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    animation: fadeInModal 0.3s ease-out;
+  }
+
+  @keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal-content {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+    margin: 3% auto;
+    padding: 50px;
+    border-radius: 30px;
+    width: 90%;
+    max-width: 650px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+    animation: slideUpModal 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  @keyframes slideUpModal {
+    from {
+      opacity: 0;
+      transform: translateY(50px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .modal-header {
+    text-align: center;
+    margin-bottom: 35px;
+    padding-bottom: 25px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+  }
+
+  .modal-header h2 {
+    font-size: 30px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .modal-header p {
+    color: #6b7280;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .close {
+    color: #9ca3af;
+    float: right;
+    font-size: 36px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 20px;
+    transition: all 0.3s ease;
+  }
+
+  .close:hover {
+    color: #667eea;
+    transform: rotate(90deg);
+  }
+
+  .form-group {
+    margin-bottom: 25px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+  }
+
+  .form-group input, .form-group textarea {
+    width: 100%;
+    padding: 15px 18px;
+    border: 2px solid rgba(102, 126, 234, 0.15);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1),
+                0 8px 20px rgba(102, 126, 234, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .submit-appointment {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .submit-appointment:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.35);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  }
+
+  .submit-appointment:active {
+    transform: translateY(0);
+  }
+
+  #message {
+    margin-top: 20px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    display: none;
+    animation: slideDown 0.4s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  #message.success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    border: 2px solid #10b981;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
+  }
+
+  #message.error {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+    border: 2px solid #ef4444;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.2);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #6b7280;
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  .empty-state h3 {
+    font-size: 24px;
+    margin-bottom: 12px;
+    font-weight: 800;
+    color: #374151;
+  }
+
+  .empty-state p {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  /* Appointments list modal */
+  .appointments-list {
+    max-height: 550px;
+    overflow-y: auto;
+    padding-right: 10px;
+  }
+
+  .appointments-list::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .appointments-list::-webkit-scrollbar-track {
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 10px;
+  }
+
+  .appointments-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+  }
+
+  .appointment-item {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+    border: 2px solid rgba(102, 126, 234, 0.1);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 20px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .appointment-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  }
+
+  .appointment-item:hover {
+    border-color: #667eea;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+    transform: translateY(-3px);
+  }
+
+  .appointment-item h4 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 15px;
+    letter-spacing: -0.3px;
+  }
+
+  .appointment-item .status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-left: 12px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .status-pending {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+  }
+
+  .status-confirmed {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+  }
+
+  .status-completed {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+  }
+
+  .status-cancelled {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+  }
+
+  .appointment-detail {
+    font-size: 15px;
+    color: #6b7280;
+    margin: 10px 0;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+  }
+
+  .appointment-detail::before {
+    content: '●';
+    color: #667eea;
+    margin-right: 12px;
+    font-size: 8px;
+  }
+
+  .appointment-detail strong {
+    color: #374151;
+    margin-right: 8px;
+    font-weight: 700;
+  }
+
+  .cancel-appointment-btn {
+    margin-top: 20px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .cancel-appointment-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.35);
+  }
+
+  .cancel-appointment-btn:active {
+    transform: translateY(0);
+  }
+
+  .request-cancel-btn {
+    margin-top: 20px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .request-cancel-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35);
+  }
+
+  .request-cancel-btn:active {
+    transform: translateY(0);
+  }
+
+  .status-cancel-requested {
+    background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+    color: #9a3412;
+  }
+
+  .delete-appointment-btn {
+    margin-top: 20px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    box-shadow: 0 8px 20px rgba(100, 116, 139, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .delete-appointment-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(100, 116, 139, 0.35);
+  }
+
+  .delete-appointment-btn:active {
+    transform: translateY(0);
+  }
+
+  .no-appointments {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+    font-size: 17px;
+    font-weight: 600;
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  @media (max-width: 768px) {
+    body {
+      padding: 15px;
+    }
+    
+    .container {
+      padding: 30px 20px;
+      border-radius: 25px;
+    }
+    
+    .header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .header h1 {
+      font-size: 28px;
+    }
+    
+    .doctors-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .search-box {
+      flex-direction: column;
+    }
+    
+    .my-appointments-btn {
+      position: static;
+      width: 100%;
+      margin-top: 20px;
+    }
+    
+    .modal-content {
+      width: 95%;
+      padding: 30px 20px;
+      margin: 10% auto;
+      border-radius: 20px;
+    }
+    
+    .modal-header h2 {
+      font-size: 24px;
+    }
+    
+    .back-btn {
+      bottom: 15px;
+      padding: 7px 16px;
+      font-size: 11px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Animated Background Decorations -->
+<div class="bg-decoration"></div>
+<div class="bg-decoration"></div>
+<div class="bg-decoration"></div>
+
+<!-- Back Button -->
+<a href="user_dashboard.html" class="back-btn" id="backBtn">← Back to Dashboard</a>
+
+<script>
+  window.addEventListener('scroll', function() {
+    const backBtn = document.getElementById('backBtn');
+    if (window.scrollY > 50) {
+      backBtn.classList.add('visible');
+    } else {
+      backBtn.classList.remove('visible');
+    }
+  });
+  
+  // Show button if page is already scrolled on load
+  if (window.scrollY > 50) {
+    document.getElementById('backBtn').classList.add('visible');
+  }
+</script>
+
+<div class="container">
+  <div class="header">
+    <h1>Book Doctor Appointment</h1>
+    <p>Find and book appointments with registered doctors</p>
+    <button class="my-appointments-btn" onclick="showMyAppointments()">📅 My Appointments</button>
+  </div>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search by doctor name or hospital...">
+    <select id="specializationFilter">
+      <option value="">All Specializations</option>
+      <option value="General Physician">General Physician</option>
+      <option value="Cardiologist">Cardiologist</option>
+      <option value="Pediatrician">Pediatrician</option>
+      <option value="Orthopedic">Orthopedic</option>
+      <option value="Dermatologist">Dermatologist</option>
+      <option value="Neurologist">Neurologist</option>
+      <option value="Gynecologist">Gynecologist</option>
+      <option value="ENT Specialist">ENT Specialist</option>
+      <option value="Dentist">Dentist</option>
+      <option value="Ophthalmologist">Ophthalmologist</option>
+      <option value="Psychiatrist">Psychiatrist</option>
+    </select>
+  </div>
+
+  <div class="doctors-grid" id="doctorsGrid">
+    <!-- Doctors will be loaded here -->
+  </div>
+
+  <div class="empty-state" id="emptyState" style="display: none;">
+    <h3>No doctors found</h3>
+    <p>Try adjusting your search filters</p>
+  </div>
+</div>
+
+<!-- Booking Modal -->
+<div id="bookingModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <div class="modal-header">
+      <h2>Book Appointment</h2>
+      <p id="selectedDoctor"></p>
+    </div>
+
+    <form id="appointmentForm">
+      <div class="form-group">
+        <label for="patientName">Patient Name *</label>
+        <input type="text" id="patientName" required />
+      </div>
+
+      <div class="form-group">
+        <label for="patientPhone">Contact Number *</label>
+        <input type="tel" id="patientPhone" required />
+      </div>
+
+      <div class="form-group">
+        <label for="patientEmail">Email Address *</label>
+        <input type="email" id="patientEmail" required />
+      </div>
+
+      <div class="form-group">
+        <label for="appointmentDate">Preferred Date *</label>
+        <input type="date" id="appointmentDate" required />
+      </div>
+
+      <div class="form-group">
+        <label for="appointmentTime">Preferred Time *</label>
+        <input type="time" id="appointmentTime" required />
+      </div>
+
+      <div class="form-group">
+        <label for="symptoms">Symptoms/Reason for Visit *</label>
+        <textarea id="symptoms" placeholder="Describe your symptoms or reason for consultation..." required></textarea>
+      </div>
+
+      <button type="submit" class="submit-appointment">Confirm Booking</button>
+      <div id="message"></div>
+    </form>
+  </div>
+</div>
+
+<!-- My Appointments Modal -->
+<div id="appointmentsModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeAppointmentsModal()">&times;</span>
+    <div class="modal-header">
+      <h2>My Appointments</h2>
+      <p>View your booked appointments</p>
+    </div>
+
+    <div class="appointments-list" id="appointmentsList">
+      <!-- Appointments will be loaded here -->
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, serverTimestamp, query, where, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let allDoctors = [];
+let selectedDoctorData = null;
+
+// Check if user is logged in
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    alert("Please login first!");
+    window.location.href = "user_login.html";
+  } else {
+    loadDoctors();
+  }
+});
+
+// Load all doctors
+async function loadDoctors() {
+  try {
+    const q = query(collection(db, "hospitalregister"));
+    const snapshot = await getDocs(q);
+    
+    allDoctors = [];
+    snapshot.forEach(doc => {
+      allDoctors.push({ id: doc.id, ...doc.data() });
+    });
+
+    displayDoctors(allDoctors);
+  } catch (error) {
+    console.error("Error loading doctors:", error);
+    alert("Error loading doctors: " + error.message);
+  }
+}
+
+// Display doctors
+function displayDoctors(doctors) {
+  const grid = document.getElementById("doctorsGrid");
+  const emptyState = document.getElementById("emptyState");
+
+  if (doctors.length === 0) {
+    grid.style.display = "none";
+    emptyState.style.display = "block";
+    return;
+  }
+
+  grid.style.display = "grid";
+  emptyState.style.display = "none";
+  grid.innerHTML = "";
+
+  doctors.forEach(doctor => {
+    const card = document.createElement("div");
+    card.className = "doctor-card";
+    card.innerHTML = `
+      <h3>${doctor.doctorName}</h3>
+      <div class="specialty">${doctor.specialization}</div>
+      <div class="doctor-info"><strong>Hospital:</strong> ${doctor.hospitalName}</div>
+      <div class="doctor-info"><strong>Experience:</strong> ${doctor.experience} years</div>
+      <div class="doctor-info"><strong>Fee:</strong> ₹${doctor.consultationFee}</div>
+      <div class="doctor-info"><strong>Location:</strong> ${doctor.location}</div>
+      <div class="doctor-info"><strong>Timings:</strong> ${doctor.timings}</div>
+      <div class="doctor-info"><strong>Contact:</strong> ${doctor.phone}</div>
+      <button class="book-btn" onclick="openBookingModal('${doctor.id}')">Book Appointment</button>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// Search and filter
+document.getElementById("searchInput").addEventListener("input", filterDoctors);
+document.getElementById("specializationFilter").addEventListener("change", filterDoctors);
+
+function filterDoctors() {
+  const searchText = document.getElementById("searchInput").value.toLowerCase();
+  const specialization = document.getElementById("specializationFilter").value;
+
+  let filtered = allDoctors.filter(doctor => {
+    const matchesSearch = 
+      doctor.doctorName.toLowerCase().includes(searchText) ||
+      doctor.hospitalName.toLowerCase().includes(searchText) ||
+      doctor.location.toLowerCase().includes(searchText);
+    
+    const matchesSpec = !specialization || doctor.specialization === specialization;
+
+    return matchesSearch && matchesSpec;
+  });
+
+  displayDoctors(filtered);
+}
+
+// Modal functionality
+const modal = document.getElementById("bookingModal");
+const closeBtn = document.getElementsByClassName("close")[0];
+
+window.openBookingModal = function(doctorId) {
+  selectedDoctorData = allDoctors.find(d => d.id === doctorId);
+  if (selectedDoctorData) {
+    document.getElementById("selectedDoctor").textContent = 
+      `${selectedDoctorData.doctorName} - ${selectedDoctorData.specialization}`;
+    
+    // Pre-fill user email if available
+    if (auth.currentUser) {
+      document.getElementById("patientEmail").value = auth.currentUser.email || "";
+    }
+
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("appointmentDate").min = today;
+
+    modal.style.display = "block";
+  }
+}
+
+closeBtn.onclick = function() {
+  modal.style.display = "none";
+  document.getElementById("appointmentForm").reset();
+  document.getElementById("message").style.display = "none";
+}
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+    document.getElementById("appointmentForm").reset();
+    document.getElementById("message").style.display = "none";
+  }
+}
+
+// Handle appointment booking
+document.getElementById("appointmentForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  
+  const submitBtn = document.querySelector(".submit-appointment");
+  const message = document.getElementById("message");
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Booking...";
+
+  try {
+    const appointmentData = {
+      doctorId: selectedDoctorData.id,
+      doctorName: selectedDoctorData.doctorName,
+      doctorEmail: selectedDoctorData.email,
+      specialization: selectedDoctorData.specialization,
+      hospitalName: selectedDoctorData.hospitalName,
+      consultationFee: selectedDoctorData.consultationFee,
+      
+      patientName: document.getElementById("patientName").value.trim(),
+      patientPhone: document.getElementById("patientPhone").value.trim(),
+      patientEmail: document.getElementById("patientEmail").value.trim(),
+      patientId: auth.currentUser.uid,
+      
+      appointmentDate: document.getElementById("appointmentDate").value,
+      appointmentTime: document.getElementById("appointmentTime").value,
+      symptoms: document.getElementById("symptoms").value.trim(),
+      
+      status: "pending",
+      bookedAt: serverTimestamp()
+    };
+
+    await addDoc(collection(db, "appointments"), appointmentData);
+
+    message.className = "success";
+    message.textContent = "✓ Appointment booked successfully! Doctor will confirm soon.";
+    message.style.display = "block";
+
+    document.getElementById("appointmentForm").reset();
+
+    setTimeout(() => {
+      modal.style.display = "none";
+      message.style.display = "none";
+    }, 3000);
+
+  } catch (error) {
+    console.error("Error:", error);
+    message.className = "error";
+    message.textContent = "Error: " + error.message;
+    message.style.display = "block";
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Confirm Booking";
+  }
+});
+
+// Show My Appointments Modal
+window.showMyAppointments = async function() {
+  const modal = document.getElementById("appointmentsModal");
+  const appointmentsList = document.getElementById("appointmentsList");
+  
+  modal.style.display = "block";
+  appointmentsList.innerHTML = '<div style="text-align:center; padding:20px; color:#9ca3af;">Loading your appointments...</div>';
+  
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      appointmentsList.innerHTML = '<div class="no-appointments">Please login to view appointments</div>';
+      return;
+    }
+    
+    const q = query(
+      collection(db, "appointments"), 
+      where("patientId", "==", user.uid)
+    );
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) {
+      appointmentsList.innerHTML = '<div class="no-appointments">📭 No appointments found.<br>Book your first appointment now!</div>';
+      return;
+    }
+    
+    // Get appointments and sort in JavaScript
+    let appointments = [];
+    snapshot.forEach(doc => {
+      appointments.push({ id: doc.id, ...doc.data() });
+    });
+    
+    // Sort by bookedAt timestamp (newest first)
+    appointments.sort((a, b) => {
+      const timeA = a.bookedAt?.seconds || 0;
+      const timeB = b.bookedAt?.seconds || 0;
+      return timeB - timeA;
+    });
+    
+    let appointmentsHTML = '';
+    appointments.forEach(apt => {
+      appointmentsHTML += `
+        <div class="appointment-item">
+          <h4>
+            ${apt.doctorName}
+            <span class="status-badge status-${apt.cancelRequest === 'requested' ? 'cancel-requested' : apt.status}">${apt.cancelRequest === 'requested' ? 'Cancel Requested' : apt.status}</span>
+          </h4>
+          <div class="appointment-detail">
+            <strong>Specialization:</strong> ${apt.specialization}
+          </div>
+          <div class="appointment-detail">
+            <strong>Hospital:</strong> ${apt.hospitalName}
+          </div>
+          <div class="appointment-detail">
+            <strong>Date:</strong> ${apt.appointmentDate} at ${apt.appointmentTime}
+          </div>
+          <div class="appointment-detail">
+            <strong>Consultation Fee:</strong> ₹${apt.consultationFee}
+          </div>
+          <div class="appointment-detail">
+            <strong>Symptoms:</strong> ${apt.symptoms}
+          </div>
+          <div class="appointment-detail">
+            <strong>Contact:</strong> ${apt.patientPhone}
+          </div>
+          ${apt.status === 'pending' ? `
+            <button class="cancel-appointment-btn" onclick="cancelAppointment('${apt.id}')">
+              ✕ Cancel Appointment
+            </button>
+          ` : apt.status === 'confirmed' && apt.cancelRequest !== 'requested' ? `
+            <button class="request-cancel-btn" onclick="requestCancellation('${apt.id}')">
+              📤 Request Cancellation
+            </button>
+          ` : apt.status === 'completed' || apt.status === 'cancelled' ? `
+            <button class="delete-appointment-btn" onclick="deleteAppointment('${apt.id}')">
+              🗑️ Delete Record
+            </button>
+          ` : ''}
+        </div>
+      `;
+    });
+    
+    appointmentsList.innerHTML = appointmentsHTML;
+    
+  } catch (error) {
+    console.error("Error loading appointments:", error);
+    appointmentsList.innerHTML = `<div class="no-appointments" style="color:#ef4444;">Error loading appointments: ${error.message}</div>`;
+  }
+}
+
+// Cancel Appointment
+window.cancelAppointment = async function(appointmentId) {
+  if (!confirm('Are you sure you want to cancel this appointment? This action cannot be undone.')) {
+    return;
+  }
+
+  try {
+    await deleteDoc(doc(db, "appointments", appointmentId));
+    alert('✓ Appointment cancelled successfully!');
+    
+    // Reload appointments list
+    showMyAppointments();
+  } catch (error) {
+    console.error("Error cancelling appointment:", error);
+    alert("Error: " + error.message);
+  }
+}
+
+// Request Cancellation for Confirmed Appointments
+window.requestCancellation = async function(appointmentId) {
+  if (!confirm('Send cancellation request to the doctor? The doctor will review and approve your request.')) {
+    return;
+  }
+
+  try {
+    const appointmentRef = doc(db, "appointments", appointmentId);
+    await updateDoc(appointmentRef, {
+      cancelRequest: "requested",
+      cancelRequestedAt: serverTimestamp()
+    });
+    
+    alert('✓ Cancellation request sent successfully!\nThe doctor will review your request.');
+    
+    // Reload appointments list
+    showMyAppointments();
+  } catch (error) {
+    console.error("Error requesting cancellation:", error);
+    alert("Error: " + error.message);
+  }
+}
+
+// Delete Completed/Cancelled Appointment
+window.deleteAppointment = async function(appointmentId) {
+  if (!confirm('Delete this appointment record? This action cannot be undone.')) {
+    return;
+  }
+
+  try {
+    await deleteDoc(doc(db, "appointments", appointmentId));
+    alert('✓ Appointment record deleted successfully!');
+    
+    // Reload appointments list
+    showMyAppointments();
+  } catch (error) {
+    console.error("Error deleting appointment:", error);
+    alert("Error: " + error.message);
+  }
+}
+
+// Close Appointments Modal
+window.closeAppointmentsModal = function() {
+  document.getElementById("appointmentsModal").style.display = "none";
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  const bookingModal = document.getElementById("bookingModal");
+  const appointmentsModal = document.getElementById("appointmentsModal");
+  
+  if (event.target === bookingModal) {
+    bookingModal.style.display = "none";
+  }
+  if (event.target === appointmentsModal) {
+    appointmentsModal.style.display = "none";
+  }
+}
+</script>
+
+</body>
+</html>

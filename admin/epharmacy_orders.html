@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Pharmacy Orders - Admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg1:#0f172a;
+    --glass: rgba(255,255,255,0.06);
+    --accent1: linear-gradient(135deg,#7c3aed,#6366f1);
+    --neon: #8b5cf6;
+    --muted: rgba(255,255,255,0.75);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:Inter, Poppins, "Segoe UI", Roboto, sans-serif;
+    background:
+      radial-gradient(1000px 500px at -10% 10%, rgba(124,58,237,0.12), transparent 10%),
+      radial-gradient(800px 400px at 110% 90%, rgba(99,102,241,0.08), transparent 10%),
+      linear-gradient(180deg,var(--bg1), #081024);
+    color:white;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    padding: 30px;
+    overflow-y: auto;
+  }
+
+  .back-btn {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #e6f0f6;
+    text-decoration: none;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+  }
+
+  .back-btn:hover {
+    color: #ffffff;
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    transform: translateX(-3px);
+  }
+
+  .top-right-buttons {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    display: flex;
+    gap: 12px;
+    z-index: 100;
+  }
+
+  .view-medicines-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  }
+
+  .view-medicines-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  }
+
+  .add-medicine-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  }
+
+  .add-medicine-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 20px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header h1 {
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #7c3aed, #6366f1, #a78bfa);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .stat-card {
+    background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(99,102,241,0.05));
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 25px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+  }
+
+  .stat-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .stat-card .number {
+    font-size: 32px;
+    font-weight: 800;
+    color: #7c3aed;
+  }
+
+  .filter-section {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-btn {
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .filter-btn.active {
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    border-color: #7c3aed;
+  }
+
+  .filter-btn:hover {
+    background: rgba(124,58,237,0.2);
+  }
+
+  .orders-grid {
+    display: grid;
+    gap: 20px;
+  }
+
+  .order-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 25px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  .order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(124,58,237,0.2);
+  }
+
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .order-info h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e0e7ff;
+    margin-bottom: 5px;
+  }
+
+  .order-info p {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 3px 0;
+  }
+
+  .order-status {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .status-pending {
+    background: rgba(234, 179, 8, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+  }
+
+  .status-confirmed {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+
+  .status-completed {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a78bfa;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+  }
+
+  .status-unavailable {
+    background: rgba(249, 115, 22, 0.2);
+    color: #fb923c;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+  }
+
+  .medicine-details {
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 15px 0;
+  }
+
+  .medicine-details h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #7c3aed;
+    margin-bottom: 10px;
+  }
+
+  .medicine-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .medicine-item:last-child {
+    border-bottom: none;
+  }
+
+  .medicine-name {
+    font-weight: 600;
+    color: #e0e7ff;
+  }
+
+  .medicine-qty {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .contact-link {
+    color: #7c3aed;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .contact-link:hover {
+    color: #a78bfa;
+    text-decoration: underline;
+  }
+
+  .order-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .confirm-btn {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+  }
+
+  .confirm-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(34, 197, 94, 0.4);
+  }
+
+  .complete-btn {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+  }
+
+  .complete-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
+  }
+
+  .not-available-btn {
+    background: rgba(234, 179, 8, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+  }
+
+  .not-available-btn:hover {
+    background: rgba(234, 179, 8, 0.3);
+  }
+
+  .no-orders {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+
+  .no-orders h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    overflow-y: auto;
+  }
+
+  .modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-content {
+    background: linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,41,59,0.98));
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .modal-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .close-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .close-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: rotate(90deg);
+  }
+
+  .medicines-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .medicine-card {
+    background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(99,102,241,0.05));
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .medicine-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(124,58,237,0.3);
+    box-shadow: 0 5px 20px rgba(124,58,237,0.2);
+  }
+
+  .medicine-card h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #a78bfa;
+    margin-bottom: 8px;
+  }
+
+  .medicine-info {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 5px 0;
+  }
+
+  .medicine-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #22c55e;
+    margin-top: 10px;
+  }
+
+  .prescription-badge {
+    display: inline-block;
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+
+  .search-box {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    margin-bottom: 20px;
+    outline: none;
+  }
+
+  .search-box:focus {
+    border-color: #7c3aed;
+    background: rgba(255,255,255,0.08);
+  }
+
+  .category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .category-btn {
+    padding: 8px 15px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .category-btn:hover, .category-btn.active {
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    border-color: transparent;
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .order-header {
+      flex-direction: column;
+    }
+    
+    .order-actions {
+      flex-direction: column;
+    }
+    
+    .action-btn {
+      width: 100%;
+    }
+
+    .medicines-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<a href="admin_dashboard.html" class="back-btn">← Back to Dashboard</a>
+
+<div class="top-right-buttons">
+  <button class="view-medicines-btn" onclick="openAvailableMedicines()">📋 Available Medicines</button>
+  <button class="add-medicine-btn" onclick="openAddMedicine()">+ Add Medicine</button>
+</div>
+
+<div class="container">
+  <div class="header">
+    <h1>💊 E-Pharmacy Orders</h1>
+    <p id="pharmacyName">Loading pharmacy info...</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Total Orders</h3>
+      <div class="number" id="totalOrders">0</div>
+    </div>
+    <div class="stat-card">
+      <h3>Pending</h3>
+      <div class="number" id="pendingOrders">0</div>
+    </div>
+    <div class="stat-card">
+      <h3>Confirmed</h3>
+      <div class="number" id="confirmedOrders">0</div>
+    </div>
+    <div class="stat-card">
+      <h3>Completed</h3>
+      <div class="number" id="completedOrders">0</div>
+    </div>
+    <div class="stat-card">
+      <h3>Unavailable</h3>
+      <div class="number" id="unavailableOrders" style="color: #fb923c;">0</div>
+    </div>
+  </div>
+
+  <div class="filter-section">
+    <span style="font-weight: 600; margin-right: 10px;">Filter:</span>
+    <button class="filter-btn active" data-filter="all">All Orders</button>
+    <button class="filter-btn" data-filter="pending">Pending</button>
+    <button class="filter-btn" data-filter="confirmed">Confirmed</button>
+    <button class="filter-btn" data-filter="completed">Completed</button>
+    <button class="filter-btn" data-filter="unavailable">Unavailable</button>
+  </div>
+
+  <div class="orders-grid" id="ordersContainer">
+    <div class="no-orders">
+      <h3>📦 No orders yet</h3>
+      <p>Orders will appear here when users request medicines</p>
+    </div>
+  </div>
+</div>
+
+<!-- Available Medicines Modal -->
+<div class="modal" id="medicinesModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>📋 Available Medicines</h2>
+      <button class="close-btn" onclick="closeMedicinesModal()">×</button>
+    </div>
+    
+    <input type="text" class="search-box" id="medicineSearch" placeholder="🔍 Search medicines...">
+    
+    <div class="category-filters" id="categoryFilters">
+      <button class="category-btn active" data-category="all">All</button>
+    </div>
+    
+    <div class="medicines-grid" id="medicinesGrid">
+      <div style="text-align: center; color: var(--muted); padding: 40px;">
+        Loading medicines...
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Medicine Modal -->
+<div class="modal" id="addMedicineModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>+ Add Medicine</h2>
+      <button class="close-btn" onclick="closeAddMedicineModal()">×</button>
+    </div>
+    
+    <form id="addMedicineForm" style="max-width: 500px; margin: 0 auto;">
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 14px; font-weight: 500;">Medicine Name</label>
+        <input type="text" id="medicineName" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 14px;">
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 14px; font-weight: 500;">Category</label>
+        <select id="medicineCategory" required style="width: 100%; padding: 12px; background: #1e293b !important; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: white !important; font-size: 14px; font-weight: 600; appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+          <option value="" style="background: #1e293b; color: white;">Select Category</option>
+          <option value="Pain Relief" style="background: #1e293b; color: white;">Pain Relief</option>
+          <option value="Antibiotic" style="background: #1e293b; color: white;">Antibiotic</option>
+          <option value="Vitamin" style="background: #1e293b; color: white;">Vitamin</option>
+          <option value="Supplement" style="background: #1e293b; color: white;">Supplement</option>
+          <option value="Antihistamine" style="background: #1e293b; color: white;">Antihistamine</option>
+          <option value="Cold & Flu" style="background: #1e293b; color: white;">Cold & Flu</option>
+          <option value="Digestive" style="background: #1e293b; color: white;">Digestive</option>
+          <option value="Diabetes" style="background: #1e293b; color: white;">Diabetes</option>
+          <option value="Cardiovascular" style="background: #1e293b; color: white;">Cardiovascular</option>
+          <option value="Skin Care" style="background: #1e293b; color: white;">Skin Care</option>
+          <option value="Respiratory" style="background: #1e293b; color: white;">Respiratory</option>
+          <option value="Mental Health" style="background: #1e293b; color: white;">Mental Health</option>
+          <option value="Women's Health" style="background: #1e293b; color: white;">Women's Health</option>
+          <option value="Emergency" style="background: #1e293b; color: white;">Emergency</option>
+          <option value="Other" style="background: #1e293b; color: white;">Other</option>
+        </select>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 14px; font-weight: 500;">Type</label>
+        <select id="medicineType" required style="width: 100%; padding: 12px; background: #1e293b !important; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: white !important; font-size: 14px; font-weight: 600; appearance: none; -webkit-appearance: none; -moz-appearance: none;">
+          <option value="" style="background: #1e293b; color: white;">Select Type</option>
+          <option value="Tablet" style="background: #1e293b; color: white;">Tablet</option>
+          <option value="Capsule" style="background: #1e293b; color: white;">Capsule</option>
+          <option value="Syrup" style="background: #1e293b; color: white;">Syrup</option>
+          <option value="Cream" style="background: #1e293b; color: white;">Cream</option>
+          <option value="Ointment" style="background: #1e293b; color: white;">Ointment</option>
+          <option value="Drops" style="background: #1e293b; color: white;">Drops</option>
+          <option value="Injection" style="background: #1e293b; color: white;">Injection</option>
+          <option value="Powder" style="background: #1e293b; color: white;">Powder</option>
+          <option value="Inhaler" style="background: #1e293b; color: white;">Inhaler</option>
+        </select>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 14px; font-weight: 500;">Price (₹)</label>
+        <input type="number" id="medicinePrice" step="0.01" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 14px;">
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; color: var(--muted); font-size: 14px; font-weight: 500;">Description</label>
+        <textarea id="medicineDescription" rows="3" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: white; font-size: 14px; resize: vertical;"></textarea>
+      </div>
+      
+      <div style="margin-bottom: 25px;">
+        <label style="display: flex; align-items: center; cursor: pointer;">
+          <input type="checkbox" id="requiresPrescription" style="width: 18px; height: 18px; accent-color: #7c3aed; margin-right: 10px;">
+          <span style="color: var(--muted); font-size: 14px;">Requires Prescription</span>
+        </label>
+      </div>
+      
+      <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #22c55e, #16a34a); border: none; border-radius: 10px; color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+        Add Medicine to Database
+      </button>
+      
+      <div id="addMedicineStatus" style="margin-top: 15px; text-align: center; font-size: 14px;"></div>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs, getDoc, updateDoc, doc, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentAdmin = null;
+let pharmacyData = null;
+let currentFilter = "all";
+let allOrders = [];
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    alert("Please login as admin first!");
+    window.location.href = "admin_login.html";
+  } else {
+    currentAdmin = user;
+    await checkRegistration(user.uid);
+  }
+});
+
+async function checkRegistration(uid) {
+  try {
+    const q = query(collection(db, "epharmacyregistration"), where("adminUid", "==", uid));
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) {
+      alert("You are not registered as an E-Pharmacy!\n\nPlease register first.");
+      window.location.href = "epharmacy_register.html";
+      return;
+    }
+    
+    pharmacyData = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+    document.getElementById("pharmacyName").textContent = pharmacyData.pharmacyName;
+    
+    loadOrders();
+  } catch (error) {
+    console.error("Error checking registration:", error);
+    alert("Error loading pharmacy data: " + error.message);
+  }
+}
+
+function loadOrders() {
+  const q = query(collection(db, "medicineorders"));
+  
+  onSnapshot(q, (snapshot) => {
+    allOrders = [];
+    snapshot.forEach(doc => {
+      const orderData = { id: doc.id, ...doc.data() };
+      
+      // SPECIAL CASE: Show ALL unavailable orders to everyone (for tracking purposes)
+      if (orderData.status === "unavailable") {
+        allOrders.push(orderData);
+        return;
+      }
+      
+      // NEW LOGIC:
+      // 1. If order has a specific pharmacyId (user selected a pharmacy)
+      if (orderData.pharmacyId) {
+        // Only show to the pharmacy that was selected by user
+        if (orderData.pharmacyId !== pharmacyData.id) {
+          return; // Not for this pharmacy
+        }
+      } else {
+        // 2. No specific pharmacy selected - show to ALL pharmacies
+        // But hide if this pharmacy marked it as not available
+        if (orderData.notAvailableFor && orderData.notAvailableFor.includes(pharmacyData.id)) {
+          return; // This pharmacy marked it unavailable, don't show
+        }
+      }
+      
+      // 3. Hide confirmed orders if confirmed by another pharmacy
+      if (orderData.status === "confirmed" && orderData.confirmedByPharmacyId && orderData.confirmedByPharmacyId !== pharmacyData.id) {
+        return; // Skip this order
+      }
+      
+      // 4. Hide completed orders if completed by another pharmacy
+      if (orderData.status === "completed" && orderData.confirmedByPharmacyId && orderData.confirmedByPharmacyId !== pharmacyData.id) {
+        return; // Skip this order
+      }
+      
+      allOrders.push(orderData);
+    });
+    
+    allOrders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+    
+    updateStats();
+    displayOrders();
+  });
+}
+
+function updateStats() {
+  const total = allOrders.length;
+  const pending = allOrders.filter(o => o.status === "pending").length;
+  const confirmed = allOrders.filter(o => o.status === "confirmed").length;
+  const completed = allOrders.filter(o => o.status === "completed").length;
+  
+  // Count unavailable orders that are less than 31 days old
+  const now = new Date();
+  const thirtyOneDaysAgo = new Date(now.getTime() - (31 * 24 * 60 * 60 * 1000));
+  
+  const unavailable = allOrders.filter(o => {
+    if (o.status !== "unavailable") return false;
+    
+    if (o.markedUnavailableAt) {
+      let unavailableDate;
+      if (o.markedUnavailableAt.seconds) {
+        unavailableDate = new Date(o.markedUnavailableAt.seconds * 1000);
+      } else if (o.markedUnavailableAt instanceof Date) {
+        unavailableDate = o.markedUnavailableAt;
+      } else {
+        unavailableDate = new Date(o.markedUnavailableAt);
+      }
+      return unavailableDate >= thirtyOneDaysAgo;
+    }
+    return true; // Include if no date (shouldn't happen)
+  }).length;
+  
+  document.getElementById("totalOrders").textContent = total;
+  document.getElementById("pendingOrders").textContent = pending;
+  document.getElementById("confirmedOrders").textContent = confirmed;
+  document.getElementById("completedOrders").textContent = completed;
+  
+  // Update unavailable count if element exists
+  const unavailableEl = document.getElementById("unavailableOrders");
+  if (unavailableEl) {
+    unavailableEl.textContent = unavailable;
+  }
+}
+
+function displayOrders() {
+  const container = document.getElementById("ordersContainer");
+  
+  let filteredOrders = allOrders;
+  if (currentFilter !== "all") {
+    filteredOrders = allOrders.filter(o => o.status === currentFilter);
+  }
+  
+  // Additional filter: Hide unavailable orders older than 31 days
+  if (currentFilter === "unavailable") {
+    const now = new Date();
+    const thirtyOneDaysAgo = new Date(now.getTime() - (31 * 24 * 60 * 60 * 1000));
+    
+    filteredOrders = filteredOrders.filter(order => {
+      if (order.markedUnavailableAt) {
+        // Check if markedUnavailableAt is a Firestore Timestamp or Date
+        let unavailableDate;
+        if (order.markedUnavailableAt.seconds) {
+          // Firestore Timestamp
+          unavailableDate = new Date(order.markedUnavailableAt.seconds * 1000);
+        } else if (order.markedUnavailableAt instanceof Date) {
+          unavailableDate = order.markedUnavailableAt;
+        } else {
+          // Try to parse as date string
+          unavailableDate = new Date(order.markedUnavailableAt);
+        }
+        
+        // Show only if less than 31 days old
+        return unavailableDate >= thirtyOneDaysAgo;
+      }
+      return true; // Show if no date (shouldn't happen, but safe fallback)
+    });
+  }
+  
+  if (filteredOrders.length === 0) {
+    container.innerHTML = `
+      <div class="no-orders">
+        <h3>📦 No ${currentFilter === "all" ? "" : currentFilter} orders</h3>
+        <p>Orders will appear here</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Add disclaimer banner for unavailable orders
+  let disclaimerBanner = "";
+  if (currentFilter === "unavailable") {
+    disclaimerBanner = `
+      <div style="background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(249, 115, 22, 0.1)); 
+                  border: 2px solid rgba(251, 146, 60, 0.3); 
+                  border-radius: 12px; 
+                  padding: 15px 20px; 
+                  margin-bottom: 25px;
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;">
+        <div style="font-size: 24px;">ℹ️</div>
+        <div>
+          <div style="font-weight: 600; color: #fb923c; font-size: 15px; margin-bottom: 5px;">
+            📅 Unavailable Orders Display Policy
+          </div>
+          <div style="color: rgba(255,255,255,0.85); font-size: 13px; line-height: 1.5;">
+            Orders shown below were marked as unavailable within the last <strong>31 days</strong>. 
+            Orders older than 31 days are automatically hidden to keep this list relevant and up-to-date.
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  container.innerHTML = disclaimerBanner + filteredOrders.map(order => createOrderCard(order)).join("");
+  
+  // Attach event listeners
+  document.querySelectorAll(".confirm-btn").forEach(btn => {
+    btn.addEventListener("click", () => confirmOrder(btn.dataset.id));
+  });
+  
+  document.querySelectorAll(".complete-btn").forEach(btn => {
+    btn.addEventListener("click", () => completeOrder(btn.dataset.id));
+  });
+  
+  document.querySelectorAll(".not-available-btn").forEach(btn => {
+    btn.addEventListener("click", () => markNotAvailable(btn.dataset.id));
+  });
+}
+
+function createOrderCard(order) {
+  const statusClass = `status-${order.status}`;
+  const date = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleString() : "N/A";
+  
+  const statusText = order.status === "unavailable" ? "❌ Not Available" : order.status;
+  
+  const medicines = order.medicines || [];
+  const medicinesList = medicines.map(med => `
+    <div class="medicine-item">
+      <span class="medicine-name">${med.name}</span>
+      <span class="medicine-qty">Qty: ${med.quantity || 1}</span>
+    </div>
+  `).join("");
+  
+  let actions = "";
+  let unavailableInfo = "";
+  
+  if (order.status === "pending") {
+    actions = `
+      <button class="action-btn confirm-btn" data-id="${order.id}">✓ Confirm Order</button>
+      <button class="action-btn not-available-btn" data-id="${order.id}">✗ Not Available</button>
+    `;
+  } else if (order.status === "confirmed") {
+    actions = `
+      <button class="action-btn complete-btn" data-id="${order.id}">✓ Mark as Completed</button>
+    `;
+  } else if (order.status === "unavailable") {
+    // Show unavailable message with details
+    if (order.pharmacyId) {
+      unavailableInfo = '<p style="color: #fb923c; font-size: 13px; margin: 10px 0; padding: 10px; background: rgba(249, 115, 22, 0.1); border-radius: 8px;">❌ Selected pharmacy marked this as unavailable</p>';
+    } else {
+      const unavailableCount = order.notAvailableFor ? order.notAvailableFor.length : 0;
+      unavailableInfo = `<p style="color: #fb923c; font-size: 13px; margin: 10px 0; padding: 10px; background: rgba(249, 115, 22, 0.1); border-radius: 8px;">❌ All pharmacies marked this as unavailable (${unavailableCount} pharmacies)</p>`;
+    }
+  }
+  
+  return `
+    <div class="order-card">
+      <div class="order-header">
+        <div class="order-info">
+          <h3>${order.userName || "Unknown User"}</h3>
+          <p>📍 ${order.place || ""}, ${order.district || ""}</p>
+          <p>📞 <a href="tel:${order.contact}" class="contact-link">${order.contact}</a></p>
+          ${order.village ? `<p>🏘️ ${order.village}</p>` : ""}
+          <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 5px;">${date}</p>
+        </div>
+        <div class="order-status ${statusClass}">${statusText}</div>
+      </div>
+      
+      <div class="medicine-details">
+        <h4>📋 Requested Medicines:</h4>
+        ${medicinesList}
+      </div>
+      
+      ${unavailableInfo}
+      ${order.prescriptionNote ? `<p style="color: #fbbf24; font-size: 13px; margin: 10px 0;">⚠️ ${order.prescriptionNote}</p>` : ""}
+      
+      <div class="order-actions">
+        ${actions}
+      </div>
+    </div>
+  `;
+}
+
+async function confirmOrder(orderId) {
+  if (!confirm("Confirm this order? The user will be notified.")) return;
+  
+  try {
+    await updateDoc(doc(db, "medicineorders", orderId), {
+      status: "confirmed",
+      confirmedBy: pharmacyData.pharmacyName,
+      confirmedByAdminUid: currentAdmin.uid,
+      confirmedByPharmacyId: pharmacyData.id,
+      confirmedAt: serverTimestamp()
+    });
+    alert("✅ Order confirmed!");
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Error: " + error.message);
+  }
+}
+
+async function completeOrder(orderId) {
+  if (!confirm("Mark this order as completed?")) return;
+  
+  try {
+    await updateDoc(doc(db, "medicineorders", orderId), {
+      status: "completed",
+      completedAt: serverTimestamp()
+    });
+    alert("✅ Order marked as completed!");
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Error: " + error.message);
+  }
+}
+
+async function markNotAvailable(orderId) {
+  if (!confirm("Mark this medicine as not available? This order will be hidden from your view.")) return;
+  
+  try {
+    const orderRef = doc(db, "medicineorders", orderId);
+    const orderSnap = await getDoc(orderRef);
+    const currentData = orderSnap.data();
+    
+    // Add this pharmacy ID to notAvailableFor array
+    const notAvailableFor = currentData.notAvailableFor || [];
+    if (!notAvailableFor.includes(pharmacyData.id)) {
+      notAvailableFor.push(pharmacyData.id);
+    }
+    
+    let updateData = { notAvailableFor: notAvailableFor };
+    
+    // Check if we should mark as unavailable
+    // Case 1: If order was for a specific pharmacy (user selected one)
+    if (currentData.pharmacyId) {
+      // If the selected pharmacy marks it unavailable, mark the whole order as unavailable
+      if (currentData.pharmacyId === pharmacyData.id) {
+        updateData.status = "unavailable";
+        updateData.markedUnavailableAt = serverTimestamp();
+        alert("✅ Order marked as UNAVAILABLE. User will be notified.");
+      }
+    } else {
+      // Case 2: Order was for ALL pharmacies (no specific pharmacy selected)
+      // Check total number of registered pharmacies
+      const allPharmaciesSnapshot = await getDocs(
+        query(collection(db, "epharmacyregistration"), 
+              where("status", "==", "active"))
+      );
+      const totalPharmacies = allPharmaciesSnapshot.size;
+      
+      // If ALL pharmacies marked as not available, set status to unavailable
+      if (notAvailableFor.length >= totalPharmacies && totalPharmacies > 0) {
+        updateData.status = "unavailable";
+        updateData.markedUnavailableAt = serverTimestamp();
+        alert("✅ This was the last pharmacy. Order marked as UNAVAILABLE for user.");
+      } else {
+        alert(`✅ Order hidden from your view. Still visible to ${totalPharmacies - notAvailableFor.length} other pharmacies.`);
+      }
+    }
+    
+    await updateDoc(orderRef, updateData);
+    
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Error: " + error.message);
+  }
+}
+
+// Filter buttons
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentFilter = btn.dataset.filter;
+    displayOrders();
+  });
+});
+
+// ========== MEDICINES MODAL FUNCTIONS ==========
+let allMedicines = [];
+let currentCategory = 'all';
+
+async function loadMedicines() {
+  try {
+    const medicinesSnapshot = await getDocs(collection(db, "tablets"));
+    allMedicines = [];
+    medicinesSnapshot.forEach(doc => {
+      allMedicines.push({ id: doc.id, ...doc.data() });
+    });
+    
+    // Get unique categories
+    const categories = [...new Set(allMedicines.map(m => m.category))].sort();
+    
+    // Populate category filters
+    const categoryFiltersEl = document.getElementById('categoryFilters');
+    categoryFiltersEl.innerHTML = '<button class="category-btn active" data-category="all">All</button>';
+    categories.forEach(cat => {
+      categoryFiltersEl.innerHTML += `<button class="category-btn" data-category="${cat}">${cat}</button>`;
+    });
+    
+    // Add event listeners to category buttons
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = btn.dataset.category;
+        displayMedicines();
+      });
+    });
+    
+    displayMedicines();
+  } catch (error) {
+    console.error("Error loading medicines:", error);
+    document.getElementById('medicinesGrid').innerHTML = '<div style="text-align: center; color: #f87171; padding: 40px;">Error loading medicines</div>';
+  }
+}
+
+function displayMedicines() {
+  const searchTerm = document.getElementById('medicineSearch').value.toLowerCase();
+  
+  let filtered = allMedicines;
+  
+  // Filter by category
+  if (currentCategory !== 'all') {
+    filtered = filtered.filter(m => m.category === currentCategory);
+  }
+  
+  // Filter by search term
+  if (searchTerm) {
+    filtered = filtered.filter(m => 
+      m.name.toLowerCase().includes(searchTerm) ||
+      m.category.toLowerCase().includes(searchTerm) ||
+      m.description?.toLowerCase().includes(searchTerm)
+    );
+  }
+  
+  const medicinesGrid = document.getElementById('medicinesGrid');
+  
+  if (filtered.length === 0) {
+    medicinesGrid.innerHTML = '<div style="text-align: center; color: var(--muted); padding: 40px;">No medicines found</div>';
+    return;
+  }
+  
+  medicinesGrid.innerHTML = filtered.map(medicine => `
+    <div class="medicine-card">
+      <h4>${medicine.name}</h4>
+      <div class="medicine-info">📦 ${medicine.type || 'N/A'}</div>
+      <div class="medicine-info">🏷️ ${medicine.category}</div>
+      ${medicine.description ? `<div class="medicine-info" style="margin-top: 8px; font-size: 12px;">${medicine.description}</div>` : ''}
+      <div class="medicine-price">₹${medicine.price?.toFixed(2) || '0.00'}</div>
+      ${medicine.requiresPrescription ? '<div class="prescription-badge">⚕️ Prescription Required</div>' : ''}
+    </div>
+  `).join('');
+}
+
+// Search functionality
+document.getElementById('medicineSearch').addEventListener('input', displayMedicines);
+
+window.openAvailableMedicines = function() {
+  document.getElementById('medicinesModal').classList.add('active');
+  if (allMedicines.length === 0) {
+    loadMedicines();
+  }
+}
+
+window.closeMedicinesModal = function() {
+  document.getElementById('medicinesModal').classList.remove('active');
+}
+
+// ========== ADD MEDICINE MODAL FUNCTIONS ==========
+window.openAddMedicine = function() {
+  document.getElementById('addMedicineModal').classList.add('active');
+}
+
+window.closeAddMedicineModal = function() {
+  document.getElementById('addMedicineModal').classList.remove('active');
+  document.getElementById('addMedicineForm').reset();
+  document.getElementById('addMedicineStatus').innerHTML = '';
+}
+
+// Handle add medicine form submission
+document.getElementById('addMedicineForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const statusEl = document.getElementById('addMedicineStatus');
+  statusEl.innerHTML = '<span style="color: #fbbf24;">⏳ Adding medicine...</span>';
+  
+  try {
+    const medicineData = {
+      name: document.getElementById('medicineName').value.trim(),
+      category: document.getElementById('medicineCategory').value,
+      type: document.getElementById('medicineType').value,
+      price: parseFloat(document.getElementById('medicinePrice').value),
+      description: document.getElementById('medicineDescription').value.trim(),
+      requiresPrescription: document.getElementById('requiresPrescription').checked,
+      addedBy: auth.currentUser.uid,
+      addedAt: new Date().toISOString()
+    };
+    
+    // Check if medicine already exists
+    const existingQuery = query(
+      collection(db, "tablets"),
+      where("name", "==", medicineData.name)
+    );
+    const existingDocs = await getDocs(existingQuery);
+    
+    if (!existingDocs.empty) {
+      statusEl.innerHTML = '<span style="color: #f87171;">❌ This medicine already exists in the database!</span>';
+      return;
+    }
+    
+    await addDoc(collection(db, "tablets"), medicineData);
+    
+    statusEl.innerHTML = '<span style="color: #22c55e;">✅ Medicine added successfully!</span>';
+    
+    // Reset form and reload medicines
+    setTimeout(() => {
+      closeAddMedicineModal();
+      allMedicines = []; // Force reload
+    }, 1500);
+    
+  } catch (error) {
+    console.error("Error adding medicine:", error);
+    statusEl.innerHTML = '<span style="color: #f87171;">❌ Error: ' + error.message + '</span>';
+  }
+});
+
+// Close modals when clicking outside
+document.querySelectorAll('.modal').forEach(modal => {
+  modal.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('active');
+    }
+  });
+});
+
+</script>
+
+</body>
+</html>

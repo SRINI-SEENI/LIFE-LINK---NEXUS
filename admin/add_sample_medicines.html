@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Add Sample Medicines - DO NOT DELETE</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #f5f5f5;
+  }
+  h1 {
+    color: #7c3aed;
+  }
+  #status {
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    margin-top: 20px;
+  }
+  .error {
+    color: #ef4444;
+  }
+  .success {
+    color: #22c55e;
+  }
+</style>
+</head>
+<body>
+<h1>📦 Add Sample Medicines to Database</h1>
+<p id="status">Checking authentication...</p>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const medicines = [
+  // Common Pain Relief & Fever (10 items)
+  { name: "Paracetamol 500mg", category: "Pain Relief", type: "Tablet", price: 2.50, requiresPrescription: false, description: "For fever and mild to moderate pain" },
+  { name: "Paracetamol 650mg", category: "Pain Relief", type: "Tablet", price: 3.00, requiresPrescription: false, description: "Stronger dose for fever and pain" },
+  { name: "Ibuprofen 400mg", category: "Pain Relief", type: "Tablet", price: 3.00, requiresPrescription: false, description: "Anti-inflammatory pain reliever" },
+  { name: "Aspirin 75mg", category: "Pain Relief", type: "Tablet", price: 2.00, requiresPrescription: false, description: "For pain relief and blood thinning" },
+  { name: "Dolo-650", category: "Pain Relief", type: "Tablet", price: 2.80, requiresPrescription: false, description: "For fever and body ache" },
+  { name: "Crocin Advance", category: "Pain Relief", type: "Tablet", price: 3.20, requiresPrescription: false, description: "Fast fever relief" },
+  { name: "Combiflam", category: "Pain Relief", type: "Tablet", price: 4.50, requiresPrescription: false, description: "Paracetamol + Ibuprofen combination" },
+  { name: "Saridon", category: "Pain Relief", type: "Tablet", price: 3.50, requiresPrescription: false, description: "For headache and body pain" },
+  { name: "Disprin", category: "Pain Relief", type: "Tablet", price: 2.50, requiresPrescription: false, description: "Soluble aspirin for quick relief" },
+  { name: "Brufen 400mg", category: "Pain Relief", type: "Tablet", price: 5.00, requiresPrescription: false, description: "For inflammation and pain" },
+  
+  // Antibiotics (8 items)
+  { name: "Amoxicillin 500mg", category: "Antibiotic", type: "Capsule", price: 8.50, requiresPrescription: true, description: "Broad-spectrum antibiotic" },
+  { name: "Azithromycin 250mg", category: "Antibiotic", type: "Tablet", price: 12.00, requiresPrescription: true, description: "For bacterial infections" },
+  { name: "Azithromycin 500mg", category: "Antibiotic", type: "Tablet", price: 15.00, requiresPrescription: true, description: "Higher dose for severe infections" },
+  { name: "Ciprofloxacin 500mg", category: "Antibiotic", type: "Tablet", price: 10.00, requiresPrescription: true, description: "Treats various bacterial infections" },
+  { name: "Cefixime 200mg", category: "Antibiotic", type: "Tablet", price: 11.00, requiresPrescription: true, description: "For respiratory tract infections" },
+  { name: "Augmentin 625mg", category: "Antibiotic", type: "Tablet", price: 14.00, requiresPrescription: true, description: "Amoxicillin + Clavulanic acid" },
+  { name: "Doxycycline 100mg", category: "Antibiotic", type: "Capsule", price: 9.00, requiresPrescription: true, description: "For skin and respiratory infections" },
+  { name: "Erythromycin 500mg", category: "Antibiotic", type: "Tablet", price: 10.50, requiresPrescription: true, description: "Alternative to penicillin" },
+  
+  // Vitamins & Supplements (10 items)
+  { name: "Vitamin C 500mg", category: "Vitamin", type: "Tablet", price: 4.00, requiresPrescription: false, description: "Immune system support" },
+  { name: "Vitamin C 1000mg", category: "Vitamin", type: "Tablet", price: 5.00, requiresPrescription: false, description: "High dose immune booster" },
+  { name: "Vitamin D3 60000 IU", category: "Vitamin", type: "Capsule", price: 6.50, requiresPrescription: false, description: "Bone health support" },
+  { name: "Vitamin B-Complex", category: "Vitamin", type: "Tablet", price: 5.50, requiresPrescription: false, description: "Energy and metabolism support" },
+  { name: "Multivitamin", category: "Vitamin", type: "Tablet", price: 8.00, requiresPrescription: false, description: "Complete daily nutrition" },
+  { name: "Calcium 500mg", category: "Supplement", type: "Tablet", price: 4.50, requiresPrescription: false, description: "For bone strength" },
+  { name: "Iron Tablets (Folic Acid)", category: "Supplement", type: "Tablet", price: 5.00, requiresPrescription: false, description: "For anemia" },
+  { name: "Omega-3 Fish Oil", category: "Supplement", type: "Capsule", price: 12.00, requiresPrescription: false, description: "Heart health support" },
+  { name: "Zinc 50mg", category: "Supplement", type: "Tablet", price: 6.00, requiresPrescription: false, description: "Immune support and healing" },
+  { name: "Protein Powder", category: "Supplement", type: "Powder", price: 45.00, requiresPrescription: false, description: "Muscle building supplement" },
+  
+  // Cold, Flu & Allergies (8 items)
+  { name: "Cetirizine 10mg", category: "Antihistamine", type: "Tablet", price: 3.50, requiresPrescription: false, description: "For allergies and cold symptoms" },
+  { name: "Levocetirizine 5mg", category: "Antihistamine", type: "Tablet", price: 4.00, requiresPrescription: false, description: "Non-drowsy allergy relief" },
+  { name: "Montelukast 10mg", category: "Antihistamine", type: "Tablet", price: 7.00, requiresPrescription: false, description: "For allergic rhinitis" },
+  { name: "Allegra 120mg", category: "Antihistamine", type: "Tablet", price: 8.50, requiresPrescription: false, description: "24-hour allergy relief" },
+  { name: "Sinarest Tablet", category: "Cold & Flu", type: "Tablet", price: 3.00, requiresPrescription: false, description: "For cold and sinus relief" },
+  { name: "Vicks Action 500", category: "Cold & Flu", type: "Tablet", price: 4.00, requiresPrescription: false, description: "For cold and flu symptoms" },
+  { name: "D-Cold Total", category: "Cold & Flu", type: "Tablet", price: 3.50, requiresPrescription: false, description: "Multi-symptom cold relief" },
+  { name: "Cheston Cold Tablet", category: "Cold & Flu", type: "Tablet", price: 5.00, requiresPrescription: false, description: "For cold, cough and fever" },
+  
+  // Digestive & Stomach (9 items)
+  { name: "Omeprazole 20mg", category: "Digestive", type: "Capsule", price: 5.50, requiresPrescription: false, description: "For acidity and GERD" },
+  { name: "Pantoprazole 40mg", category: "Digestive", type: "Tablet", price: 6.00, requiresPrescription: false, description: "Reduces stomach acid" },
+  { name: "Ranitidine 150mg", category: "Digestive", type: "Tablet", price: 4.00, requiresPrescription: false, description: "For heartburn relief" },
+  { name: "Gelusil Antacid", category: "Digestive", type: "Tablet", price: 2.50, requiresPrescription: false, description: "Quick acidity relief" },
+  { name: "Digene Tablet", category: "Digestive", type: "Tablet", price: 2.00, requiresPrescription: false, description: "For gas and acidity" },
+  { name: "ENO Fruit Salt", category: "Digestive", type: "Powder", price: 3.50, requiresPrescription: false, description: "Instant acidity relief" },
+  { name: "Pudin Hara", category: "Digestive", type: "Capsule", price: 4.50, requiresPrescription: false, description: "For indigestion and gas" },
+  { name: "Cyclopam Tablet", category: "Digestive", type: "Tablet", price: 6.00, requiresPrescription: false, description: "For stomach cramps" },
+  { name: "Loperamide 2mg", category: "Digestive", type: "Tablet", price: 5.00, requiresPrescription: false, description: "For diarrhea" },
+  
+  // Syrups & Tonics (7 items)
+  { name: "Benadryl Cough Syrup", category: "Cold & Flu", type: "Syrup", price: 7.00, requiresPrescription: false, description: "Relieves cough and throat irritation" },
+  { name: "Ascoril Cough Syrup", category: "Cold & Flu", type: "Syrup", price: 8.50, requiresPrescription: false, description: "For dry and wet cough" },
+  { name: "Chericof Syrup", category: "Cold & Flu", type: "Syrup", price: 6.50, requiresPrescription: false, description: "Cough and cold relief" },
+  { name: "Multivitamin Syrup", category: "Vitamin", type: "Syrup", price: 9.50, requiresPrescription: false, description: "For children and adults" },
+  { name: "Zincovit Syrup", category: "Vitamin", type: "Syrup", price: 11.00, requiresPrescription: false, description: "Multivitamin with zinc" },
+  { name: "Liv 52 Syrup", category: "Supplement", type: "Syrup", price: 12.00, requiresPrescription: false, description: "Liver health tonic" },
+  { name: "Mucaine Gel", category: "Digestive", type: "Syrup", price: 8.00, requiresPrescription: false, description: "For acidity and ulcers" },
+  
+  // Diabetes (5 items)
+  { name: "Metformin 500mg", category: "Diabetes", type: "Tablet", price: 5.00, requiresPrescription: true, description: "For type 2 diabetes" },
+  { name: "Metformin 850mg", category: "Diabetes", type: "Tablet", price: 6.50, requiresPrescription: true, description: "Higher dose for diabetes" },
+  { name: "Glimepiride 1mg", category: "Diabetes", type: "Tablet", price: 6.50, requiresPrescription: true, description: "Blood sugar control" },
+  { name: "Glimepiride 2mg", category: "Diabetes", type: "Tablet", price: 8.00, requiresPrescription: true, description: "Higher dose for sugar control" },
+  { name: "Januvia 100mg", category: "Diabetes", type: "Tablet", price: 25.00, requiresPrescription: true, description: "Advanced diabetes medication" },
+  
+  // Blood Pressure & Heart (6 items)
+  { name: "Amlodipine 5mg", category: "Cardiovascular", type: "Tablet", price: 4.50, requiresPrescription: true, description: "For high blood pressure" },
+  { name: "Amlodipine 10mg", category: "Cardiovascular", type: "Tablet", price: 6.00, requiresPrescription: true, description: "Higher dose for hypertension" },
+  { name: "Atenolol 50mg", category: "Cardiovascular", type: "Tablet", price: 5.50, requiresPrescription: true, description: "Beta blocker for hypertension" },
+  { name: "Telmisartan 40mg", category: "Cardiovascular", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For blood pressure control" },
+  { name: "Clopidogrel 75mg", category: "Cardiovascular", type: "Tablet", price: 10.00, requiresPrescription: true, description: "Blood thinner" },
+  { name: "Ecosprin 75mg", category: "Cardiovascular", type: "Tablet", price: 3.50, requiresPrescription: false, description: "Low-dose aspirin for heart" },
+  
+  // Skin Care & Antifungal (6 items)
+  { name: "Betnovate Cream", category: "Skin Care", type: "Cream", price: 8.00, requiresPrescription: false, description: "For skin inflammation" },
+  { name: "Clotrimazole Cream", category: "Antifungal", type: "Cream", price: 7.50, requiresPrescription: false, description: "For fungal infections" },
+  { name: "Candid Cream", category: "Antifungal", type: "Cream", price: 6.50, requiresPrescription: false, description: "For skin fungal infections" },
+  { name: "Boroline Cream", category: "Skin Care", type: "Cream", price: 4.00, requiresPrescription: false, description: "Antiseptic skin cream" },
+  { name: "Soframycin Cream", category: "Skin Care", type: "Cream", price: 5.50, requiresPrescription: false, description: "For cuts and wounds" },
+  { name: "Lacto Calamine Lotion", category: "Skin Care", type: "Lotion", price: 7.00, requiresPrescription: false, description: "For skin irritation" },
+  
+  // Eye & Ear Care (4 items)
+  { name: "Refresh Tears Eye Drops", category: "Eye Care", type: "Drops", price: 10.00, requiresPrescription: false, description: "For dry eyes" },
+  { name: "Moxifloxacin Eye Drops", category: "Eye Care", type: "Drops", price: 12.00, requiresPrescription: true, description: "For eye infections" },
+  { name: "Otorex Ear Drops", category: "Ear Care", type: "Drops", price: 8.50, requiresPrescription: false, description: "For ear wax removal" },
+  { name: "Ciplox Eye/Ear Drops", category: "Eye Care", type: "Drops", price: 9.00, requiresPrescription: false, description: "For infections" },
+  
+  // Other Common Medicines (4 items)
+  { name: "Tramadol 50mg", category: "Pain Relief", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For moderate to severe pain" },
+  { name: "Domperidone 10mg", category: "Digestive", type: "Tablet", price: 4.50, requiresPrescription: false, description: "For nausea and vomiting" },
+  { name: "Levothyroxine 50mcg", category: "Thyroid", type: "Tablet", price: 6.00, requiresPrescription: true, description: "For hypothyroidism" },
+  { name: "Prednisolone 5mg", category: "Steroid", type: "Tablet", price: 5.50, requiresPrescription: true, description: "Anti-inflammatory steroid" },
+  
+  // Additional Pain Relief & NSAIDs (8 items)
+  { name: "Diclofenac 50mg", category: "Pain Relief", type: "Tablet", price: 3.50, requiresPrescription: false, description: "For joint and muscle pain" },
+  { name: "Aceclofenac 100mg", category: "Pain Relief", type: "Tablet", price: 4.00, requiresPrescription: false, description: "For arthritis pain" },
+  { name: "Naproxen 250mg", category: "Pain Relief", type: "Tablet", price: 5.00, requiresPrescription: false, description: "For inflammation and pain" },
+  { name: "Nimesulide 100mg", category: "Pain Relief", type: "Tablet", price: 3.50, requiresPrescription: false, description: "Fast pain relief" },
+  { name: "Ketorolac 10mg", category: "Pain Relief", type: "Tablet", price: 6.00, requiresPrescription: true, description: "Strong pain reliever" },
+  { name: "Mefenamic Acid 250mg", category: "Pain Relief", type: "Tablet", price: 4.50, requiresPrescription: false, description: "For period pain" },
+  { name: "Etoricoxib 90mg", category: "Pain Relief", type: "Tablet", price: 7.00, requiresPrescription: true, description: "For arthritis and gout" },
+  { name: "Piroxicam 20mg", category: "Pain Relief", type: "Tablet", price: 5.50, requiresPrescription: false, description: "Long-acting pain relief" },
+  
+  // More Antibiotics & Antimicrobials (7 items)
+  { name: "Levofloxacin 500mg", category: "Antibiotic", type: "Tablet", price: 13.00, requiresPrescription: true, description: "For respiratory infections" },
+  { name: "Ofloxacin 200mg", category: "Antibiotic", type: "Tablet", price: 9.00, requiresPrescription: true, description: "For urinary tract infections" },
+  { name: "Cephalexin 500mg", category: "Antibiotic", type: "Capsule", price: 10.00, requiresPrescription: true, description: "For bacterial infections" },
+  { name: "Metronidazole 400mg", category: "Antibiotic", type: "Tablet", price: 6.00, requiresPrescription: true, description: "For bacterial and parasitic infections" },
+  { name: "Norfloxacin 400mg", category: "Antibiotic", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For UTI and diarrhea" },
+  { name: "Cotrimoxazole 480mg", category: "Antibiotic", type: "Tablet", price: 7.00, requiresPrescription: true, description: "For various infections" },
+  { name: "Clarithromycin 500mg", category: "Antibiotic", type: "Tablet", price: 15.00, requiresPrescription: true, description: "For chest infections" },
+  
+  // Respiratory & Asthma (6 items)
+  { name: "Salbutamol 4mg", category: "Respiratory", type: "Tablet", price: 4.00, requiresPrescription: false, description: "For asthma relief" },
+  { name: "Deriphyllin", category: "Respiratory", type: "Tablet", price: 5.50, requiresPrescription: false, description: "For breathing difficulties" },
+  { name: "Montelukast 10mg", category: "Respiratory", type: "Tablet", price: 7.00, requiresPrescription: false, description: "For asthma prevention" },
+  { name: "Levosalbutamol Syrup", category: "Respiratory", type: "Syrup", price: 8.00, requiresPrescription: false, description: "For children's asthma" },
+  { name: "Budesonide Inhaler", category: "Respiratory", type: "Inhaler", price: 25.00, requiresPrescription: true, description: "For asthma control" },
+  { name: "Ambroxol 30mg", category: "Respiratory", type: "Tablet", price: 3.50, requiresPrescription: false, description: "Mucus thinner" },
+  
+  // More Digestive & GI (8 items)
+  { name: "Esomeprazole 40mg", category: "Digestive", type: "Capsule", price: 7.00, requiresPrescription: false, description: "For severe acidity" },
+  { name: "Lansoprazole 30mg", category: "Digestive", type: "Capsule", price: 6.50, requiresPrescription: false, description: "For GERD" },
+  { name: "Rabeprazole 20mg", category: "Digestive", type: "Tablet", price: 5.50, requiresPrescription: false, description: "For peptic ulcer" },
+  { name: "Sucralfate Suspension", category: "Digestive", type: "Syrup", price: 9.00, requiresPrescription: false, description: "For stomach ulcers" },
+  { name: "Ondansetron 4mg", category: "Digestive", type: "Tablet", price: 5.00, requiresPrescription: false, description: "For severe nausea" },
+  { name: "Bisacodyl 5mg", category: "Digestive", type: "Tablet", price: 3.00, requiresPrescription: false, description: "For constipation" },
+  { name: "Isabgol Husk", category: "Digestive", type: "Powder", price: 8.00, requiresPrescription: false, description: "Natural fiber for digestion" },
+  { name: "Activated Charcoal", category: "Digestive", type: "Tablet", price: 4.50, requiresPrescription: false, description: "For gas and bloating" },
+  
+  // Mental Health & Sleep (5 items)
+  { name: "Alprazolam 0.5mg", category: "Mental Health", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For anxiety" },
+  { name: "Clonazepam 0.5mg", category: "Mental Health", type: "Tablet", price: 7.00, requiresPrescription: true, description: "For anxiety and seizures" },
+  { name: "Escitalopram 10mg", category: "Mental Health", type: "Tablet", price: 12.00, requiresPrescription: true, description: "For depression" },
+  { name: "Zolpidem 10mg", category: "Mental Health", type: "Tablet", price: 10.00, requiresPrescription: true, description: "For insomnia" },
+  { name: "Melatonin 3mg", category: "Supplement", type: "Tablet", price: 8.00, requiresPrescription: false, description: "Natural sleep aid" },
+  
+  // Women's Health (6 items)
+  { name: "Meprate 10mg", category: "Women's Health", type: "Tablet", price: 12.00, requiresPrescription: true, description: "Progesterone supplement" },
+  { name: "Folic Acid 5mg", category: "Women's Health", type: "Tablet", price: 3.00, requiresPrescription: false, description: "For pregnancy" },
+  { name: "Duphaston 10mg", category: "Women's Health", type: "Tablet", price: 15.00, requiresPrescription: true, description: "Hormone therapy" },
+  { name: "Tranexamic Acid 500mg", category: "Women's Health", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For heavy bleeding" },
+  { name: "Clomiphene 50mg", category: "Women's Health", type: "Tablet", price: 18.00, requiresPrescription: true, description: "For fertility" },
+  { name: "Iron + Folic Acid", category: "Women's Health", type: "Tablet", price: 4.00, requiresPrescription: false, description: "For anemia in pregnancy" },
+  
+  // More Vitamins & Minerals (6 items)
+  { name: "Vitamin E 400 IU", category: "Vitamin", type: "Capsule", price: 6.00, requiresPrescription: false, description: "Antioxidant supplement" },
+  { name: "Vitamin B12 1000mcg", category: "Vitamin", type: "Tablet", price: 7.00, requiresPrescription: false, description: "For nerve health" },
+  { name: "Magnesium 250mg", category: "Supplement", type: "Tablet", price: 5.50, requiresPrescription: false, description: "For muscle and nerve function" },
+  { name: "Potassium Chloride", category: "Supplement", type: "Tablet", price: 4.00, requiresPrescription: false, description: "Electrolyte balance" },
+  { name: "Biotin 10mg", category: "Vitamin", type: "Tablet", price: 9.00, requiresPrescription: false, description: "For hair and nail health" },
+  { name: "Coenzyme Q10", category: "Supplement", type: "Capsule", price: 15.00, requiresPrescription: false, description: "Heart health supplement" },
+  
+  // Pediatric Medicines (5 items)
+  { name: "Paracetamol Drops", category: "Pain Relief", type: "Drops", price: 4.50, requiresPrescription: false, description: "For infant fever" },
+  { name: "Gripe Water", category: "Digestive", type: "Syrup", price: 5.00, requiresPrescription: false, description: "For infant colic" },
+  { name: "ORS (Oral Rehydration)", category: "Supplement", type: "Powder", price: 2.00, requiresPrescription: false, description: "For dehydration" },
+  { name: "Zinc Drops", category: "Supplement", type: "Drops", price: 6.00, requiresPrescription: false, description: "For child immunity" },
+  { name: "Vitamin D Drops", category: "Vitamin", type: "Drops", price: 8.00, requiresPrescription: false, description: "For infant bone health" },
+  
+  // More Skin & Wound Care (5 items)
+  { name: "Fusidic Acid Cream", category: "Skin Care", type: "Cream", price: 9.00, requiresPrescription: false, description: "For bacterial skin infections" },
+  { name: "Mupirocin Ointment", category: "Skin Care", type: "Ointment", price: 10.00, requiresPrescription: false, description: "For skin infections" },
+  { name: "Hydrocortisone Cream", category: "Skin Care", type: "Cream", price: 6.50, requiresPrescription: false, description: "For skin irritation" },
+  { name: "Povidone Iodine", category: "Skin Care", type: "Ointment", price: 5.00, requiresPrescription: false, description: "Antiseptic for wounds" },
+  { name: "Silver Sulfadiazine Cream", category: "Skin Care", type: "Cream", price: 11.00, requiresPrescription: false, description: "For burns" },
+  
+  // More Cardiovascular (4 items)
+  { name: "Rosuvastatin 10mg", category: "Cardiovascular", type: "Tablet", price: 12.00, requiresPrescription: true, description: "For high cholesterol" },
+  { name: "Atorvastatin 20mg", category: "Cardiovascular", type: "Tablet", price: 10.00, requiresPrescription: true, description: "Cholesterol medication" },
+  { name: "Ramipril 5mg", category: "Cardiovascular", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For blood pressure" },
+  { name: "Losartan 50mg", category: "Cardiovascular", type: "Tablet", price: 9.00, requiresPrescription: true, description: "For hypertension" },
+  
+  // Emergency & First Aid (2 items)
+  { name: "Adrenaline Injection", category: "Emergency", type: "Injection", price: 35.00, requiresPrescription: true, description: "For severe allergic reactions" },
+  { name: "Dextrose Powder", category: "Emergency", type: "Powder", price: 3.00, requiresPrescription: false, description: "For low blood sugar" },
+  
+  // ========== ADDITIONAL 300+ MEDICINES ==========
+  
+  // More Pain Relief & Anti-inflammatory (25 items)
+  { name: "Aspirin 75mg", category: "Pain Relief", type: "Tablet", price: 2.50, requiresPrescription: false, description: "Low dose aspirin for heart protection" },
+  { name: "Aspirin 325mg", category: "Pain Relief", type: "Tablet", price: 3.00, requiresPrescription: false, description: "For pain and fever" },
+  { name: "Celecoxib 200mg", category: "Pain Relief", type: "Capsule", price: 12.00, requiresPrescription: true, description: "For arthritis pain" },
+  { name: "Indomethacin 25mg", category: "Pain Relief", type: "Capsule", price: 8.00, requiresPrescription: true, description: "For severe inflammation" },
+  { name: "Meloxicam 7.5mg", category: "Pain Relief", type: "Tablet", price: 6.50, requiresPrescription: true, description: "For arthritis" },
+  { name: "Meloxicam 15mg", category: "Pain Relief", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For severe arthritis" },
+  { name: "Paracetamol 125mg Syrup", category: "Pain Relief", type: "Syrup", price: 4.50, requiresPrescription: false, description: "For children's fever" },
+  { name: "Ibuprofen 200mg Syrup", category: "Pain Relief", type: "Syrup", price: 5.00, requiresPrescription: false, description: "Children's pain relief" },
+  { name: "Diclofenac Gel", category: "Pain Relief", type: "Gel", price: 7.50, requiresPrescription: false, description: "Topical pain relief" },
+  { name: "Ibuprofen Gel", category: "Pain Relief", type: "Gel", price: 6.00, requiresPrescription: false, description: "For muscle pain" },
+  { name: "Capsaicin Cream", category: "Pain Relief", type: "Cream", price: 9.00, requiresPrescription: false, description: "For nerve pain" },
+  { name: "Methyl Salicylate Ointment", category: "Pain Relief", type: "Ointment", price: 5.50, requiresPrescription: false, description: "For muscle aches" },
+  { name: "Menthol Pain Relief Balm", category: "Pain Relief", type: "Balm", price: 4.00, requiresPrescription: false, description: "Cooling pain relief" },
+  { name: "Lidocaine Patch", category: "Pain Relief", type: "Patch", price: 15.00, requiresPrescription: true, description: "For localized pain" },
+  { name: "Fentanyl Patch 25mcg", category: "Pain Relief", type: "Patch", price: 45.00, requiresPrescription: true, description: "For severe chronic pain" },
+  { name: "Morphine 10mg", category: "Pain Relief", type: "Tablet", price: 20.00, requiresPrescription: true, description: "For severe pain" },
+  { name: "Codeine 30mg", category: "Pain Relief", type: "Tablet", price: 12.00, requiresPrescription: true, description: "For moderate pain" },
+  { name: "Tapentadol 50mg", category: "Pain Relief", type: "Tablet", price: 18.00, requiresPrescription: true, description: "For severe pain" },
+  { name: "Oxycodone 5mg", category: "Pain Relief", type: "Tablet", price: 25.00, requiresPrescription: true, description: "Strong pain reliever" },
+  { name: "Hydrocodone 5mg", category: "Pain Relief", type: "Tablet", price: 22.00, requiresPrescription: true, description: "For severe pain" },
+  { name: "Acetaminophen 500mg + Codeine", category: "Pain Relief", type: "Tablet", price: 14.00, requiresPrescription: true, description: "Combination pain reliever" },
+  { name: "Tramadol + Paracetamol", category: "Pain Relief", type: "Tablet", price: 10.00, requiresPrescription: true, description: "Dual action pain relief" },
+  { name: "Colchicine 0.5mg", category: "Pain Relief", type: "Tablet", price: 9.00, requiresPrescription: true, description: "For gout attacks" },
+  { name: "Allopurinol 100mg", category: "Pain Relief", type: "Tablet", price: 5.50, requiresPrescription: true, description: "Prevents gout" },
+  { name: "Febuxostat 40mg", category: "Pain Relief", type: "Tablet", price: 11.00, requiresPrescription: true, description: "For chronic gout" },
+  
+  // More Antibiotics (30 items)
+  { name: "Penicillin V 500mg", category: "Antibiotic", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For bacterial infections" },
+  { name: "Ampicillin 500mg", category: "Antibiotic", type: "Capsule", price: 9.00, requiresPrescription: true, description: "Broad spectrum antibiotic" },
+  { name: "Cloxacillin 500mg", category: "Antibiotic", type: "Capsule", price: 10.00, requiresPrescription: true, description: "For skin infections" },
+  { name: "Flucloxacillin 250mg", category: "Antibiotic", type: "Capsule", price: 11.00, requiresPrescription: true, description: "For staph infections" },
+  { name: "Cefadroxil 500mg", category: "Antibiotic", type: "Capsule", price: 12.00, requiresPrescription: true, description: "For UTI and skin infections" },
+  { name: "Cefuroxime 250mg", category: "Antibiotic", type: "Tablet", price: 14.00, requiresPrescription: true, description: "For respiratory infections" },
+  { name: "Cefpodoxime 200mg", category: "Antibiotic", type: "Tablet", price: 13.00, requiresPrescription: true, description: "For various infections" },
+  { name: "Ceftriaxone Injection 1g", category: "Antibiotic", type: "Injection", price: 25.00, requiresPrescription: true, description: "For severe infections" },
+  { name: "Cefotaxime Injection 1g", category: "Antibiotic", type: "Injection", price: 24.00, requiresPrescription: true, description: "For hospital infections" },
+  { name: "Gentamicin Injection", category: "Antibiotic", type: "Injection", price: 18.00, requiresPrescription: true, description: "For serious infections" },
+  { name: "Amikacin Injection", category: "Antibiotic", type: "Injection", price: 22.00, requiresPrescription: true, description: "For resistant infections" },
+  { name: "Vancomycin Injection", category: "Antibiotic", type: "Injection", price: 45.00, requiresPrescription: true, description: "For MRSA infections" },
+  { name: "Linezolid 600mg", category: "Antibiotic", type: "Tablet", price: 35.00, requiresPrescription: true, description: "For resistant bacteria" },
+  { name: "Meropenem Injection", category: "Antibiotic", type: "Injection", price: 55.00, requiresPrescription: true, description: "For severe infections" },
+  { name: "Imipenem Injection", category: "Antibiotic", type: "Injection", price: 50.00, requiresPrescription: true, description: "Broad spectrum IV antibiotic" },
+  { name: "Tigecycline Injection", category: "Antibiotic", type: "Injection", price: 60.00, requiresPrescription: true, description: "For complicated infections" },
+  { name: "Moxifloxacin 400mg", category: "Antibiotic", type: "Tablet", price: 18.00, requiresPrescription: true, description: "For respiratory infections" },
+  { name: "Gemifloxacin 320mg", category: "Antibiotic", type: "Tablet", price: 16.00, requiresPrescription: true, description: "For pneumonia" },
+  { name: "Sparfloxacin 200mg", category: "Antibiotic", type: "Tablet", price: 15.00, requiresPrescription: true, description: "For respiratory infections" },
+  { name: "Rifampicin 450mg", category: "Antibiotic", type: "Capsule", price: 12.00, requiresPrescription: true, description: "For tuberculosis" },
+  { name: "Isoniazid 300mg", category: "Antibiotic", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For TB treatment" },
+  { name: "Ethambutol 800mg", category: "Antibiotic", type: "Tablet", price: 10.00, requiresPrescription: true, description: "For tuberculosis" },
+  { name: "Pyrazinamide 500mg", category: "Antibiotic", type: "Tablet", price: 9.00, requiresPrescription: true, description: "For TB treatment" },
+  { name: "Clindamycin 300mg", category: "Antibiotic", type: "Capsule", price: 14.00, requiresPrescription: true, description: "For dental infections" },
+  { name: "Clindamycin Gel", category: "Antibiotic", type: "Gel", price: 12.00, requiresPrescription: false, description: "For acne" },
+  { name: "Mupirocin Nasal Ointment", category: "Antibiotic", type: "Ointment", price: 11.00, requiresPrescription: true, description: "For MRSA decolonization" },
+  { name: "Neomycin + Polymyxin Ointment", category: "Antibiotic", type: "Ointment", price: 6.00, requiresPrescription: false, description: "For minor cuts" },
+  { name: "Bacitracin Ointment", category: "Antibiotic", type: "Ointment", price: 5.50, requiresPrescription: false, description: "For wound care" },
+  { name: "Tetracycline 250mg", category: "Antibiotic", type: "Capsule", price: 7.00, requiresPrescription: true, description: "For various infections" },
+  { name: "Minocycline 100mg", category: "Antibiotic", type: "Capsule", price: 15.00, requiresPrescription: true, description: "For acne and infections" },
+  
+  // Antiviral Medications (15 items)
+  { name: "Acyclovir 400mg", category: "Antiviral", type: "Tablet", price: 12.00, requiresPrescription: true, description: "For herpes infections" },
+  { name: "Acyclovir Cream", category: "Antiviral", type: "Cream", price: 10.00, requiresPrescription: false, description: "For cold sores" },
+  { name: "Valacyclovir 500mg", category: "Antiviral", type: "Tablet", price: 18.00, requiresPrescription: true, description: "For herpes and shingles" },
+  { name: "Famciclovir 250mg", category: "Antiviral", type: "Tablet", price: 20.00, requiresPrescription: true, description: "For herpes zoster" },
+  { name: "Oseltamivir 75mg", category: "Antiviral", type: "Capsule", price: 25.00, requiresPrescription: true, description: "For influenza" },
+  { name: "Zanamivir Inhaler", category: "Antiviral", type: "Inhaler", price: 30.00, requiresPrescription: true, description: "For flu treatment" },
+  { name: "Remdesivir Injection", category: "Antiviral", type: "Injection", price: 350.00, requiresPrescription: true, description: "For COVID-19" },
+  { name: "Molnupiravir 200mg", category: "Antiviral", type: "Capsule", price: 40.00, requiresPrescription: true, description: "For COVID-19" },
+  { name: "Favipiravir 200mg", category: "Antiviral", type: "Tablet", price: 35.00, requiresPrescription: true, description: "For viral infections" },
+  { name: "Ribavirin 200mg", category: "Antiviral", type: "Capsule", price: 45.00, requiresPrescription: true, description: "For hepatitis C" },
+  { name: "Tenofovir 300mg", category: "Antiviral", type: "Tablet", price: 28.00, requiresPrescription: true, description: "For HIV and hepatitis B" },
+  { name: "Lamivudine 150mg", category: "Antiviral", type: "Tablet", price: 15.00, requiresPrescription: true, description: "For HIV and hepatitis" },
+  { name: "Efavirenz 600mg", category: "Antiviral", type: "Tablet", price: 32.00, requiresPrescription: true, description: "For HIV treatment" },
+  { name: "Zidovudine 300mg", category: "Antiviral", type: "Capsule", price: 25.00, requiresPrescription: true, description: "For HIV infection" },
+  { name: "Atazanavir 300mg", category: "Antiviral", type: "Capsule", price: 38.00, requiresPrescription: true, description: "For HIV treatment" },
+  
+  // Antifungal Medications (12 items)
+  { name: "Fluconazole 150mg", category: "Antifungal", type: "Capsule", price: 8.00, requiresPrescription: false, description: "For yeast infections" },
+  { name: "Fluconazole 200mg", category: "Antifungal", type: "Tablet", price: 10.00, requiresPrescription: true, description: "For fungal infections" },
+  { name: "Itraconazole 100mg", category: "Antifungal", type: "Capsule", price: 12.00, requiresPrescription: true, description: "For fungal infections" },
+  { name: "Voriconazole 200mg", category: "Antifungal", type: "Tablet", price: 35.00, requiresPrescription: true, description: "For serious fungal infections" },
+  { name: "Terbinafine 250mg", category: "Antifungal", type: "Tablet", price: 14.00, requiresPrescription: true, description: "For nail fungus" },
+  { name: "Terbinafine Cream", category: "Antifungal", type: "Cream", price: 9.00, requiresPrescription: false, description: "For athlete's foot" },
+  { name: "Ketoconazole 200mg", category: "Antifungal", type: "Tablet", price: 11.00, requiresPrescription: true, description: "For fungal infections" },
+  { name: "Ketoconazole Shampoo", category: "Antifungal", type: "Shampoo", price: 8.50, requiresPrescription: false, description: "For scalp fungus" },
+  { name: "Miconazole Cream", category: "Antifungal", type: "Cream", price: 7.00, requiresPrescription: false, description: "For skin fungus" },
+  { name: "Econazole Cream", category: "Antifungal", type: "Cream", price: 7.50, requiresPrescription: false, description: "For fungal infections" },
+  { name: "Nystatin Oral Drops", category: "Antifungal", type: "Drops", price: 6.00, requiresPrescription: false, description: "For oral thrush" },
+  { name: "Griseofulvin 250mg", category: "Antifungal", type: "Tablet", price: 10.00, requiresPrescription: true, description: "For ringworm" },
+  
+  // More Vitamins & Supplements (25 items)
+  { name: "Vitamin A 10000 IU", category: "Vitamin", type: "Capsule", price: 6.00, requiresPrescription: false, description: "For vision health" },
+  { name: "Vitamin K 100mcg", category: "Vitamin", type: "Tablet", price: 5.50, requiresPrescription: false, description: "For blood clotting" },
+  { name: "Vitamin C 1500mg", category: "Vitamin", type: "Tablet", price: 8.00, requiresPrescription: false, description: "High dose immunity" },
+  { name: "Vitamin D3 2000 IU", category: "Vitamin", type: "Capsule", price: 6.50, requiresPrescription: false, description: "Daily bone health" },
+  { name: "Vitamin D3 5000 IU", category: "Vitamin", type: "Capsule", price: 9.00, requiresPrescription: false, description: "High dose vitamin D" },
+  { name: "Folic Acid 1mg", category: "Vitamin", type: "Tablet", price: 2.50, requiresPrescription: false, description: "For anemia prevention" },
+  { name: "Vitamin B1 100mg", category: "Vitamin", type: "Tablet", price: 4.00, requiresPrescription: false, description: "Thiamine supplement" },
+  { name: "Vitamin B6 50mg", category: "Vitamin", type: "Tablet", price: 4.50, requiresPrescription: false, description: "For nerve health" },
+  { name: "Niacin 500mg", category: "Vitamin", type: "Tablet", price: 5.00, requiresPrescription: false, description: "Vitamin B3" },
+  { name: "Calcium Carbonate 1250mg", category: "Supplement", type: "Tablet", price: 4.00, requiresPrescription: false, description: "Calcium supplement" },
+  { name: "Calcium + Vitamin D3", category: "Supplement", type: "Tablet", price: 6.00, requiresPrescription: false, description: "Bone health combo" },
+  { name: "Iron Ferrous Sulfate 325mg", category: "Supplement", type: "Tablet", price: 3.50, requiresPrescription: false, description: "For iron deficiency" },
+  { name: "Iron Ferrous Gluconate", category: "Supplement", type: "Tablet", price: 4.00, requiresPrescription: false, description: "Gentle iron" },
+  { name: "Ferrous Fumarate", category: "Supplement", type: "Tablet", price: 3.80, requiresPrescription: false, description: "Iron supplement" },
+  { name: "Zinc Sulfate 50mg", category: "Supplement", type: "Tablet", price: 4.50, requiresPrescription: false, description: "Zinc supplement" },
+  { name: "Selenium 200mcg", category: "Supplement", type: "Tablet", price: 6.50, requiresPrescription: false, description: "Antioxidant mineral" },
+  { name: "Chromium 200mcg", category: "Supplement", type: "Tablet", price: 5.50, requiresPrescription: false, description: "For blood sugar" },
+  { name: "Glucosamine 1500mg", category: "Supplement", type: "Tablet", price: 12.00, requiresPrescription: false, description: "For joint health" },
+  { name: "Chondroitin 1200mg", category: "Supplement", type: "Tablet", price: 14.00, requiresPrescription: false, description: "For cartilage" },
+  { name: "Glucosamine + Chondroitin", category: "Supplement", type: "Tablet", price: 18.00, requiresPrescription: false, description: "Joint support combo" },
+  { name: "MSM 1000mg", category: "Supplement", type: "Tablet", price: 10.00, requiresPrescription: false, description: "For joint pain" },
+  { name: "Collagen Peptides", category: "Supplement", type: "Powder", price: 25.00, requiresPrescription: false, description: "For skin and joints" },
+  { name: "Probiotics 10 Billion CFU", category: "Supplement", type: "Capsule", price: 15.00, requiresPrescription: false, description: "For gut health" },
+  { name: "Prebiotics Fiber", category: "Supplement", type: "Powder", price: 12.00, requiresPrescription: false, description: "For digestive health" },
+  { name: "Ashwagandha 500mg", category: "Supplement", type: "Capsule", price: 11.00, requiresPrescription: false, description: "Adaptogenic herb" },
+  
+  // More Diabetes Medications (15 items)
+  { name: "Metformin 1000mg", category: "Diabetes", type: "Tablet", price: 5.00, requiresPrescription: true, description: "Extended release" },
+  { name: "Glipizide 5mg", category: "Diabetes", type: "Tablet", price: 6.00, requiresPrescription: true, description: "For type 2 diabetes" },
+  { name: "Glyburide 5mg", category: "Diabetes", type: "Tablet", price: 6.50, requiresPrescription: true, description: "Blood sugar control" },
+  { name: "Glimepiride 3mg", category: "Diabetes", type: "Tablet", price: 7.50, requiresPrescription: true, description: "For diabetes" },
+  { name: "Pioglitazone 15mg", category: "Diabetes", type: "Tablet", price: 10.00, requiresPrescription: true, description: "Insulin sensitizer" },
+  { name: "Pioglitazone 30mg", category: "Diabetes", type: "Tablet", price: 14.00, requiresPrescription: true, description: "For type 2 diabetes" },
+  { name: "Sitagliptin 50mg", category: "Diabetes", type: "Tablet", price: 15.00, requiresPrescription: true, description: "DPP-4 inhibitor" },
+  { name: "Sitagliptin 100mg", category: "Diabetes", type: "Tablet", price: 20.00, requiresPrescription: true, description: "For blood sugar" },
+  { name: "Vildagliptin 50mg", category: "Diabetes", type: "Tablet", price: 16.00, requiresPrescription: true, description: "For diabetes" },
+  { name: "Saxagliptin 5mg", category: "Diabetes", type: "Tablet", price: 18.00, requiresPrescription: true, description: "Blood sugar control" },
+  { name: "Empagliflozin 10mg", category: "Diabetes", type: "Tablet", price: 25.00, requiresPrescription: true, description: "SGLT2 inhibitor" },
+  { name: "Dapagliflozin 10mg", category: "Diabetes", type: "Tablet", price: 24.00, requiresPrescription: true, description: "For type 2 diabetes" },
+  { name: "Canagliflozin 100mg", category: "Diabetes", type: "Tablet", price: 26.00, requiresPrescription: true, description: "Blood sugar medication" },
+  { name: "Insulin Glargine", category: "Diabetes", type: "Injection", price: 120.00, requiresPrescription: true, description: "Long-acting insulin" },
+  { name: "Insulin Regular", category: "Diabetes", type: "Injection", price: 80.00, requiresPrescription: true, description: "Short-acting insulin" },
+  
+  // More Cardiovascular Medications (25 items)
+  { name: "Metoprolol 25mg", category: "Cardiovascular", type: "Tablet", price: 5.00, requiresPrescription: true, description: "Beta blocker" },
+  { name: "Metoprolol 50mg", category: "Cardiovascular", type: "Tablet", price: 7.00, requiresPrescription: true, description: "For high BP" },
+  { name: "Metoprolol 100mg", category: "Cardiovascular", type: "Tablet", price: 9.00, requiresPrescription: true, description: "Heart medication" },
+  { name: "Atenolol 25mg", category: "Cardiovascular", type: "Tablet", price: 4.50, requiresPrescription: true, description: "Beta blocker" },
+  { name: "Bisoprolol 2.5mg", category: "Cardiovascular", type: "Tablet", price: 6.00, requiresPrescription: true, description: "For heart failure" },
+  { name: "Bisoprolol 5mg", category: "Cardiovascular", type: "Tablet", price: 8.00, requiresPrescription: true, description: "Heart medication" },
+  { name: "Carvedilol 6.25mg", category: "Cardiovascular", type: "Tablet", price: 7.50, requiresPrescription: true, description: "For heart failure" },
+  { name: "Carvedilol 12.5mg", category: "Cardiovascular", type: "Tablet", price: 10.00, requiresPrescription: true, description: "Beta blocker" },
+  { name: "Propranolol 10mg", category: "Cardiovascular", type: "Tablet", price: 4.00, requiresPrescription: true, description: "For anxiety and BP" },
+  { name: "Propranolol 40mg", category: "Cardiovascular", type: "Tablet", price: 6.00, requiresPrescription: true, description: "Beta blocker" },
+  { name: "Diltiazem 30mg", category: "Cardiovascular", type: "Tablet", price: 6.50, requiresPrescription: true, description: "Calcium channel blocker" },
+  { name: "Diltiazem 60mg", category: "Cardiovascular", type: "Tablet", price: 9.00, requiresPrescription: true, description: "For angina" },
+  { name: "Verapamil 40mg", category: "Cardiovascular", type: "Tablet", price: 5.50, requiresPrescription: true, description: "For high BP" },
+  { name: "Verapamil 80mg", category: "Cardiovascular", type: "Tablet", price: 8.00, requiresPrescription: true, description: "Heart medication" },
+  { name: "Nifedipine 10mg", category: "Cardiovascular", type: "Tablet", price: 5.00, requiresPrescription: true, description: "For hypertension" },
+  { name: "Amlodipine 2.5mg", category: "Cardiovascular", type: "Tablet", price: 4.00, requiresPrescription: true, description: "Low dose BP med" },
+  { name: "Lisinopril 5mg", category: "Cardiovascular", type: "Tablet", price: 6.00, requiresPrescription: true, description: "ACE inhibitor" },
+  { name: "Lisinopril 10mg", category: "Cardiovascular", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For hypertension" },
+  { name: "Enalapril 5mg", category: "Cardiovascular", type: "Tablet", price: 6.50, requiresPrescription: true, description: "ACE inhibitor" },
+  { name: "Enalapril 10mg", category: "Cardiovascular", type: "Tablet", price: 9.00, requiresPrescription: true, description: "Blood pressure med" },
+  { name: "Perindopril 4mg", category: "Cardiovascular", type: "Tablet", price: 10.00, requiresPrescription: true, description: "For hypertension" },
+  { name: "Irbesartan 150mg", category: "Cardiovascular", type: "Tablet", price: 11.00, requiresPrescription: true, description: "ARB medication" },
+  { name: "Irbesartan 300mg", category: "Cardiovascular", type: "Tablet", price: 15.00, requiresPrescription: true, description: "For high BP" },
+  { name: "Valsartan 80mg", category: "Cardiovascular", type: "Tablet", price: 10.00, requiresPrescription: true, description: "ARB for hypertension" },
+  { name: "Valsartan 160mg", category: "Cardiovascular", type: "Tablet", price: 14.00, requiresPrescription: true, description: "Blood pressure control" },
+  
+  // More Digestive Medications (20 items)
+  { name: "Famotidine 20mg", category: "Digestive", type: "Tablet", price: 4.50, requiresPrescription: false, description: "For heartburn" },
+  { name: "Famotidine 40mg", category: "Digestive", type: "Tablet", price: 6.00, requiresPrescription: false, description: "For acid reflux" },
+  { name: "Cimetidine 200mg", category: "Digestive", type: "Tablet", price: 4.00, requiresPrescription: false, description: "H2 blocker" },
+  { name: "Nizatidine 150mg", category: "Digestive", type: "Capsule", price: 5.50, requiresPrescription: false, description: "For ulcers" },
+  { name: "Dexlansoprazole 30mg", category: "Digestive", type: "Capsule", price: 12.00, requiresPrescription: true, description: "For GERD" },
+  { name: "Pantoprazole 20mg", category: "Digestive", type: "Tablet", price: 4.50, requiresPrescription: false, description: "For acidity" },
+  { name: "Prochlorperazine 5mg", category: "Digestive", type: "Tablet", price: 5.00, requiresPrescription: true, description: "For severe nausea" },
+  { name: "Metoclopramide 10mg", category: "Digestive", type: "Tablet", price: 4.00, requiresPrescription: false, description: "For nausea" },
+  { name: "Hyoscine 10mg", category: "Digestive", type: "Tablet", price: 5.50, requiresPrescription: false, description: "For stomach cramps" },
+  { name: "Mebeverine 135mg", category: "Digestive", type: "Tablet", price: 6.00, requiresPrescription: false, description: "For IBS" },
+  { name: "Dicyclomine 20mg", category: "Digestive", type: "Tablet", price: 5.00, requiresPrescription: false, description: "For stomach spasms" },
+  { name: "Senna Tablets", category: "Digestive", type: "Tablet", price: 3.50, requiresPrescription: false, description: "Natural laxative" },
+  { name: "Docusate Sodium", category: "Digestive", type: "Capsule", price: 4.00, requiresPrescription: false, description: "Stool softener" },
+  { name: "Polyethylene Glycol", category: "Digestive", type: "Powder", price: 8.00, requiresPrescription: false, description: "For constipation" },
+  { name: "Lactulose Syrup", category: "Digestive", type: "Syrup", price: 7.00, requiresPrescription: false, description: "Gentle laxative" },
+  { name: "Rifaximin 200mg", category: "Digestive", type: "Tablet", price: 18.00, requiresPrescription: true, description: "For traveler's diarrhea" },
+  { name: "Mesalamine 400mg", category: "Digestive", type: "Tablet", price: 15.00, requiresPrescription: true, description: "For ulcerative colitis" },
+  { name: "Sulfasalazine 500mg", category: "Digestive", type: "Tablet", price: 10.00, requiresPrescription: true, description: "For IBD" },
+  { name: "Ursodeoxycholic Acid 300mg", category: "Digestive", type: "Tablet", price: 14.00, requiresPrescription: true, description: "For gallstones" },
+  { name: "Simethicone 125mg", category: "Digestive", type: "Tablet", price: 3.50, requiresPrescription: false, description: "For gas relief" },
+  
+  // More Respiratory Medications (18 items)
+  { name: "Theophylline 200mg", category: "Respiratory", type: "Tablet", price: 6.00, requiresPrescription: true, description: "For asthma" },
+  { name: "Theophylline 300mg", category: "Respiratory", type: "Tablet", price: 8.00, requiresPrescription: true, description: "Bronchodilator" },
+  { name: "Bambuterol 10mg", category: "Respiratory", type: "Tablet", price: 7.50, requiresPrescription: true, description: "For breathing problems" },
+  { name: "Terbutaline 2.5mg", category: "Respiratory", type: "Tablet", price: 5.50, requiresPrescription: false, description: "For asthma" },
+  { name: "Formoterol Inhaler", category: "Respiratory", type: "Inhaler", price: 28.00, requiresPrescription: true, description: "Long-acting bronchodilator" },
+  { name: "Salmeterol Inhaler", category: "Respiratory", type: "Inhaler", price: 30.00, requiresPrescription: true, description: "For asthma control" },
+  { name: "Tiotropium Inhaler", category: "Respiratory", type: "Inhaler", price: 35.00, requiresPrescription: true, description: "For COPD" },
+  { name: "Ipratropium Inhaler", category: "Respiratory", type: "Inhaler", price: 22.00, requiresPrescription: true, description: "For bronchospasm" },
+  { name: "Beclomethasone Inhaler", category: "Respiratory", type: "Inhaler", price: 24.00, requiresPrescription: true, description: "Steroid inhaler" },
+  { name: "Fluticasone Inhaler", category: "Respiratory", type: "Inhaler", price: 28.00, requiresPrescription: true, description: "For asthma prevention" },
+  { name: "Fluticasone Nasal Spray", category: "Respiratory", type: "Spray", price: 18.00, requiresPrescription: false, description: "For allergic rhinitis" },
+  { name: "Mometasone Nasal Spray", category: "Respiratory", type: "Spray", price: 16.00, requiresPrescription: false, description: "For nasal congestion" },
+  { name: "Budesonide Nasal Spray", category: "Respiratory", type: "Spray", price: 15.00, requiresPrescription: false, description: "For allergies" },
+  { name: "Oxymetazoline Nasal Spray", category: "Respiratory", type: "Spray", price: 6.00, requiresPrescription: false, description: "Decongestant spray" },
+  { name: "Xylometazoline Nasal Drops", category: "Respiratory", type: "Drops", price: 5.00, requiresPrescription: false, description: "For nasal congestion" },
+  { name: "N-Acetylcysteine 600mg", category: "Respiratory", type: "Tablet", price: 8.00, requiresPrescription: false, description: "Mucolytic agent" },
+  { name: "Bromhexine 8mg", category: "Respiratory", type: "Tablet", price: 4.00, requiresPrescription: false, description: "Expectorant" },
+  { name: "Guaifenesin 400mg", category: "Respiratory", type: "Tablet", price: 5.50, requiresPrescription: false, description: "Expectorant" },
+  
+  // More Allergy Medications (10 items)
+  { name: "Fexofenadine 120mg", category: "Antihistamine", type: "Tablet", price: 7.00, requiresPrescription: false, description: "For allergies" },
+  { name: "Fexofenadine 180mg", category: "Antihistamine", type: "Tablet", price: 9.00, requiresPrescription: false, description: "Non-drowsy antihistamine" },
+  { name: "Desloratadine 5mg", category: "Antihistamine", type: "Tablet", price: 8.00, requiresPrescription: false, description: "For allergic rhinitis" },
+  { name: "Loratadine 10mg", category: "Antihistamine", type: "Tablet", price: 5.00, requiresPrescription: false, description: "24-hour allergy relief" },
+  { name: "Chlorpheniramine 4mg", category: "Antihistamine", type: "Tablet", price: 3.00, requiresPrescription: false, description: "For allergies" },
+  { name: "Diphenhydramine 25mg", category: "Antihistamine", type: "Capsule", price: 4.50, requiresPrescription: false, description: "For allergies and sleep" },
+  { name: "Hydroxyzine 25mg", category: "Antihistamine", type: "Tablet", price: 6.00, requiresPrescription: true, description: "For anxiety and allergies" },
+  { name: "Promethazine 25mg", category: "Antihistamine", type: "Tablet", price: 5.50, requiresPrescription: true, description: "For nausea and allergies" },
+  { name: "Cyproheptadine 4mg", category: "Antihistamine", type: "Tablet", price: 4.00, requiresPrescription: false, description: "For allergies" },
+  { name: "Azelastine Nasal Spray", category: "Antihistamine", type: "Spray", price: 14.00, requiresPrescription: false, description: "For nasal allergies" },
+  
+  // More Skin Care Medications (15 items)
+  { name: "Tretinoin 0.025% Cream", category: "Skin Care", type: "Cream", price: 12.00, requiresPrescription: true, description: "For acne and wrinkles" },
+  { name: "Tretinoin 0.05% Cream", category: "Skin Care", type: "Cream", price: 15.00, requiresPrescription: true, description: "Anti-aging cream" },
+  { name: "Adapalene 0.1% Gel", category: "Skin Care", type: "Gel", price: 10.00, requiresPrescription: false, description: "For acne" },
+  { name: "Benzoyl Peroxide 2.5% Gel", category: "Skin Care", type: "Gel", price: 7.00, requiresPrescription: false, description: "For acne treatment" },
+  { name: "Benzoyl Peroxide 5% Gel", category: "Skin Care", type: "Gel", price: 8.50, requiresPrescription: false, description: "Acne medication" },
+  { name: "Salicylic Acid Face Wash", category: "Skin Care", type: "Wash", price: 9.00, requiresPrescription: false, description: "For acne-prone skin" },
+  { name: "Azelaic Acid 20% Cream", category: "Skin Care", type: "Cream", price: 16.00, requiresPrescription: true, description: "For acne and rosacea" },
+  { name: "Niacinamide 10% Serum", category: "Skin Care", type: "Serum", price: 12.00, requiresPrescription: false, description: "For skin texture" },
+  { name: "Hydroquinone 2% Cream", category: "Skin Care", type: "Cream", price: 11.00, requiresPrescription: false, description: "For dark spots" },
+  { name: "Hydroquinone 4% Cream", category: "Skin Care", type: "Cream", price: 18.00, requiresPrescription: true, description: "Skin lightening cream" },
+  { name: "Kojic Acid Cream", category: "Skin Care", type: "Cream", price: 13.00, requiresPrescription: false, description: "For pigmentation" },
+  { name: "Mometasone Cream", category: "Skin Care", type: "Cream", price: 8.00, requiresPrescription: true, description: "Steroid cream" },
+  { name: "Clobetasol Cream", category: "Skin Care", type: "Cream", price: 9.50, requiresPrescription: true, description: "Strong steroid cream" },
+  { name: "Permethrin 5% Cream", category: "Skin Care", type: "Cream", price: 10.00, requiresPrescription: true, description: "For scabies" },
+  { name: "Lindane Lotion", category: "Skin Care", type: "Lotion", price: 8.50, requiresPrescription: true, description: "For lice treatment" },
+  
+  // Eye Care Medications (12 items)
+  { name: "Timolol Eye Drops", category: "Eye Care", type: "Drops", price: 12.00, requiresPrescription: true, description: "For glaucoma" },
+  { name: "Latanoprost Eye Drops", category: "Eye Care", type: "Drops", price: 18.00, requiresPrescription: true, description: "For glaucoma" },
+  { name: "Dorzolamide Eye Drops", category: "Eye Care", type: "Drops", price: 15.00, requiresPrescription: true, description: "For high eye pressure" },
+  { name: "Brimonidine Eye Drops", category: "Eye Care", type: "Drops", price: 14.00, requiresPrescription: true, description: "For glaucoma" },
+  { name: "Travoprost Eye Drops", category: "Eye Care", type: "Drops", price: 20.00, requiresPrescription: true, description: "For ocular hypertension" },
+  { name: "Ciprofloxacin Eye Drops", category: "Eye Care", type: "Drops", price: 8.00, requiresPrescription: true, description: "For eye infections" },
+  { name: "Ofloxacin Eye Drops", category: "Eye Care", type: "Drops", price: 9.00, requiresPrescription: true, description: "Antibiotic eye drops" },
+  { name: "Tobramycin Eye Drops", category: "Eye Care", type: "Drops", price: 11.00, requiresPrescription: true, description: "For bacterial eye infections" },
+  { name: "Prednisolone Eye Drops", category: "Eye Care", type: "Drops", price: 10.00, requiresPrescription: true, description: "Steroid eye drops" },
+  { name: "Ketorolac Eye Drops", category: "Eye Care", type: "Drops", price: 13.00, requiresPrescription: true, description: "For eye inflammation" },
+  { name: "Artificial Tears Gel", category: "Eye Care", type: "Gel", price: 7.00, requiresPrescription: false, description: "For dry eyes" },
+  { name: "Cyclopentolate Eye Drops", category: "Eye Care", type: "Drops", price: 9.00, requiresPrescription: true, description: "For eye examination" },
+  
+  // More Mental Health Medications (12 items)
+  { name: "Sertraline 50mg", category: "Mental Health", type: "Tablet", price: 10.00, requiresPrescription: true, description: "For depression" },
+  { name: "Sertraline 100mg", category: "Mental Health", type: "Tablet", price: 14.00, requiresPrescription: true, description: "Antidepressant" },
+  { name: "Fluoxetine 20mg", category: "Mental Health", type: "Capsule", price: 9.00, requiresPrescription: true, description: "For depression" },
+  { name: "Paroxetine 20mg", category: "Mental Health", type: "Tablet", price: 11.00, requiresPrescription: true, description: "For anxiety and depression" },
+  { name: "Citalopram 20mg", category: "Mental Health", type: "Tablet", price: 10.00, requiresPrescription: true, description: "Antidepressant" },
+  { name: "Venlafaxine 75mg", category: "Mental Health", type: "Capsule", price: 15.00, requiresPrescription: true, description: "For depression" },
+  { name: "Duloxetine 30mg", category: "Mental Health", type: "Capsule", price: 18.00, requiresPrescription: true, description: "For depression and pain" },
+  { name: "Duloxetine 60mg", category: "Mental Health", type: "Capsule", price: 24.00, requiresPrescription: true, description: "Antidepressant" },
+  { name: "Mirtazapine 15mg", category: "Mental Health", type: "Tablet", price: 12.00, requiresPrescription: true, description: "For depression and sleep" },
+  { name: "Lorazepam 1mg", category: "Mental Health", type: "Tablet", price: 7.00, requiresPrescription: true, description: "For anxiety" },
+  { name: "Diazepam 5mg", category: "Mental Health", type: "Tablet", price: 6.00, requiresPrescription: true, description: "For anxiety and muscle spasms" },
+  { name: "Buspirone 10mg", category: "Mental Health", type: "Tablet", price: 9.00, requiresPrescription: true, description: "For anxiety" },
+  
+  // More Steroid Medications (8 items)
+  { name: "Prednisolone 10mg", category: "Steroid", type: "Tablet", price: 6.50, requiresPrescription: true, description: "Anti-inflammatory" },
+  { name: "Prednisolone 20mg", category: "Steroid", type: "Tablet", price: 8.00, requiresPrescription: true, description: "Corticosteroid" },
+  { name: "Methylprednisolone 4mg", category: "Steroid", type: "Tablet", price: 7.00, requiresPrescription: true, description: "For inflammation" },
+  { name: "Methylprednisolone 16mg", category: "Steroid", type: "Tablet", price: 12.00, requiresPrescription: true, description: "Steroid medication" },
+  { name: "Dexamethasone 0.5mg", category: "Steroid", type: "Tablet", price: 5.00, requiresPrescription: true, description: "Potent steroid" },
+  { name: "Dexamethasone 4mg", category: "Steroid", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For severe inflammation" },
+  { name: "Hydrocortisone 10mg", category: "Steroid", type: "Tablet", price: 6.00, requiresPrescription: true, description: "Corticosteroid" },
+  { name: "Betamethasone 0.5mg", category: "Steroid", type: "Tablet", price: 7.50, requiresPrescription: true, description: "Anti-inflammatory steroid" },
+  
+  // More Thyroid Medications (5 items)
+  { name: "Levothyroxine 25mcg", category: "Thyroid", type: "Tablet", price: 4.00, requiresPrescription: true, description: "For hypothyroidism" },
+  { name: "Levothyroxine 75mcg", category: "Thyroid", type: "Tablet", price: 6.50, requiresPrescription: true, description: "Thyroid hormone" },
+  { name: "Levothyroxine 100mcg", category: "Thyroid", type: "Tablet", price: 7.00, requiresPrescription: true, description: "For thyroid deficiency" },
+  { name: "Liothyronine 25mcg", category: "Thyroid", type: "Tablet", price: 12.00, requiresPrescription: true, description: "T3 thyroid hormone" },
+  { name: "Carbimazole 5mg", category: "Thyroid", type: "Tablet", price: 8.00, requiresPrescription: true, description: "For hyperthyroidism" },
+  
+  // More Women's Health (10 items)
+  { name: "Norethisterone 5mg", category: "Women's Health", type: "Tablet", price: 10.00, requiresPrescription: true, description: "For period regulation" },
+  { name: "Ethinyl Estradiol + Levonorgestrel", category: "Women's Health", type: "Tablet", price: 8.00, requiresPrescription: true, description: "Contraceptive pill" },
+  { name: "Desogestrel 0.075mg", category: "Women's Health", type: "Tablet", price: 9.00, requiresPrescription: true, description: "Mini pill" },
+  { name: "Drospirenone + Ethinyl Estradiol", category: "Women's Health", type: "Tablet", price: 12.00, requiresPrescription: true, description: "Birth control" },
+  { name: "Misoprostol 200mcg", category: "Women's Health", type: "Tablet", price: 15.00, requiresPrescription: true, description: "For medical termination" },
+  { name: "Tamoxifen 20mg", category: "Women's Health", type: "Tablet", price: 18.00, requiresPrescription: true, description: "For breast cancer" },
+  { name: "Letrozole 2.5mg", category: "Women's Health", type: "Tablet", price: 20.00, requiresPrescription: true, description: "For fertility" },
+  { name: "Bromocriptine 2.5mg", category: "Women's Health", type: "Tablet", price: 14.00, requiresPrescription: true, description: "For prolactin disorders" },
+  { name: "Cabergoline 0.5mg", category: "Women's Health", type: "Tablet", price: 22.00, requiresPrescription: true, description: "For hyperprolactinemia" },
+  { name: "Raloxifene 60mg", category: "Women's Health", type: "Tablet", price: 16.00, requiresPrescription: true, description: "For osteoporosis" },
+  
+  // Urological Medications (8 items)
+  { name: "Tamsulosin 0.4mg", category: "Urological", type: "Capsule", price: 10.00, requiresPrescription: true, description: "For enlarged prostate" },
+  { name: "Dutasteride 0.5mg", category: "Urological", type: "Capsule", price: 14.00, requiresPrescription: true, description: "For BPH" },
+  { name: "Finasteride 5mg", category: "Urological", type: "Tablet", price: 12.00, requiresPrescription: true, description: "For prostate enlargement" },
+  { name: "Sildenafil 50mg", category: "Urological", type: "Tablet", price: 15.00, requiresPrescription: true, description: "For erectile dysfunction" },
+  { name: "Sildenafil 100mg", category: "Urological", type: "Tablet", price: 20.00, requiresPrescription: true, description: "ED medication" },
+  { name: "Tadalafil 10mg", category: "Urological", type: "Tablet", price: 18.00, requiresPrescription: true, description: "For ED" },
+  { name: "Tadalafil 20mg", category: "Urological", type: "Tablet", price: 25.00, requiresPrescription: true, description: "For erectile dysfunction" },
+  { name: "Solifenacin 5mg", category: "Urological", type: "Tablet", price: 12.00, requiresPrescription: true, description: "For overactive bladder" },
+  
+  // More Emergency & First Aid (10 items)
+  { name: "Atropine Injection", category: "Emergency", type: "Injection", price: 30.00, requiresPrescription: true, description: "For cardiac emergencies" },
+  { name: "Norepinephrine Injection", category: "Emergency", type: "Injection", price: 40.00, requiresPrescription: true, description: "For shock" },
+  { name: "Dopamine Injection", category: "Emergency", type: "Injection", price: 35.00, requiresPrescription: true, description: "For heart failure" },
+  { name: "Nitroglycerin Spray", category: "Emergency", type: "Spray", price: 25.00, requiresPrescription: true, description: "For angina" },
+  { name: "Aspirin 300mg", category: "Emergency", type: "Tablet", price: 3.50, requiresPrescription: false, description: "For heart attack" },
+  { name: "Glucose Gel", category: "Emergency", type: "Gel", price: 5.00, requiresPrescription: false, description: "For hypoglycemia" },
+  { name: "Antivenin Injection", category: "Emergency", type: "Injection", price: 500.00, requiresPrescription: true, description: "For snake bites" },
+  { name: "Naloxone Injection", category: "Emergency", type: "Injection", price: 80.00, requiresPrescription: true, description: "For opioid overdose" },
+  { name: "Activated Charcoal Suspension", category: "Emergency", type: "Suspension", price: 12.00, requiresPrescription: false, description: "For poisoning" },
+  { name: "Hydrocortisone Injection 100mg", category: "Emergency", type: "Injection", price: 20.00, requiresPrescription: true, description: "For severe allergic reactions" },
+];
+
+const auth = getAuth(app);
+
+// Check authentication first
+onAuthStateChanged(auth, async (user) => {
+  const statusEl = document.getElementById("status");
+  
+  if (!user) {
+    statusEl.innerHTML = '<span class="error">❌ Please login as admin first!</span><br><br><a href="admin_login.html" style="color: #7c3aed;">Go to Admin Login</a>';
+    return;
+  }
+  
+  statusEl.innerHTML = '✓ Logged in as: ' + user.email + '<br><br>Checking existing medicines...';
+  
+  try {
+    // Get existing medicines
+    const existingDocs = await getDocs(collection(db, "tablets"));
+    const existingNames = new Set();
+    existingDocs.forEach(doc => {
+      existingNames.add(doc.data().name);
+    });
+    
+    statusEl.innerHTML = '✓ Found ' + existingNames.size + ' existing medicines<br><br>Adding new medicines...';
+    
+    let count = 0;
+    let skipped = 0;
+    for (const medicine of medicines) {
+      // Skip if already exists
+      if (existingNames.has(medicine.name)) {
+        skipped++;
+        continue;
+      }
+      await addDoc(collection(db, "tablets"), medicine);
+      count++;
+      statusEl.innerHTML = `✓ Logged in<br><br>Added ${count} new medicines (Skipped ${skipped} existing)...`;
+    }
+    
+    statusEl.innerHTML = `<span class="success">✅ Successfully added ${count} new medicines!</span><br><br>Skipped ${skipped} existing medicines.<br><br>Total medicines in database: ${existingNames.size + count}<br><br>You can close this tab now.`;
+  } catch (error) {
+    console.error("Error:", error);
+    statusEl.innerHTML = `<span class="error">❌ Error: ${error.message}</span><br><br>Make sure you are logged in as an admin.`;
+  }
+});
+</script>
+</body>
+</html>

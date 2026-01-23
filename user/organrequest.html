@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Request Organ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+  margin:0;
+  padding:0;
+  font-family:"Poppins",sans-serif;
+  background:#f7fbff;
+  color:#1a365d;
+}
+
+header {
+  text-align:center;
+  padding:18px;
+  font-size:24px;
+  font-weight:600;
+  background:white;
+  border-bottom:1px solid #dce7f7;
+  color:#0d47a1;
+  letter-spacing:0.3px;
+}
+
+.container {
+  width:88%;
+  max-width:520px;
+  margin:30px auto;
+  background:white;
+  padding:28px;
+  border-radius:14px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.07);
+  border:1px solid #e7effb;
+}
+
+p {
+  font-size:14px;
+  opacity:.75;
+  line-height:1.6;
+  margin-bottom:18px;
+}
+
+label {
+  font-weight:600;
+  font-size:13px;
+  margin-top:12px;
+  display:block;
+  color:#09336b;
+}
+
+input,select,textarea {
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  border:1px solid #c7d8f7;
+  border-radius:10px;
+  background:#fdfefe;
+  font-size:14px;
+  outline:none;
+  transition:.2s;
+}
+
+input:focus,select:focus,textarea:focus {
+  border-color:#3a7afe;
+  box-shadow:0 0 8px rgba(58,122,254,0.3);
+}
+
+textarea {
+  height:90px;
+  resize:none;
+}
+
+button {
+  width:100%;
+  margin-top:22px;
+  padding:14px;
+  background:#1e63ff;
+  color:white;
+  font-size:15px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  transition:.2s;
+  font-weight:600;
+}
+button:hover {
+  background:#0a4bdd;
+  transform:translateY(-2px);
+}
+
+.back-btn {
+  display:block;
+  text-align:center;
+  margin-top:18px;
+  padding:6px;
+  background:#eef5ff;
+  border-radius:8px;
+  color:#0a3a7a;
+  text-decoration:none;
+  font-weight:500;
+  font-size:11px;
+  border:1px solid #d9e8ff;
+  transition:.2s;
+}
+.back-btn:hover {
+  background:#d7e9ff;
+  transform:translateY(-1px);
+}
+</style>
+</head>
+
+<body>
+<header>🫀 Request Organ</header>
+
+<div class="container">
+  <p>Please fill the form below to request an organ urgently. Our support team will review it and respond quickly.</p>
+
+  <label>Name</label>
+  <input type="text" id="name" placeholder="Enter your name">
+
+  <label>Needed Organ</label>
+  <select id="organName">
+    <option value="">Select Organ</option>
+    <option>Heart</option><option>Kidney</option>
+    <option>Liver</option><option>Lungs</option>
+    <option>Pancreas</option><option>Intestine</option>
+    <option>Cornea</option><option>Bone Marrow</option>
+  </select>
+
+  <label>Age</label>
+  <input type="number" id="age" placeholder="Enter age">
+
+  <label>Contact Number</label>
+  <input type="text" id="contact" placeholder="Enter contact number">
+
+  <label>Email</label>
+  <input type="email" id="email" placeholder="Enter email address">
+
+  <label>Address</label>
+  <textarea id="address" placeholder="Enter full address"></textarea>
+
+  <button id="submitBtn">Submit Organ Request</button>
+  <a class="back-btn" href="receive_organ.html">⬅ Back to Organ Donor List</a>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// Ensure user logged in
+onAuthStateChanged(auth, user => {
+  if (!user) {
+    alert("⚠ Please login first to request an organ");
+    window.location.href = "login.html";
+  }
+});
+
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const name = document.getElementById("name").value.trim();
+  const organ = document.getElementById("organName").value.trim();
+  const age = document.getElementById("age").value.trim();
+  const contact = document.getElementById("contact").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const address = document.getElementById("address").value.trim();
+
+  if (!name || !organ || !age || !contact || !address) {
+    alert("⚠️ Please fill all required fields");
+    return;
+  }
+
+  await addDoc(collection(db, "organrequests"), {
+    uid: user.uid,
+    name, organ, age, contact, email, address,
+    timestamp: serverTimestamp()
+  });
+
+  alert("✅ Organ request submitted successfully!");
+  location.href = "user_dashboard.html";
+});
+</script>
+</body>
+</html>

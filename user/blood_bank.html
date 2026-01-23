@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blood Bank</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, rgba(255,255,255,0.85) 85%, rgba(0,132,255,0.7));
+        backdrop-filter: blur(12px);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container {
+        text-align: center;
+        background: rgba(255,255,255,0.15);
+        padding: 45px;
+        border-radius: 28px;
+        backdrop-filter: blur(22px);
+        border: 2px solid rgba(255,255,255,0.4);
+        box-shadow: 0 0 40px rgba(0,128,255,0.4);
+        width: 650px;
+        animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+        color: #003e7e;
+        font-size: 30px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .service-box {
+        background: rgba(255,255,255,0.25);
+        padding: 25px;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.5);
+        margin-bottom: 35px;
+        box-shadow: 0 0 18px rgba(0,100,255,0.25);
+        color: #004080;
+    }
+
+    .service-box .icon {
+        font-size: 45px;
+        margin-bottom: 8px;
+    }
+
+    .service-box p {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .btn-group {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 20px;
+    }
+
+    .neon-btn {
+    position: relative;
+    padding: 18px 45px;
+    font-size: 16px; /* ↓ Reduced text size */
+    font-weight: 600; /* Slightly lighter for premium look */
+    border-radius: 18px;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    color: rgb(87, 81, 81);
+    overflow: hidden;
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+    }
+
+    .neon-btn span {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Liquid-glow Highlight */
+    .neon-btn:before {
+        content: "";
+        position: absolute;
+        top: -100%;
+        left: 0;
+        width: 100%;
+        height: 240%;
+        background: linear-gradient(120deg, rgba(255,255,255,0.6), rgba(255,255,255,0));
+        transform: rotate(25deg);
+        transition: 0.4s;
+    }
+
+    .neon-btn:hover:before {
+        top: 100%;
+    }
+
+    .donate {
+        border: 2px solid rgba(255,0,72,0.8);
+        box-shadow: 0 0 25px rgba(255,0,72,0.6);
+    }
+
+    .donate:hover {
+        transform: translateY(-6px) scale(1.08);
+        box-shadow: 0 0 40px rgba(255,0,82,1);
+    }
+
+    .receive {
+        border: 2px solid rgba(0,165,255,0.9);
+        box-shadow: 0 0 25px rgba(0,165,255,0.6);
+    }
+
+    .receive:hover {
+        transform: translateY(-6px) scale(1.08);
+        box-shadow: 0 0 40px rgba(0,175,255,1);
+    }
+.back-btn {
+    margin-top: 35px;
+    display: inline-block;
+    padding: 12px 22px;
+    color: #003c6f;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 15px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.25);
+    border: 2px solid rgba(16, 17, 17, 0.6);
+    backdrop-filter: blur(10px);
+    transition: 0.25s ease-in-out;
+    box-shadow: 0 0 12px rgba(82, 83, 83, 0.4);
+}
+
+/* hover glass neon effect */
+.back-btn:hover {
+    color: #ffffff;
+    background: rgba(187, 192, 196, 0.9);
+    border-color: #282c2e;
+    box-shadow: 0 0 30px rgba(47, 48, 49, 0.9);
+    transform: translateY(-3px) scale(1.05);
+    letter-spacing: 0.5px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Blood Bank Services</h1>
+
+    <div class="service-box">
+        <div class="icon">🩸</div>
+        <p>Help save lives by donating blood or request blood instantly in emergencies.</p>
+        <p><strong>Every drop counts • Donate with dignity • Receive with trust</strong></p>
+    </div>
+
+    <div class="btn-group">
+        <a href="/user/blood_donate.html" class="neon-btn donate"><span>Donate</span></a>
+        <a href="receive_blood.html" class="neon-btn receive"><span>Receive</span></a>
+    </div>
+
+    <a href="user_dashboard.html" class="back-btn">⬅ Back to Dashboard</a>
+</div>
+
+</body>
+</html>
+
+
+

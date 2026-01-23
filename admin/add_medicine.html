@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Medicine - E-Pharmacy Admin</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg1:#0f172a;
+    --glass: rgba(255,255,255,0.06);
+    --accent1: linear-gradient(135deg,#7c3aed,#6366f1);
+    --neon: #8b5cf6;
+    --muted: rgba(255,255,255,0.75);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:Inter, Poppins, "Segoe UI", Roboto, sans-serif;
+    background:
+      radial-gradient(1000px 500px at -10% 10%, rgba(124,58,237,0.12), transparent 10%),
+      radial-gradient(800px 400px at 110% 90%, rgba(99,102,241,0.08), transparent 10%),
+      linear-gradient(180deg,var(--bg1), #081024);
+    color:white;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    padding: 30px;
+    overflow-y: auto;
+  }
+
+  .back-btn {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #e6f0f6;
+    text-decoration: none;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+  }
+
+  .back-btn:hover {
+    color: #ffffff;
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    transform: translateX(-3px);
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 60px auto 40px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 40px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header h1 {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #7c3aed, #6366f1, #a78bfa);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .form-group {
+    margin-bottom: 25px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #e0e7ff;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: rgb(246, 240, 240);
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+  }
+  
+  select {
+    background: #0f172a !important;
+    color: rgb(208, 210, 215) !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #7c3aed;
+    background: rgba(255,255,255,0.08);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: rgba(255,255,255,0.4);
+  }
+
+  select option {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    padding: 12px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+  }
+
+  textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+  }
+
+  .checkbox-group label {
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 20px;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(124,58,237,0.4);
+  }
+
+  .submit-btn:active {
+    transform: translateY(0);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .medicine-list {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid rgba(255,255,255,0.1);
+  }
+
+  .medicine-list h2 {
+    color: #7c3aed;
+    margin-bottom: 20px;
+    font-size: 24px;
+  }
+
+  .medicine-item {
+    background: rgba(255,255,255,0.03);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .medicine-info h3 {
+    color: #e0e7ff;
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+
+  .medicine-info p {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .medicine-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #7c3aed;
+  }
+
+  @media (max-width: 768px) {
+    .row {
+      grid-template-columns: 1fr;
+    }
+    
+    .container {
+      padding: 30px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<a href="epharmacy_orders.html" class="back-btn">← Back to Orders</a>
+
+<div class="container">
+  <div class="header">
+    <h1>💊 Add New Medicine</h1>
+    <p>Add medicines to your pharmacy catalog</p>
+  </div>
+
+  <form id="medicineForm">
+    <div class="form-group">
+      <label>Medicine Name *</label>
+      <input type="text" id="medicineName" placeholder="e.g., Paracetamol 500mg" required>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label>Category *</label>
+        <select id="category" required>
+          <option value="">Select Category</option>
+          <option>Pain Relief</option>
+          <option>Antibiotic</option>
+          <option>Vitamin</option>
+          <option>Supplement</option>
+          <option>Antihistamine</option>
+          <option>Digestive</option>
+          <option>Cold & Flu</option>
+          <option>Diabetes</option>
+          <option>Cardiovascular</option>
+          <option>Skin Care</option>
+          <option>Antifungal</option>
+          <option>Eye Care</option>
+          <option>Ear Care</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Type *</label>
+        <select id="type" required>
+          <option value="">Select Type</option>
+          <option>Tablet</option>
+          <option>Capsule</option>
+          <option>Syrup</option>
+          <option>Cream</option>
+          <option>Ointment</option>
+          <option>Drops</option>
+          <option>Injection</option>
+          <option>Powder</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Price (₹) *</label>
+      <input type="number" id="price" placeholder="Enter price" step="0.01" min="0" required>
+    </div>
+
+    <div class="form-group">
+      <label>Description *</label>
+      <textarea id="description" placeholder="Brief description of the medicine and its uses" required></textarea>
+    </div>
+
+    <div class="form-group">
+      <div class="checkbox-group">
+        <input type="checkbox" id="requiresPrescription">
+        <label for="requiresPrescription">Requires Prescription</label>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">Add Medicine</button>
+  </form>
+
+  <div class="medicine-list" id="medicineList">
+    <h2>Recently Added Medicines</h2>
+    <div id="recentMedicines">
+      <p style="color: var(--muted); text-align: center;">No medicines added yet</p>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentAdmin = null;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    alert("Please login as admin first!");
+    window.location.href = "admin_login.html";
+  } else {
+    currentAdmin = user;
+    loadRecentMedicines();
+  }
+});
+
+async function loadRecentMedicines() {
+  try {
+    const snapshot = await getDocs(collection(db, "tablets"));
+    const medicines = [];
+    snapshot.forEach(doc => {
+      medicines.push({ id: doc.id, ...doc.data() });
+    });
+    
+    // Show last 10
+    const recent = medicines.slice(-10).reverse();
+    
+    const container = document.getElementById("recentMedicines");
+    
+    if (recent.length === 0) {
+      container.innerHTML = '<p style="color: var(--muted); text-align: center;">No medicines added yet</p>';
+      return;
+    }
+    
+    container.innerHTML = recent.map(med => `
+      <div class="medicine-item">
+        <div class="medicine-info">
+          <h3>${med.name}</h3>
+          <p>${med.category} • ${med.type} ${med.requiresPrescription ? '• ℞ Prescription Required' : ''}</p>
+        </div>
+        <div class="medicine-price">₹${med.price}</div>
+      </div>
+    `).join("");
+  } catch (error) {
+    console.error("Error loading medicines:", error);
+  }
+}
+
+document.getElementById("medicineForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (!currentAdmin) {
+    alert("Please login first!");
+    return;
+  }
+
+  const medicineData = {
+    name: document.getElementById("medicineName").value.trim(),
+    category: document.getElementById("category").value,
+    type: document.getElementById("type").value,
+    price: parseFloat(document.getElementById("price").value),
+    description: document.getElementById("description").value.trim(),
+    requiresPrescription: document.getElementById("requiresPrescription").checked,
+    addedBy: currentAdmin.uid,
+    addedAt: new Date()
+  };
+
+  try {
+    await addDoc(collection(db, "tablets"), medicineData);
+    alert("✅ Medicine added successfully!");
+    
+    // Clear form
+    document.getElementById("medicineForm").reset();
+    
+    // Reload list
+    loadRecentMedicines();
+  } catch (error) {
+    console.error("Error adding medicine:", error);
+    alert("Error: " + error.message);
+  }
+});
+</script>
+
+</body>
+</html>

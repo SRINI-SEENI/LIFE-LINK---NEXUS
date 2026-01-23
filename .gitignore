@@ -1,0 +1,48 @@
+# Environment and config files
+.env
+.env.local
+.env.*.local
+config.js
+firebase-config.js
+!firebase-config.example.js
+**/firebase-config.js
+secrets.js
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# VS Code
+.vscode/
+
+# Node modules
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+env/
+venv/
+.venv/
+
+# ML model training outputs (keep trained models, ignore temp files)
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+*.swp
+*.swo
+*~
+
+# Credentials and secrets
+*.pem
+*.key
+credentials.json
+service-account*.json

@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Pharmacy - Order Medicines Online</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: Poppins, "Segoe UI", sans-serif;
+    background: linear-gradient(135deg, #ffffff 40%, #e0e7ff 70%, #d8b4fe 100%);
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+  }
+
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  body::before {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(167,139,250,0.4), transparent);
+    top: -100px;
+    right: -100px;
+  }
+
+  body::after {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(196,181,253,0.3), transparent);
+    bottom: -150px;
+    left: -150px;
+  }
+
+  .back-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    padding: 5px 12px;
+    background: white;
+    color: #7c3aed;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 11px;
+    box-shadow: 0 4px 15px rgba(124,58,237,0.2);
+    transition: all 0.3s ease;
+    z-index: 100;
+  }
+
+  .back-btn:hover {
+    transform: translateX(-3px);
+    box-shadow: 0 6px 20px rgba(124,58,237,0.3);
+  }
+
+  .my-orders-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(124,58,237,0.3);
+    transition: all 0.3s ease;
+    z-index: 100;
+  }
+
+  .my-orders-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124,58,237,0.4);
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 80px auto 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header h1 {
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+  }
+
+  .header p {
+    color: #64748b;
+    font-size: 16px;
+  }
+
+  .location-section {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(124,58,237,0.1);
+    margin-bottom: 30px;
+  }
+
+  .location-section h2 {
+    font-size: 20px;
+    color: #7c3aed;
+    margin-bottom: 20px;
+  }
+
+  .location-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+  }
+
+  select, input {
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+  }
+
+  select:focus, input:focus {
+    outline: none;
+    border-color: #7c3aed;
+  }
+
+  .search-btn {
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124,58,237,0.4);
+  }
+
+  .pharmacy-results {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(124,58,237,0.1);
+    margin-bottom: 30px;
+    display: none;
+  }
+
+  .pharmacy-results.show {
+    display: block;
+  }
+
+  .pharmacy-card {
+    background: linear-gradient(135deg, rgba(124,58,237,0.05), rgba(99,102,241,0.05));
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    border: 2px solid #e0e7ff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .pharmacy-card:hover {
+    border-color: #7c3aed;
+    transform: translateX(5px);
+  }
+
+  .pharmacy-card.selected {
+    border-color: #7c3aed;
+    background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(99,102,241,0.1));
+  }
+
+  .pharmacy-card h3 {
+    color: #7c3aed;
+    margin-bottom: 8px;
+  }
+
+  .pharmacy-card p {
+    font-size: 13px;
+    color: #64748b;
+    margin: 4px 0;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #22c55e;
+    color: white;
+    font-size: 11px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  .medicine-section {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(124,58,237,0.1);
+    display: none;
+  }
+
+  .medicine-section.show {
+    display: block;
+  }
+
+  .search-bar {
+    position: relative;
+    margin-bottom: 30px;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: 15px 50px 15px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 15px;
+    font-size: 16px;
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #7c3aed;
+    font-size: 20px;
+  }
+
+  .category-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+  }
+
+  .filter-btn {
+    padding: 8px 16px;
+    background: #f1f5f9;
+    border: 2px solid transparent;
+    border-radius: 20px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .filter-btn.active {
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    color: white;
+  }
+
+  .medicine-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .medicine-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(224,231,255,0.3));
+    padding: 20px;
+    border-radius: 15px;
+    border: 2px solid #e0e7ff;
+    transition: all 0.3s ease;
+  }
+
+  .medicine-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(124,58,237,0.2);
+  }
+
+  .medicine-card h3 {
+    color: #1e293b;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .medicine-type {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #e0e7ff;
+    color: #7c3aed;
+    font-size: 11px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .medicine-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #7c3aed;
+    margin: 10px 0;
+  }
+
+  .prescription-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #fbbf24;
+    color: white;
+    font-size: 11px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .add-btn {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .add-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(124,58,237,0.3);
+  }
+
+  .cart-section {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(124,58,237,0.3);
+    min-width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+  }
+
+  .cart-section.show {
+    display: block;
+  }
+
+  .cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .cart-header h3 {
+    color: #7c3aed;
+  }
+
+  .close-cart {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #64748b;
+  }
+
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .cart-item-info {
+    flex: 1;
+  }
+
+  .cart-item-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 14px;
+  }
+
+  .cart-item-price {
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .qty-btn {
+    width: 25px;
+    height: 25px;
+    border: none;
+    background: #e0e7ff;
+    color: #7c3aed;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .qty-display {
+    width: 30px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .checkout-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .checkout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(124,58,237,0.4);
+  }
+
+  .cart-badge {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(124,58,237,0.4);
+    transition: all 0.3s ease;
+    z-index: 999;
+  }
+
+  .cart-badge:hover {
+    transform: scale(1.1);
+  }
+
+  .cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(5px);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal.show {
+    display: flex;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-content h2 {
+    color: #7c3aed;
+    margin-bottom: 20px;
+  }
+
+  .form-group-modal {
+    margin-bottom: 20px;
+  }
+
+  .form-group-modal label {
+    display: block;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .form-group-modal input, .form-group-modal textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-family: inherit;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+  }
+
+  .modal-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .modal-btn-primary {
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    color: white;
+  }
+
+  .modal-btn-secondary {
+    background: #f1f5f9;
+    color: #64748b;
+  }
+
+  @media (max-width: 768px) {
+    .medicine-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .location-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .cart-section {
+      width: calc(100% - 40px);
+      right: 20px;
+      left: 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<a href="user_dashboard.html" class="back-btn">← Back</a>
+<button class="my-orders-btn" id="myOrdersBtn">📦 My Orders</button>
+
+<div class="container">
+  <div class="header">
+    <h1>💊 E-Pharmacy</h1>
+    <p>Order medicines online from verified pharmacies</p>
+  </div>
+
+  <!-- Location Selection -->
+  <div class="location-section">
+    <h2>📍 Select Your Location</h2>
+    <div class="location-grid">
+      <div class="form-group">
+        <label>State</label>
+        <select id="stateSelect">
+          <option value="">Select State</option>
+          <option>Andhra Pradesh</option>
+          <option>Telangana</option>
+          <option>Karnataka</option>
+          <option>Tamil Nadu</option>
+          <option>Kerala</option>
+          <option>Maharashtra</option>
+          <option>Gujarat</option>
+          <option>Rajasthan</option>
+          <option>Uttar Pradesh</option>
+          <option>Delhi</option>
+          <option>West Bengal</option>
+          <option>Punjab</option>
+          <option>Haryana</option>
+          <option>Bihar</option>
+          <option>Madhya Pradesh</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>District</label>
+        <input type="text" id="districtInput" placeholder="Enter district">
+      </div>
+    </div>
+    <button class="search-btn" id="searchPharmaciesBtn">🔍 Search Pharmacies</button>
+    <button class="search-btn" id="skipPharmacyBtn" style="background: linear-gradient(135deg, #64748b, #475569); margin-left: 15px;">
+      📋 Browse All Medicines (Order to Any Pharmacy)
+    </button>
+  </div>
+
+  <!-- Pharmacy Results -->
+  <div class="pharmacy-results" id="pharmacyResults">
+    <h2>Available Pharmacies</h2>
+    <p style="font-size: 14px; color: #64748b; margin-top: 10px;">Select a specific pharmacy or skip to browse medicines and send order to all pharmacies</p>
+    <div id="pharmacyList"></div>
+  </div>
+
+  <!-- Medicine Catalog -->
+  <div class="medicine-section" id="medicineSection">
+    <h2 style="color: #7c3aed; margin-bottom: 20px;">Browse Medicines</h2>
+    
+    <div class="search-bar">
+      <input type="text" id="medicineSearch" placeholder="Search for medicines, tablets, syrups...">
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <div class="category-filters" id="categoryFilters"></div>
+
+    <div class="medicine-grid" id="medicineGrid"></div>
+  </div>
+</div>
+
+<!-- Cart Badge -->
+<div class="cart-badge" id="cartBadge" style="display: none;">
+  🛒
+  <div class="cart-count" id="cartCount">0</div>
+</div>
+
+<!-- Cart Section -->
+<div class="cart-section" id="cartSection">
+  <div class="cart-header">
+    <h3>🛒 Your Cart</h3>
+    <button class="close-cart" id="closeCart">×</button>
+  </div>
+  <div id="cartItems"></div>
+  <button class="checkout-btn" id="checkoutBtn">Proceed to Order</button>
+</div>
+
+<!-- Order Modal -->
+<div class="modal" id="orderModal">
+  <div class="modal-content">
+    <h2>📋 Complete Your Order</h2>
+    <div class="form-group-modal">
+      <label>Full Name *</label>
+      <input type="text" id="orderName" placeholder="Enter your name">
+    </div>
+    <div class="form-group-modal">
+      <label>Contact Number *</label>
+      <input type="tel" id="orderContact" placeholder="Enter contact number">
+    </div>
+    <div class="form-group-modal">
+      <label>Village/Area</label>
+      <input type="text" id="orderVillage" placeholder="Enter village or area">
+    </div>
+    <div class="form-group-modal">
+      <label>Full Address *</label>
+      <textarea id="orderAddress" rows="3" placeholder="Enter complete delivery address"></textarea>
+    </div>
+    <div class="form-group-modal">
+      <label>Prescription Note</label>
+      <textarea id="prescriptionNote" rows="2" placeholder="If you have prescription, mention doctor name or upload details"></textarea>
+    </div>
+    <p style="color: #ef4444; font-size: 12px; margin: 15px 0;">
+      ⚠️ <strong>Important:</strong> Prescription medicines require valid prescription. The pharmacist will verify before dispensing.
+    </p>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-secondary" id="cancelOrderBtn">Cancel</button>
+      <button class="modal-btn modal-btn-primary" id="confirmOrderBtn">Confirm Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- My Orders Modal -->
+<div class="modal" id="myOrdersModal">
+  <div class="modal-content" style="max-width: 700px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2>📦 My Orders</h2>
+      <button class="close-cart" id="closeMyOrders">×</button>
+    </div>
+    <div id="myOrdersList"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let allPharmacies = [];
+let allMedicines = [];
+let filteredMedicines = [];
+let selectedPharmacy = null;
+let cart = [];
+let currentFilter = "all";
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    alert("Please login first!");
+    window.location.href = "user_login.html";
+  } else {
+    currentUser = user;
+    loadMedicines();
+  }
+});
+
+// Load all medicines
+async function loadMedicines() {
+  try {
+    const snapshot = await getDocs(collection(db, "tablets"));
+    allMedicines = [];
+    snapshot.forEach(doc => {
+      allMedicines.push({ id: doc.id, ...doc.data() });
+    });
+    
+    setupCategoryFilters();
+    filteredMedicines = [...allMedicines];
+    // Don't display until pharmacy is selected
+  } catch (error) {
+    console.error("Error loading medicines:", error);
+  }
+}
+
+// Setup category filters
+function setupCategoryFilters() {
+  const categories = ["All", ...new Set(allMedicines.map(m => m.category))];
+  const filtersContainer = document.getElementById("categoryFilters");
+  
+  filtersContainer.innerHTML = categories.map(cat => 
+    `<button class="filter-btn ${cat === "All" ? "active" : ""}" data-category="${cat}">${cat}</button>`
+  ).join("");
+  
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      filterMedicines(btn.dataset.category);
+    });
+  });
+}
+
+// Search pharmacies
+document.getElementById("searchPharmaciesBtn").addEventListener("click", async () => {
+  const state = document.getElementById("stateSelect").value;
+  const district = document.getElementById("districtInput").value.trim();
+  
+  if (!state || !district) {
+    alert("Please select state and enter district");
+    return;
+  }
+  
+  try {
+    const snapshot = await getDocs(collection(db, "epharmacyregistration"));
+    allPharmacies = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.status === "active") {
+        allPharmacies.push({ id: doc.id, ...data });
+      }
+    });
+    
+    // Filter by location
+    let filtered = allPharmacies.filter(p => 
+      p.state === state && 
+      p.district.toLowerCase().includes(district.toLowerCase())
+    );
+    
+    // If no exact match, show home delivery pharmacies
+    if (filtered.length === 0) {
+      filtered = allPharmacies.filter(p => 
+        p.state === state && p.homeDelivery === true
+      );
+      
+      if (filtered.length > 0) {
+        alert("No pharmacies found in your exact location.\nShowing pharmacies with home delivery service.");
+      }
+    }
+    
+    displayPharmacies(filtered);
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Error searching pharmacies: " + error.message);
+  }
+});
+
+// Display pharmacies
+function displayPharmacies(pharmacies) {
+  const container = document.getElementById("pharmacyList");
+  const resultsSection = document.getElementById("pharmacyResults");
+  
+  if (pharmacies.length === 0) {
+    container.innerHTML = '<p style="color: #64748b;">No pharmacies found in your area. Try searching in nearby districts.</p>';
+    resultsSection.classList.add("show");
+    return;
+  }
+  
+  container.innerHTML = pharmacies.map(p => `
+    <div class="pharmacy-card" data-id="${p.id}">
+      <h3>${p.pharmacyName}</h3>
+      <p>📍 ${p.place}, ${p.district}, ${p.state}</p>
+      <p>👨‍⚕️ ${p.pharmacistName}</p>
+      <p>📞 ${p.contact}</p>
+      <p>🕒 ${p.operatingHours}</p>
+      ${p.homeDelivery ? '<span class="badge">🚚 Home Delivery</span>' : ''}
+      ${p.emergencyService ? '<span class="badge" style="background: #ef4444;">🚨 24/7 Emergency</span>' : ''}
+    </div>
+  `).join("");
+  
+  resultsSection.classList.add("show");
+  
+  // Add click handlers
+  document.querySelectorAll(".pharmacy-card").forEach(card => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".pharmacy-card").forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      
+      selectedPharmacy = pharmacies.find(p => p.id === card.dataset.id);
+      document.getElementById("medicineSection").classList.add("show");
+      displayMedicines();
+      
+      // Scroll to medicine section
+      document.getElementById("medicineSection").scrollIntoView({ behavior: "smooth" });
+    });
+  });
+}
+
+// Skip pharmacy selection - browse all medicines
+document.getElementById("skipPharmacyBtn").addEventListener("click", () => {
+  selectedPharmacy = null; // No specific pharmacy selected
+  document.getElementById("medicineSection").classList.add("show");
+  displayMedicines();
+  
+  // Scroll to medicine section
+  document.getElementById("medicineSection").scrollIntoView({ behavior: "smooth" });
+  
+  alert("📋 Browse medicines and add to cart.\n\n✅ Your order will be sent to ALL registered pharmacies.\n\n💡 First pharmacy to confirm will fulfill your order!");
+});
+
+// Filter medicines
+function filterMedicines(category) {
+  if (category === "All") {
+    filteredMedicines = [...allMedicines];
+  } else {
+    filteredMedicines = allMedicines.filter(m => m.category === category);
+  }
+  displayMedicines();
+}
+
+// Search medicines
+document.getElementById("medicineSearch").addEventListener("input", (e) => {
+  const search = e.target.value.toLowerCase();
+  filteredMedicines = allMedicines.filter(m => 
+    m.name.toLowerCase().includes(search) ||
+    m.category.toLowerCase().includes(search) ||
+    m.description.toLowerCase().includes(search)
+  );
+  displayMedicines();
+});
+
+// Display medicines
+function displayMedicines() {
+  const container = document.getElementById("medicineGrid");
+  
+  if (filteredMedicines.length === 0) {
+    container.innerHTML = '<p style="color: #64748b;">No medicines found</p>';
+    return;
+  }
+  
+  container.innerHTML = filteredMedicines.map(med => `
+    <div class="medicine-card">
+      <span class="medicine-type">${med.type}</span>
+      ${med.requiresPrescription ? '<span class="prescription-badge">℞ Prescription Required</span>' : ''}
+      <h3>${med.name}</h3>
+      <p style="color: #64748b; font-size: 13px; margin: 8px 0;">${med.description}</p>
+      <div class="medicine-price">₹${med.price}</div>
+      <button class="add-btn" data-id="${med.id}">Add to Cart</button>
+    </div>
+  `).join("");
+  
+  // Add to cart handlers
+  document.querySelectorAll(".add-btn").forEach(btn => {
+    btn.addEventListener("click", () => addToCart(btn.dataset.id));
+  });
+}
+
+// Add to cart
+function addToCart(medicineId) {
+  const medicine = allMedicines.find(m => m.id === medicineId);
+  const existing = cart.find(item => item.id === medicineId);
+  
+  if (existing) {
+    existing.quantity++;
+  } else {
+    cart.push({ ...medicine, quantity: 1 });
+  }
+  
+  updateCart();
+  document.getElementById("cartBadge").style.display = "flex";
+}
+
+// Update cart display
+function updateCart() {
+  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+  document.getElementById("cartCount").textContent = count;
+  
+  const cartItems = document.getElementById("cartItems");
+  
+  if (cart.length === 0) {
+    cartItems.innerHTML = '<p style="color: #64748b; text-align: center;">Cart is empty</p>';
+    return;
+  }
+  
+  cartItems.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">₹${item.price} × ${item.quantity}</div>
+      </div>
+      <div class="quantity-controls">
+        <button class="qty-btn" data-id="${item.id}" data-action="decrease">-</button>
+        <span class="qty-display">${item.quantity}</span>
+        <button class="qty-btn" data-id="${item.id}" data-action="increase">+</button>
+      </div>
+    </div>
+  `).join("");
+  
+  // Quantity controls
+  document.querySelectorAll(".qty-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+      const item = cart.find(i => i.id === id);
+      
+      if (action === "increase") {
+        item.quantity++;
+      } else if (action === "decrease") {
+        item.quantity--;
+        if (item.quantity === 0) {
+          cart = cart.filter(i => i.id !== id);
+        }
+      }
+      
+      updateCart();
+    });
+  });
+}
+
+// Cart interactions
+document.getElementById("cartBadge").addEventListener("click", () => {
+  document.getElementById("cartSection").classList.add("show");
+});
+
+document.getElementById("closeCart").addEventListener("click", () => {
+  document.getElementById("cartSection").classList.remove("show");
+});
+
+// Checkout
+document.getElementById("checkoutBtn").addEventListener("click", () => {
+  if (cart.length === 0) {
+    alert("Cart is empty!");
+    return;
+  }
+  
+  document.getElementById("orderModal").classList.add("show");
+});
+
+// Order submission
+document.getElementById("confirmOrderBtn").addEventListener("click", async () => {
+  const name = document.getElementById("orderName").value.trim();
+  const contact = document.getElementById("orderContact").value.trim();
+  const village = document.getElementById("orderVillage").value.trim();
+  const address = document.getElementById("orderAddress").value.trim();
+  const prescriptionNote = document.getElementById("prescriptionNote").value.trim();
+  
+  if (!name || !contact || !address) {
+    alert("Please fill all required fields!");
+    return;
+  }
+  
+  // Base order data
+  const orderData = {
+    userId: currentUser.uid,
+    userName: name,
+    contact: contact,
+    village: village,
+    district: document.getElementById("districtInput").value.trim() || "Not specified",
+    state: document.getElementById("stateSelect").value || "Not specified",
+    address: address,
+    prescriptionNote: prescriptionNote || "No prescription note provided",
+    medicines: cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price,
+      requiresPrescription: item.requiresPrescription
+    })),
+    totalAmount: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+    status: "pending",
+    timestamp: serverTimestamp()
+  };
+  
+  // If specific pharmacy selected, add pharmacy details
+  if (selectedPharmacy) {
+    orderData.pharmacyId = selectedPharmacy.id;
+    orderData.pharmacyName = selectedPharmacy.pharmacyName;
+    orderData.place = selectedPharmacy.place;
+  } else {
+    // Order goes to all pharmacies
+    orderData.place = "Any Location";
+    orderData.forAllPharmacies = true;
+  }
+  
+  try {
+    await addDoc(collection(db, "medicineorders"), orderData);
+    
+    if (selectedPharmacy) {
+      alert("✅ Order placed successfully!\n\n📍 Order sent to: " + selectedPharmacy.pharmacyName + "\n\nThe pharmacy will confirm your order soon.");
+    } else {
+      alert("✅ Order placed successfully!\n\n📢 Order sent to ALL registered pharmacies!\n\n💡 First pharmacy to confirm will fulfill your order.");
+    }
+    
+    // Reset
+    cart = [];
+    updateCart();
+    document.getElementById("orderModal").classList.remove("show");
+    document.getElementById("cartSection").classList.remove("show");
+    document.getElementById("cartBadge").style.display = "none";
+    
+    // Clear form
+    document.getElementById("orderName").value = "";
+    document.getElementById("orderContact").value = "";
+    document.getElementById("orderVillage").value = "";
+    document.getElementById("orderAddress").value = "";
+    document.getElementById("prescriptionNote").value = "";
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Error placing order: " + error.message);
+  }
+});
+
+// Modal controls
+document.getElementById("cancelOrderBtn").addEventListener("click", () => {
+  document.getElementById("orderModal").classList.remove("show");
+});
+
+// My Orders
+document.getElementById("myOrdersBtn").addEventListener("click", async () => {
+  if (!currentUser) return;
+  
+  try {
+    const q = query(collection(db, "medicineorders"), where("userId", "==", currentUser.uid));
+    const snapshot = await getDocs(q);
+    
+    const orders = [];
+    snapshot.forEach(doc => {
+      orders.push({ id: doc.id, ...doc.data() });
+    });
+    
+    orders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+    
+    displayMyOrders(orders);
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Error loading orders: " + error.message);
+  }
+});
+
+function displayMyOrders(orders) {
+  const container = document.getElementById("myOrdersList");
+  
+  if (orders.length === 0) {
+    container.innerHTML = '<p style="color: #64748b; text-align: center;">No orders yet</p>';
+  } else {
+    container.innerHTML = orders.map(order => {
+      const date = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString() : "N/A";
+      const statusColors = {
+        pending: "#fbbf24",
+        confirmed: "#22c55e",
+        completed: "#6366f1",
+        rejected: "#ef4444",
+        unavailable: "#f97316"
+      };
+      
+      const statusText = order.status === "unavailable" 
+        ? "❌ Not Available" 
+        : order.status;
+      
+      const statusMessage = order.status === "unavailable"
+        ? '<p style="font-size: 12px; color: #f97316; margin-top: 8px; padding: 8px; background: rgba(249, 115, 22, 0.1); border-radius: 8px;">⚠️ This medicine is currently not available at any pharmacy in your area.</p>'
+        : '';
+      
+      return `
+        <div style="background: #f8fafc; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 2px solid ${order.status === 'unavailable' ? '#f97316' : '#e2e8f0'};">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <strong style="color: #1e293b;">${order.pharmacyName || 'Pharmacy'}</strong>
+            <span style="color: ${statusColors[order.status]}; font-weight: 700; text-transform: uppercase; font-size: 12px;">${statusText}</span>
+          </div>
+          <p style="font-size: 13px; color: #64748b; margin: 5px 0;">📅 ${date}</p>
+          <p style="font-size: 13px; color: #64748b; margin: 5px 0;">💰 Total: ₹${order.totalAmount}</p>
+          <p style="font-size: 13px; color: #64748b; margin: 5px 0;">📦 ${order.medicines?.length || 0} items</p>
+          ${statusMessage}
+          <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e2e8f0;">
+            ${order.medicines?.map(m => `<div style="font-size: 12px; color: #475569;">• ${m.name} (x${m.quantity})</div>`).join("") || ""}
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+  
+  document.getElementById("myOrdersModal").classList.add("show");
+}
+
+document.getElementById("closeMyOrders").addEventListener("click", () => {
+  document.getElementById("myOrdersModal").classList.remove("show");
+});
+
+// Close modals on outside click
+document.querySelectorAll(".modal").forEach(modal => {
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.classList.remove("show");
+    }
+  });
+});
+</script>
+
+</body>
+</html>

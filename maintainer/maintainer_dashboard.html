@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Maintainer Dashboard - Life Link Nexus</title>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #eef2ff, #ede9fe);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            margin: 30px 0;
+            color: #4b0082;
+            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 95%;
+            max-width: 1000px;
+            overflow-x: auto;
+            animation: fadeIn 1.2s ease-in-out;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+        th {
+            background: linear-gradient(135deg, #7c3aed, #6366f1);
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f3f0ff;
+        }
+        tr:hover {
+            background-color: #ede9fe;
+        }
+        button {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .approve-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .approve-btn:hover {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+        .reject-btn {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+        }
+        .reject-btn:hover {
+            background: linear-gradient(135deg, #b91c1c, #ef4444);
+        }
+        footer {
+            margin-top: auto;
+            padding: 15px;
+            color: #4b0082;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Maintainer Dashboard</h1>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="adminTable">
+                <tr>
+                    <td colspan="7" style="text-align:center;">Loading...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>© 2025 Life Link Nexus | Maintainer Panel</footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, updateDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+        import { firebaseConfig } from "../firebase-config.js";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // ✅ Load all pending admin requests from Firestore
+        async function loadRequests() {
+            const tableBody = document.getElementById("adminTable");
+            tableBody.innerHTML = "";
+            const snapshot = await getDocs(collection(db, "adminRequests"));
+            let found = false;
+
+            snapshot.forEach(async (docSnap) => {
+                const data = docSnap.data();
+                if (data && data.approved === false) {
+                    found = true;
+                    const row = 
+                    `<tr>
+                        <td>${data.name}</td>
+                        <td>${data.email}</td>
+                        <td>${data.role}</td>
+                        <td>${data.phone}</td>
+                        <td>${data.AboutADMIN}</td>
+                        <td>Pending</td>
+                        <td>
+                            <button class="approve-btn" onclick="approve('${docSnap.id}')">Approve</button>
+                            <button class="reject-btn" onclick="reject('${docSnap.id}')">Reject</button>
+                        </td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                }
+            });
+
+            if (!found) {
+                tableBody.innerHTML =
+                `<tr><td colspan="7" style="text-align:center;">No pending requests 🎉</td></tr>`;
+            }
+        }
+
+        // ✅ Approve function
+        window.approve = async function(id) {
+  const reqRef = doc(db, "adminRequests", id);
+  const reqSnap = await getDoc(reqRef);
+  const data = reqSnap.data();
+
+  if (!data) return alert("Error: Request data missing");
+
+  // ✅ Mark request as approved
+  await updateDoc(reqRef, { approved: true });
+
+  // ✅ Move user to admins collection
+  await setDoc(doc(db, "admins", id), {
+    uid: id,
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    role: data.role,
+    address: data.AboutADMIN,
+    approved: true,
+    status: "approved",
+    createdAt: new Date().toISOString()
+  });
+
+  alert(`✅ ${data.name} approved as admin`);
+  loadRequests();
+};
+
+        // ❌ Reject function
+        window.reject = async function(id) {
+            await updateDoc(doc(db, "adminRequests", id), { approved: "rejected" });
+            alert("❌ Request rejected!");
+            loadRequests();
+        };
+
+        // ✅ Ensure only maintainer can access this page
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email === "maintaineroflln404@gmail.com") {
+                loadRequests();
+            } else {
+                alert("Access denied. Only maintainer can view this page.");
+                window.location.href = "maintainer_login.html";
+            }
+        });
+    </script>
+</body>
+</html>

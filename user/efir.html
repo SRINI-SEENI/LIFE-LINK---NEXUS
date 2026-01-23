@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-FIR - LifeLink Nexus</title>
+  <style>
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes floatUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #ffffff 40%, #e0e7ff 70%, #d8b4fe 100%);
+      color: #1a202c;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .circle {
+      position: fixed;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      filter: blur(70px);
+      animation: float 10s infinite ease-in-out;
+      z-index: 0;
+    }
+
+    .circle:nth-child(1) {
+      width: 300px;
+      height: 300px;
+      top: 10%;
+      left: 10%;
+      background: rgba(173, 216, 255, 0.3);
+    }
+
+    .circle:nth-child(2) {
+      width: 400px;
+      height: 400px;
+      bottom: 15%;
+      right: 10%;
+      background: rgba(206, 188, 255, 0.3);
+    }
+
+    .circle:nth-child(3) {
+      width: 250px;
+      height: 250px;
+      top: 60%;
+      left: 70%;
+      background: rgba(180, 200, 255, 0.25);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    header {
+      position: relative;
+      text-align: center;
+      padding: 50px 20px 60px 20px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 235, 255, 0.95) 100%);
+      backdrop-filter: blur(40px) saturate(180%);
+      box-shadow: 0 15px 60px rgba(75, 0, 130, 0.15), 0 5px 25px rgba(147, 51, 234, 0.1);
+      animation: floatUp 0.8s ease-out;
+      z-index: 10;
+      border-bottom: 4px solid transparent;
+      border-image: linear-gradient(90deg, #8b5cf6, #ec4899, #f59e0b, #10b981) 1;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    header h1 {
+      margin: 0 0 15px 0;
+      font-size: 56px;
+      font-weight: 900;
+      color: #4b0082;
+      letter-spacing: -2px;
+      text-shadow: 0 2px 10px rgba(75, 0, 130, 0.15);
+      position: relative;
+      display: inline-block;
+    }
+
+    .subtitle {
+      color: #4b0082;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 10px rgba(75, 0, 130, 0.15);
+    }
+
+    .container {
+      width: 95%;
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+      animation: floatUp 1s ease-out;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);
+      background-size: 200% 200%;
+      color: white;
+      border-radius: 30px;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 25px;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.5px;
+    }
+
+    .back-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: left 0.5s;
+    }
+
+    .back-btn:hover::before {
+      left: 100%;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+      background-position: 100% 50%;
+    }
+
+    .back-btn:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    .back-btn-container {
+      text-align: center;
+      padding: 20px 0 30px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .disclaimer {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 3px solid #f59e0b;
+      border-radius: 16px;
+      padding: 20px 25px;
+      margin-bottom: 25px;
+      color: #78350f;
+      font-size: 14px;
+      line-height: 1.8;
+      box-shadow: 0 10px 30px rgba(245, 158, 11, 0.25);
+      animation: floatUp 1.2s ease-out;
+    }
+
+    .disclaimer-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #92400e;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .disclaimer ul {
+      margin: 10px 0;
+      padding-left: 25px;
+    }
+
+    .disclaimer li {
+      margin: 8px 0;
+    }
+
+    .form-section {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.92) 100%);
+      backdrop-filter: blur(25px) saturate(180%);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 40px rgba(102, 126, 234, 0.12);
+      border: 1px solid rgba(102, 126, 234, 0.15);
+      animation: floatUp 1.4s ease-out;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0 0 20px 0;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 14px;
+    }
+
+    label .required {
+      color: #ef4444;
+      margin-left: 3px;
+    }
+
+    input, select, textarea {
+      padding: 12px 16px;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      background: white;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .file-upload-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-upload-input {
+      display: none;
+    }
+
+    .file-upload-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+      border: 2px dashed #667eea;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .file-upload-label:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+      border-color: #764ba2;
+    }
+
+    .file-name {
+      font-size: 13px;
+      color: #059669;
+      margin-top: 8px;
+      font-weight: 600;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      background: rgba(102, 126, 234, 0.05);
+      border-radius: 12px;
+      border: 2px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .checkbox-group label {
+      margin: 0;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 16px 40px;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+      letter-spacing: 0.5px;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn:active {
+      transform: translateY(-1px) scale(1.01);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin: 20px 0;
+      color: #1e40af;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .info-box strong {
+      font-weight: 700;
+      color: #1e3a8a;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 32px;
+      }
+
+      .container {
+        width: 98%;
+        padding: 10px;
+      }
+
+      .form-section {
+        padding: 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn {
+        padding: 14px 32px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="circle"></div>
+<div class="circle"></div>
+<div class="circle"></div>
+
+<header>
+  <h1>E-FIR System</h1>
+  <p class="subtitle">Electronic First Information Report</p>
+</header>
+
+<div class="container">
+  <div class="form-section">
+    <h2 class="section-title">📝 Personal Information</h2>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Full Name <span class="required">*</span></label>
+        <input type="text" id="fullName" required placeholder="Enter your full name">
+      </div>
+
+      <div class="form-group">
+        <label>Contact Number <span class="required">*</span></label>
+        <input type="tel" id="contactNumber" required placeholder="+91 XXXXXXXXXX">
+      </div>
+
+      <div class="form-group">
+        <label>Email Address <span class="required">*</span></label>
+        <input type="email" id="emailAddress" required placeholder="your.email@example.com">
+      </div>
+
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <input type="date" id="dob">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Current Address <span class="required">*</span></label>
+        <textarea id="currentAddress" required placeholder="Enter your current address"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>State <span class="required">*</span></label>
+        <select id="state" required>
+          <option value="">Select State</option>
+          <option value="Andhra Pradesh">Andhra Pradesh</option>
+          <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+          <option value="Assam">Assam</option>
+          <option value="Bihar">Bihar</option>
+          <option value="Chhattisgarh">Chhattisgarh</option>
+          <option value="Goa">Goa</option>
+          <option value="Gujarat">Gujarat</option>
+          <option value="Haryana">Haryana</option>
+          <option value="Himachal Pradesh">Himachal Pradesh</option>
+          <option value="Jharkhand">Jharkhand</option>
+          <option value="Karnataka">Karnataka</option>
+          <option value="Kerala">Kerala</option>
+          <option value="Madhya Pradesh">Madhya Pradesh</option>
+          <option value="Maharashtra">Maharashtra</option>
+          <option value="Manipur">Manipur</option>
+          <option value="Meghalaya">Meghalaya</option>
+          <option value="Mizoram">Mizoram</option>
+          <option value="Nagaland">Nagaland</option>
+          <option value="Odisha">Odisha</option>
+          <option value="Punjab">Punjab</option>
+          <option value="Rajasthan">Rajasthan</option>
+          <option value="Sikkim">Sikkim</option>
+          <option value="Tamil Nadu">Tamil Nadu</option>
+          <option value="Telangana">Telangana</option>
+          <option value="Tripura">Tripura</option>
+          <option value="Uttar Pradesh">Uttar Pradesh</option>
+          <option value="Uttarakhand">Uttarakhand</option>
+          <option value="West Bengal">West Bengal</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>District <span class="required">*</span></label>
+        <input type="text" id="district" required placeholder="Enter district">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2 class="section-title">🚔 Incident Details</h2>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Type of Complaint <span class="required">*</span></label>
+        <select id="complaintType" required>
+          <option value="">Select Type</option>
+          <option value="Theft">Theft</option>
+          <option value="Lost Property">Lost Property</option>
+          <option value="Accident">Accident</option>
+          <option value="Cheating/Fraud">Cheating/Fraud</option>
+          <option value="Cyber Crime">Cyber Crime</option>
+          <option value="Harassment">Harassment</option>
+          <option value="Assault">Assault</option>
+          <option value="Property Dispute">Property Dispute</option>
+          <option value="Missing Person">Missing Person</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Date of Incident <span class="required">*</span></label>
+        <input type="date" id="incidentDate" required>
+      </div>
+
+      <div class="form-group">
+        <label>Time of Incident</label>
+        <input type="time" id="incidentTime">
+      </div>
+
+      <div class="form-group">
+        <label>Nearest Police Station <span class="required">*</span></label>
+        <input type="text" id="policeStation" required placeholder="Name of nearest police station">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Place of Incident <span class="required">*</span></label>
+        <textarea id="incidentPlace" required placeholder="Describe the location where incident occurred"></textarea>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Detailed Description of Incident <span class="required">*</span></label>
+        <textarea id="incidentDescription" required placeholder="Provide a detailed description of what happened..." style="min-height: 150px;"></textarea>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Suspected Person(s) Details (if any)</label>
+        <textarea id="suspectDetails" placeholder="Describe suspected persons if known (physical features, name, etc.)"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2 class="section-title">📎 Supporting Documents</h2>
+    
+    <div class="info-box">
+      <strong>📄 Acceptable Documents:</strong> You can upload supporting evidence like photos, videos, PDFs, or documents related to your complaint. Maximum file size: 10MB per file.
+    </div>
+
+    <div class="form-group full-width">
+      <label>Upload Supporting Documents (Optional)</label>
+      <div class="file-upload-wrapper">
+        <input type="file" id="supportingDoc1" class="file-upload-input" accept="image/*,.pdf,video/*" onchange="handleFileUpload('supportingDoc1')">
+        <label for="supportingDoc1" class="file-upload-label">
+          <span>📁</span>
+          <span>Click to upload Document 1</span>
+        </label>
+      </div>
+      <div id="fileName1" class="file-name"></div>
+    </div>
+
+    <div class="form-group full-width">
+      <div class="file-upload-wrapper">
+        <input type="file" id="supportingDoc2" class="file-upload-input" accept="image/*,.pdf,video/*" onchange="handleFileUpload('supportingDoc2')">
+        <label for="supportingDoc2" class="file-upload-label">
+          <span>📁</span>
+          <span>Click to upload Document 2</span>
+        </label>
+      </div>
+      <div id="fileName2" class="file-name"></div>
+    </div>
+
+    <div class="form-group full-width">
+      <div class="file-upload-wrapper">
+        <input type="file" id="supportingDoc3" class="file-upload-input" accept="image/*,.pdf,video/*" onchange="handleFileUpload('supportingDoc3')">
+        <label for="supportingDoc3" class="file-upload-label">
+          <span>📁</span>
+          <span>Click to upload Document 3</span>
+        </label>
+      </div>
+      <div id="fileName3" class="file-name"></div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2 class="section-title">✅ Declaration</h2>
+    
+    <div class="checkbox-group">
+      <input type="checkbox" id="declaration" required>
+      <label for="declaration">
+        I hereby declare that the information provided above is true and correct to the best of my knowledge. I understand that providing false information is a punishable offense under law.
+      </label>
+    </div>
+
+    <button class="btn" onclick="submitEFIR()" style="margin-top: 25px;">
+      📨 Submit E-FIR
+    </button>
+  </div>
+
+  <div class="back-btn-container">
+    <a href="user_dashboard.html" class="back-btn">
+      <span>⬅</span>
+      <span>Back to Dashboard</span>
+    </a>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { firebaseConfig } from "../firebase-config.js";
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+    } else {
+      alert("⚠️ Please login to submit E-FIR");
+      window.location.href = "user_login.html";
+    }
+  });
+
+  window.handleFileUpload = function(inputId) {
+    const input = document.getElementById(inputId);
+    const fileNameDiv = document.getElementById('fileName' + inputId.slice(-1));
+    
+    if (input.files.length > 0) {
+      const file = input.files[0];
+      const fileSize = (file.size / 1024 / 1024).toFixed(2);
+      
+      if (file.size > 10 * 1024 * 1024) {
+        alert('⚠️ File size exceeds 10MB limit!');
+        input.value = '';
+        fileNameDiv.textContent = '';
+        return;
+      }
+      
+      fileNameDiv.textContent = `✅ ${file.name} (${fileSize} MB)`;
+    }
+  };
+
+  window.submitEFIR = async function() {
+    if (!currentUser) {
+      alert("⚠️ Please login to submit E-FIR");
+      return;
+    }
+
+    // Validate required fields
+    const fullName = document.getElementById('fullName').value.trim();
+    const contactNumber = document.getElementById('contactNumber').value.trim();
+    const emailAddress = document.getElementById('emailAddress').value.trim();
+    const currentAddress = document.getElementById('currentAddress').value.trim();
+    const state = document.getElementById('state').value;
+    const district = document.getElementById('district').value.trim();
+    const complaintType = document.getElementById('complaintType').value;
+    const incidentDate = document.getElementById('incidentDate').value;
+    const policeStation = document.getElementById('policeStation').value.trim();
+    const incidentPlace = document.getElementById('incidentPlace').value.trim();
+    const incidentDescription = document.getElementById('incidentDescription').value.trim();
+    const declaration = document.getElementById('declaration').checked;
+
+    if (!fullName || !contactNumber || !emailAddress || !currentAddress || !state || !district || 
+        !complaintType || !incidentDate || !policeStation || !incidentPlace || !incidentDescription) {
+      alert('⚠️ Please fill all required fields marked with *');
+      return;
+    }
+
+    if (!declaration) {
+      alert('⚠️ Please accept the declaration to proceed');
+      return;
+    }
+
+    // Prepare data
+    const efirData = {
+      uid: currentUser.uid,
+      userEmail: currentUser.email,
+      fullName,
+      contactNumber,
+      emailAddress,
+      dob: document.getElementById('dob').value || 'Not provided',
+      currentAddress,
+      state,
+      district,
+      complaintType,
+      incidentDate,
+      incidentTime: document.getElementById('incidentTime').value || 'Not provided',
+      policeStation,
+      incidentPlace,
+      incidentDescription,
+      suspectDetails: document.getElementById('suspectDetails').value.trim() || 'None provided',
+      status: 'Submitted (Demo)',
+      firNumber: 'DEMO-' + Date.now(),
+      submittedAt: serverTimestamp()
+    };
+
+    try {
+      const docRef = await addDoc(collection(db, "efir_demo"), efirData);
+      
+      alert(`✅ E-FIR Submitted Successfully!\n\nReference Number: ${efirData.firNumber}\n\nYour complaint has been registered.`);
+      
+      // Redirect to dashboard after successful submission
+      window.location.href = "user_dashboard.html";
+      
+    } catch (error) {
+      console.error('Error submitting E-FIR:', error);
+      alert('❌ Error submitting E-FIR. Please try again.');
+    }
+  };
+</script>
+
+</body>
+</html>

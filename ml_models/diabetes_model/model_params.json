@@ -1,0 +1,49 @@
+{
+  "model_type": "RandomForest",
+  "n_estimators": 100,
+  "feature_names": [
+    "Pregnancies",
+    "Glucose",
+    "BloodPressure",
+    "SkinThickness",
+    "Insulin",
+    "BMI",
+    "DiabetesPedigreeFunction",
+    "Age"
+  ],
+  "feature_importance": {
+    "Pregnancies": 0.07112136312336895,
+    "Glucose": 0.31649530310166557,
+    "BloodPressure": 0.06953256693441008,
+    "SkinThickness": 0.06133332244293686,
+    "Insulin": 0.07940527304165006,
+    "BMI": 0.1761002280275509,
+    "DiabetesPedigreeFunction": 0.11242090162379502,
+    "Age": 0.11359104170462264
+  },
+  "scaler_mean": [
+    3.8192182410423454,
+    121.67100977198697,
+    72.1400651465798,
+    29.042345276872965,
+    137.70521172638436,
+    32.44674267100978,
+    0.477428338762215,
+    33.36644951140065
+  ],
+  "scaler_scale": [
+    3.311448216586372,
+    29.979350764655706,
+    12.2651192609104,
+    8.884611281688818,
+    78.70059996835236,
+    6.8185831159432295,
+    0.33003119077476745,
+    11.82379790254742
+  ],
+  "test_accuracy": 0.7402597402597403,
+  "training_samples": 614,
+  "test_samples": 154,
+  "dataset": "Pima Indians Diabetes Dataset",
+  "total_samples": 768
+}

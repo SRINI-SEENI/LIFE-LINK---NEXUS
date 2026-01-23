@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Blood Donors Directory</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #e6f2ff, #ffffff);
+  color: #021b42;
+}
+
+/* Header */
+header {
+  text-align: center;
+  padding: 15px;
+  font-size: 26px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.7);
+  border-bottom: 1px solid rgba(0,30,80,0.15);
+  backdrop-filter: blur(14px);
+  letter-spacing: .5px;
+  color:#003b93;
+}
+
+/* Layout */
+.container {
+  width: 90%;
+  margin: 22px auto;
+}
+
+/* Input / Dropdown */
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 68, 130, 0.4);
+  outline: none;
+  background: rgba(255,255,255,0.8);
+  color: #002040;
+  backdrop-filter: blur(12px);
+  transition: .2s;
+}
+
+input:focus, select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 8px rgba(0,123,255,0.6);
+}
+
+input::placeholder { color: rgba(0,40,90,0.4); }
+
+/* State & District Tags */
+h2 {
+  margin-top: 18px;
+  padding: 8px 12px;
+  background: rgba(0,135,255,0.08);
+  border-left: 4px solid #007bff;
+  border-radius: 6px;
+  font-size: 18px;
+  color:#003066;
+}
+
+h3 {
+  margin: 6px 0;
+  padding: 6px 10px;
+  background: rgba(0,136,90,0.08);
+  border-left: 4px solid #00a878;
+  border-radius: 6px;
+  font-size: 15px;
+  color:#003d2f;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 5px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 10px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+th, td {
+  border: 1px solid rgba(0,40,80,0.1);
+  padding: 10px;
+  text-align: left;
+  font-size: 13px;
+  color:#002244;
+}
+
+th {
+  background: rgba(0,90,180,0.15);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+
+tr {
+  transition: 0.2s;
+}
+
+tr:hover {
+  background: rgba(0,130,255,0.12);
+  transform: scale(1.01);
+}
+
+/* Empty message */
+.no-data {
+  text-align: center;
+  padding: 20px;
+  font-size: 15px;
+  opacity: 0.85;
+  color:#004075;
+}
+
+/* ✨ Luxury Blood Group Dropdown */
+#bgFilter {
+  background: linear-gradient(145deg, #ffffff, #bcd8ff);
+  font-weight: 600;
+  color:#003276;
+  border: 1px solid rgba(0,80,180,0.6);
+  box-shadow: 0 0 12px rgba(0,140,255,0.4);
+}
+#bgFilter:hover {
+  box-shadow: 0 0 20px rgba(0,140,255,0.6);
+}
+
+.back-btn {
+  display:inline-block;
+  padding:5px 12px;
+  font-size:10px;
+  font-weight:550;
+  background:#5fa9f3;
+  color:white;
+  border-radius:6px;
+  text-decoration:none;
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+  transition:0.25s ease-in-out;
+}
+
+.back-btn:hover {
+  background:#3b88e0;
+  transform:scale(1.06);
+  box-shadow:0 8px 18px rgba(0,0,0,0.3);
+}
+
+.urgent-btn {
+  position: fixed;
+  top: 15px;      /* ✅ moved from bottom to top */
+  right: 15px;    /* ✅ stays right side */
+  background: #ff1e4a;
+  color: white;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  z-index: 9999;
+  box-shadow: 0 5px 14px rgba(255, 0, 71, 0.4);
+  transition: 0.25s ease-in-out;
+}
+
+.urgent-btn:hover {
+  background: #c5082e;
+  transform: scale(1.08);
+  box-shadow: 0 8px 20px rgba(255, 0, 71, 0.6);
+}
+
+</style>
+</head>
+
+<body>
+<header>🩸 Blood Donor Directory</header>
+<div class="container">
+
+
+<div class="container">
+  <input id="districtSearch" placeholder="🔍 Search by District... (e.g., Chennai)">
+  <div id="tableArea">Loading donors...</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const tableArea = document.getElementById("tableArea");
+const searchBox = document.getElementById("districtSearch");
+
+/* Updated Blood Group Filter UI */
+const filterUI = document.createElement("select");
+filterUI.id = "bgFilter";
+filterUI.innerHTML = `
+<option value="">Sort by Blood Group</option>
+<option value="A+">A+</option><option value="A-">A-</option>
+<option value="B+">B+</option><option value="B-">B</option>
+<option value="O+">O+</option><option value="O-">O-</option>
+<option value="AB+">AB+</option><option value="AB-">AB-</option>
+`;
+document.querySelector(".container").prepend(filterUI);
+
+let allDonors = [];
+
+/* Fetch donors */
+async function loadDonors() {
+  tableArea.innerHTML = "⏳ Getting donor data...";
+  const snap = await getDocs(collection(db, "donations"));
+
+  if (snap.empty) {
+    tableArea.innerHTML = "<div class='no-data'>❌ No donor data found</div>";
+    return;
+  }
+
+  allDonors = snap.docs.map(doc => doc.data());
+  renderGrouped(allDonors);
+}
+
+/* Group & Display */
+function renderGrouped(data) {
+  if (!data.length) {
+    tableArea.innerHTML = "<div class='no-data'>❌ No matching donors</div>";
+    return;
+  }
+
+  const groups = {};
+  data.forEach(d => {
+    const state = d.state || "Unknown State";
+    const district = d.district || "Unknown District";
+    if (!groups[state]) groups[state] = {};
+    if (!groups[state][district]) groups[state][district] = [];
+    groups[state][district].push(d);
+  });
+
+  let html = "";
+
+  for (const state in groups) {
+    html += `<h2>State: ${state}</h2>`;
+    for (const district in groups[state]) {
+      html += `<h3>District: ${district}</h3>`;
+      html += `
+      <table>
+        <tr>
+          <th>Name</th><th>Age</th><th>Blood</th><th>Phone</th>
+          <th>Email</th><th>Address</th><th>Status</th><th>Drug Activity</th>
+        </tr>
+      `;
+      groups[state][district].forEach(d => {
+        html += `
+        <tr>
+          <td>${d.name || "-"}</td>
+          <td>${d.age || "-"}</td>
+          <td>${d.bloodGroup || "-"}</td>
+          <td>
+  ${d.contact 
+    ? `<a href="tel:${d.contact}" style="color:#0066cc;font-weight:600;text-decoration:none;">
+        📞 ${d.contact}
+      </a>` 
+    : "-"}
+</td>
+
+<td>
+  ${d.email 
+    ? `<a href="mailto:${d.email}" style="color:#0055aa;font-weight:600;text-decoration:none;">
+        ✉️ ${d.email}
+      </a>` 
+    : "-"}
+</td>
+
+          <td>${d.address || "-"}</td>
+          <td>${d.status || "-"}</td>
+          <td>${d.drugStatus || "None"}</td>
+        </tr>`;
+      });
+      html += `</table>`;
+    }
+  }
+  tableArea.innerHTML = html;
+}
+
+/* Filters */
+function filterAndRender() {
+  const d = searchBox.value.toLowerCase();
+  const bg = filterUI.value;
+  const filtered = allDonors.filter(x =>
+    (!d || (x.district || "").toLowerCase().includes(d)) &&
+    (!bg || x.bloodGroup === bg)
+  );
+  renderGrouped(filtered);
+}
+
+searchBox.addEventListener("keyup", filterAndRender);
+filterUI.addEventListener("change", filterAndRender);
+
+/* Auth check */
+onAuthStateChanged(auth, user => {
+  if (!user) {
+    tableArea.innerHTML = "<div class='no-data'>⚠️ Login to view donors</div>";
+    return;
+  }
+  loadDonors();
+});
+</script>
+
+<!-- ✅ Back to Dashboard Button -->
+<div style="text-align:center; margin:20px 0;">
+  <a href="user_dashboard.html" class="back-btn">
+    ⬅ Back to Dashboard
+  </a>
+</div>
+<!-- Urgent Blood Request Button -->
+<a href="bloodrequest.html" class="urgent-btn">Request Blood (Urgent)</a>
+
+</body>
+</html>

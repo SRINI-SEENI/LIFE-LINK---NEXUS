@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organ Donation Services</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #ffffff 40%, #e0e7ff 70%, #d8b4fe 100%);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .circle {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        filter: blur(70px);
+        animation: float 10s infinite ease-in-out;
+        z-index: 0;
+    }
+
+    .circle:nth-child(1) {
+        width: 300px;
+        height: 300px;
+        top: 10%;
+        left: 10%;
+        background: rgba(173, 216, 255, 0.3);
+    }
+
+    .circle:nth-child(2) {
+        width: 400px;
+        height: 400px;
+        bottom: 15%;
+        right: 10%;
+        background: rgba(206, 188, 255, 0.3);
+    }
+
+    .circle:nth-child(3) {
+        width: 250px;
+        height: 250px;
+        top: 60%;
+        left: 70%;
+        background: rgba(180, 200, 255, 0.25);
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .container {
+        text-align: center;
+        background: rgba(255,255,255,0.15);
+        padding: 40px;
+        border-radius: 25px;
+        backdrop-filter: blur(22px);
+        border: 2px solid rgba(255,255,255,0.4);
+        box-shadow: 0 0 40px rgba(255,0,60,0.4);
+        width: 600px;
+        animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+        color: #7e0000;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .service-box {
+        background: rgba(255,255,255,0.25);
+        padding: 20px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.5);
+        margin-bottom: 30px;
+        box-shadow: 0 0 18px rgba(255,0,60,0.25);
+        color: #7e0000;
+    }
+
+    .service-box .icon {
+        font-size: 38px;
+        margin-bottom: 5px;
+    }
+
+    .service-box p {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+
+    .btn-group {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 15px;
+    }
+
+    .neon-btn {
+        position: relative;
+        padding: 14px 32px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 14px;
+        cursor: pointer;
+        border: none;
+        text-decoration: none;
+        color: rgb(87, 81, 81);
+        overflow: hidden;
+        background: rgba(255,255,255,0.25);
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s ease;
+    }
+
+    .neon-btn span {
+        position: relative;
+        z-index: 2;
+    }
+
+    .neon-btn:before {
+        content: "";
+        position: absolute;
+        top: -100%;
+        left: 0;
+        width: 100%;
+        height: 240%;
+        background: linear-gradient(120deg, rgba(255,255,255,0.6), rgba(255,255,255,0));
+        transform: rotate(25deg);
+        transition: 0.4s;
+    }
+
+    .neon-btn:hover:before { top: 100%; }
+
+    .donate {
+        border: 2px solid rgba(255,0,72,0.8);
+        box-shadow: 0 0 25px rgba(255,0,72,0.6);
+    }
+
+    .donate:hover {
+        transform: translateY(-6px) scale(1.08);
+        box-shadow: 0 0 40px rgba(255,0,82,1);
+    }
+
+    .receive {
+        border: 2px solid rgba(0,165,255,0.9);
+        box-shadow: 0 0 25px rgba(0,165,255,0.6);
+    }
+
+    .receive:hover {
+        transform: translateY(-6px) scale(1.08);
+        box-shadow: 0 0 40px rgba(0,175,255,1);
+    }
+
+.back-btn {
+    margin-top: 30px;
+    display: inline-block;
+    padding: 5px 12px;
+    color: #322d2d;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 11px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.25);
+    border: 2px solid rgba(90, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    transition: 0.25s ease-in-out;
+    box-shadow: 0 0 10px rgba(100, 0, 0, 0.4);
+}
+
+.back-btn:hover {
+    color: #ffffff;
+    background: rgba(137, 130, 130, 0.85);
+    border-color: #605c5c;
+    box-shadow: 0 0 20px rgba(114, 106, 106, 0.9);
+    transform: translateY(-3px) scale(1.05);
+    letter-spacing: 1px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Organ Donation Services</h1>
+
+    <div class="service-box">
+        <div class="icon">🫀</div>
+        <p>Organ donation is a life-saving act — your gift can bring someone back to life.</p>
+        <p><strong>Give hope • Share life • Receive with gratitude</strong></p>
+    </div>
+
+    <div class="btn-group">
+        <a href="donate_organ.html" class="neon-btn donate"><span>Donate Organ</span></a>
+        <a href="receive_organ.html" class="neon-btn receive"><span>Request Organ</span></a>
+    </div>
+
+    <a href="user_dashboard.html" class="back-btn">⬅ Back to Dashboard</a>
+</div>
+
+</body>
+</html>

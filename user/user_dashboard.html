@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Dashboard - Life Link Nexus</title>
+
+  <style>
+    /* === KEEP YOUR BACKGROUND & LOGIC UNCHANGED === */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #ffffff 40%, #e0e7ff 70%, #d8b4fe 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      filter: blur(70px);
+      animation: float 10s infinite ease-in-out;
+      z-index: 0;
+    }
+
+    .circle:nth-child(1) {
+      width: 300px;
+      height: 300px;
+      top: 10%;
+      left: 10%;
+      background: rgba(173, 216, 255, 0.3);
+    }
+
+    .circle:nth-child(2) {
+      width: 400px;
+      height: 400px;
+      bottom: 15%;
+      right: 10%;
+      background: rgba(206, 188, 255, 0.3);
+    }
+
+    .circle:nth-child(3) {
+      width: 250px;
+      height: 250px;
+      top: 60%;
+      left: 70%;
+      background: rgba(180, 200, 255, 0.25);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .dashboard {
+      position: relative;
+      z-index: 2;
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(8,12,40,0.08);
+      width: 920px;
+      max-width: 95%;
+      text-align: center;
+      transition: transform .25s ease;
+    }
+
+    h2 {
+      color: #4b0082;
+      font-size: 26px;
+      margin-bottom: 12px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+
+    p {
+      color: #555;
+      margin-top: 5px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .btn-container {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      align-items: stretch;
+      justify-items: center;
+    }
+
+    @media (max-width: 1200px) {
+      .btn-container {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 880px) {
+      .btn-container {
+        grid-template-columns: repeat(2, 1fr);
+        width: 100%;
+      }
+
+      .dashboard {
+        width: 92%;
+        padding: 22px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .btn-container {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+    }
+
+    .dash-btn {
+      width: 100%;
+      height: 120px;
+      border-radius: 18px;
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 18px;
+      color: #111827;
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.72));
+      box-shadow: 0 8px 24px rgba(17,24,39,0.06), 0 2px 6px rgba(99,102,241,0.06) inset;
+      transition: transform .28s cubic-bezier(.2,.9,.3,1), box-shadow .28s, background .28s, color .28s;
+      position: relative;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .dash-btn .emoji {
+      font-size: 28px;
+      line-height: 1;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 6px 18px rgba(99,102,241,0.06));
+    }
+
+    .dash-btn .title {
+      font-size: 18px;
+      color: #2b0850;
+    }
+
+    .dash-btn .subtitle {
+      font-size: 12px;
+      color: rgba(17,24,39,0.55);
+      margin-top: 6px;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    .dash-btn::after {
+      content: "";
+      position: absolute;
+      right: -40%;
+      top: -30%;
+      width: 200%;
+      height: 160%;
+      background: linear-gradient(120deg, rgba(124,58,237,0.06), rgba(59,130,246,0.06), rgba(236,72,153,0.04));
+      transform: rotate(-18deg) translateX(0);
+      transition: transform .6s cubic-bezier(.2,.9,.3,1), opacity .4s;
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    .dash-btn:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 18px 50px rgba(99,102,241,0.18), 0 6px 18px rgba(99,102,241,0.08) inset;
+      background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(99,102,241,0.08));
+      color: #0b1220;
+    }
+
+    .dash-btn:hover::after {
+      transform: rotate(-18deg) translateX(-8%);
+      opacity: 0.95;
+    }
+
+    .dash-btn:active {
+      transform: translateY(-2px) scale(.99);
+      box-shadow: 0 8px 24px rgba(99,102,241,0.12);
+    }
+
+    .btn-importance {
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(249,115,22,0.06));
+    }
+
+    .btn-verify {
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(16,185,129,0.04));
+    }
+
+    .btn-epharma {
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(79,70,229,0.04));
+    }
+
+    .btn-summary-center {
+      grid-column: 1 / 2;
+    }
+
+    /* tiny bottom-center logout button */
+    .logout-fixed {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 18px;
+      font-size: 11px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      z-index: 999999;
+    }
+
+    .logout-fixed:hover {
+      background: linear-gradient(135deg, #ff5a5a, #ff8f4c);
+      transform: translateX(-50%) scale(1.08);
+      box-shadow: 0 0 15px rgba(255,80,80,0.7);
+      letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 520px) {
+      .dashboard {
+        padding: 18px;
+      }
+      .logout-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="circle"></div>
+<div class="circle"></div>
+<div class="circle"></div>
+
+<div class="dashboard">
+  <h2 id="welcome">Welcome!</h2>
+
+  <div class="btn-container">
+    <button class="dash-btn btn-importance" onclick="window.location.href='blood_bank.html'">
+      <div class="emoji">🩸</div>
+      <div class="title">Blood Bank</div>
+      <div class="subtitle">Donate / Request Blood</div>
+    </button>
+
+    <button class="dash-btn btn-verify" onclick="window.location.href='organ_bank.html'">
+      <div class="emoji">🧬</div>
+      <div class="title">Organ Bank</div>
+      <div class="subtitle">Register / request organs</div>
+    </button>
+
+    <button class="dash-btn" onclick="window.location.href='requests_dashboard.html'">
+      <div class="emoji">📩</div>
+      <div class="title">Requests</div>
+      <div class="subtitle">View pending & completed requests</div>
+    </button>
+
+    <button class="dash-btn" onclick="window.location.href='efir.html'">
+      <div class="emoji">📝</div>
+      <div class="title">E-FIR</div>
+      <div class="subtitle">File incident reports online</div>
+    </button>
+
+    <button class="dash-btn btn-epharma" onclick="window.location.href='heart_disease_check.html'">
+      <div class="emoji">💓</div>
+      <div class="title">Heart Disease Check</div>
+      <div class="subtitle">ML-Based risk screening</div>
+    </button>
+
+    <button class="dash-btn btn-verify" onclick="window.location.href='diabetes_prediction.html'">
+      <div class="emoji">🩺</div>
+      <div class="title">Diabetes Prediction</div>
+      <div class="subtitle">ML-based risk assessment</div>
+    </button>
+
+    <button class="dash-btn" onclick="window.location.href='doctor_appointment.html'">
+      <div class="emoji">👨‍⚕️</div>
+      <div class="title">Doctor Appointment</div>
+      <div class="subtitle">Book consultations & slots</div>
+    </button>
+
+    <button class="dash-btn btn-epharma" onclick="window.location.href='epharmacy.html'">
+      <div class="emoji">💊</div>
+      <div class="title">E-Pharmacy</div>
+      <div class="subtitle">Order medicines online</div>
+    </button>
+
+    <button class="dash-btn btn-summary-center" onclick="window.location.href='user_summary.html'">
+      <div class="emoji">📊</div>
+      <div class="title">User Summary</div>
+      <div class="subtitle">Your activity & history</div>
+    </button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+    import { firebaseConfig } from "../firebase-config.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const docRef = doc(db, "users", user.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            document.getElementById("welcome").textContent = `Welcome, ${docSnap.data().name}! 👋`;
+          } else {
+            document.getElementById("welcome").textContent = `Welcome, ${user.email}! 👋`;
+          }
+
+        } catch {
+          document.getElementById("welcome").textContent = `Welcome, ${user.email}! 👋`;
+        }
+      } else {
+        window.location.href = "user_login.html";
+      }
+    });
+
+    window.logout = function() {
+      signOut(auth).then(() => {
+        alert("Logged out successfully!");
+        window.location.href = "user_login.html";
+      });
+    };
+  </script>
+<button class="logout-fixed" onclick="logout()">Logout</button>
+
+</div>
+</body>
+</html>

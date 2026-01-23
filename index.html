@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Life Link Nexus</title>
+  <style>
+    /* === General Styling === */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #ffffff 40%, #e0e7ff 70%, #d8b4fe 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    h1 {
+      color: #4b0082;
+      font-size: 44px;
+      margin-bottom: 10px;
+      text-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .slogan {
+      font-size: 18px;
+      color: #5b21b6;
+      margin-bottom: 40px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-align: center;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* === Floating Background Circles === */
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      filter: blur(70px);
+      animation: float 10s infinite ease-in-out;
+    }
+
+    .circle:nth-child(1) { width: 300px; height: 300px; top: 10%; left: 10%; background: rgba(173, 216, 255, 0.3); }
+    .circle:nth-child(2) { width: 400px; height: 400px; bottom: 15%; right: 10%; background: rgba(206, 188, 255, 0.3); }
+    .circle:nth-child(3) { width: 250px; height: 250px; top: 60%; left: 70%; background: rgba(180, 200, 255, 0.25); }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    /* === Container for Cards === */
+    .container {
+      display: flex;
+      gap: 50px;
+      flex-wrap: wrap;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    /* === Card Styling (Soft Glow) === */
+    .card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.35);
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+      width: 260px;
+      padding: 35px;
+      text-align: center;
+      color: #4b0082;
+      transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      overflow: hidden;
+    }
+
+    /* === Subtle Glow on Hover === */
+    .card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 180deg, rgba(173, 216, 255, 0.25), rgba(180, 220, 255, 0.2), rgba(200, 240, 255, 0.25), rgba(173, 216, 255, 0.25));
+      transform: rotate(0deg);
+      transition: opacity 0.4s;
+      opacity: 0;
+      animation: rotateGlow 6s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes rotateGlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .card:hover::before {
+      opacity: 0.3; /* Soft light blue glow */
+    }
+
+    .card:hover {
+      transform: scale(1.04);
+      box-shadow: 0 8px 25px rgba(100, 149, 237, 0.25);
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .card h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #4338ca;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .card p {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 20px;
+      color: #334155;
+    }
+
+    .card button {
+      background: linear-gradient(135deg, #6366f1, #7c3aed);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.3s, background 0.3s;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .card button:hover {
+      background: linear-gradient(135deg, #7c3aed, #3b82f6);
+      transform: scale(1.05);
+    }
+
+    footer {
+      position: absolute;
+      bottom: 15px;
+      color: #4b0082;
+      font-size: 14px;
+      opacity: 0.8;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Circles -->
+  <div class="circle"></div>
+  <div class="circle"></div>
+  <div class="circle"></div>
+
+  <h1>Life Link Nexus</h1>
+  <div class="slogan">Every second, let’s connect to save many lives 💜</div>
+
+  <div class="container">
+    <div class="card" onclick="location.href='user/user_login.html'">
+      <h2>👤 User</h2>
+      <p>Access your account, book services, and connect instantly.</p>
+      <button>Go to Login</button>
+    </div>
+
+    <div class="card" onclick="location.href='admin/admin_login.html'">
+      <h2>🧑‍💼 Admin</h2>
+      <p>Manage appointments, track requests, and maintain records.</p>
+      <button>Go to Login</button>
+    </div>
+
+    <div class="card" onclick="location.href='maintainer/maintainer_login.html'">
+      <h2>🛠️ Maintainer</h2>
+      <p>Oversee admin approvals and ensure smooth platform operation.</p>
+      <button>Go to Login</button>
+    </div>
+  </div>
+
+  <footer>© 2025 Life Link Nexus | All Rights Reserved</footer>
+</body>
+</html>

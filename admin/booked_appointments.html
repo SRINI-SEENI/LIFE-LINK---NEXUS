@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Booked Appointments - Admin</title>
+<style>
+  :root{
+    --bg1:#0f172a;
+    --glass: rgba(255,255,255,0.06);
+    --accent1: linear-gradient(135deg,#7c3aed,#6366f1);
+    --neon: #8b5cf6;
+    --muted: rgba(255,255,255,0.75);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family:Inter, Poppins, "Segoe UI", Roboto, sans-serif;
+    background:
+      radial-gradient(1000px 500px at -10% 10%, rgba(124,58,237,0.12), transparent 10%),
+      radial-gradient(800px 400px at 110% 90%, rgba(99,102,241,0.08), transparent 10%),
+      linear-gradient(180deg,var(--bg1), #081024);
+    color:white;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    padding: 30px;
+    overflow-y: auto;
+  }
+
+  header{
+    max-width:1400px; margin:0 auto 60px; text-align: center;
+  }
+  header h1{ margin:0; font-size:36px; font-weight:800; 
+    background: linear-gradient(135deg, #7c3aed, #6366f1, #a78bfa);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  header p {
+    margin: 10px 0 0 0;
+    color: rgba(255,255,255,0.7);
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .wrap { max-width:1400px; margin: 0 auto; }
+
+  .controls {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn.active {
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    border-color: #7c3aed;
+  }
+
+  .btn:hover {
+    background: rgba(124,58,237,0.2);
+  }
+
+  .filter-box {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    max-width: 600px;
+  }
+
+  .filter-box input, .filter-box select {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: #1e293b !important;
+    color: white !important;
+    font-size: 14px;
+    flex: 1;
+    font-weight: 600;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  .filter-box select option {
+    background: #1e293b;
+    color: white;
+    padding: 12px;
+  }
+
+  .filter-box input::placeholder {
+    color: rgba(255,255,255,0.5);
+  }
+
+  .status-pill { 
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 12px;
+    display: inline-block;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .status-pending { 
+    background: rgba(234, 179, 8, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+  }
+  .status-confirmed { 
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+  .status-completed { 
+    background: rgba(99, 102, 241, 0.2);
+    color: #a78bfa;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+  }
+  .status-cancelled { 
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  #message { color:rgba(255,255,255,0.7); margin-bottom:12px; font-size: 14px; }
+
+  .appointments-table {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius:15px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(2,6,23,0.5);
+    backdrop-filter: blur(10px);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    background: linear-gradient(90deg, rgba(124,58,237,0.2), rgba(99,102,241,0.15));
+  }
+
+  th {
+    padding: 18px 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 13px;
+    color: #e0e7ff;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 14px;
+    color: rgba(255,255,255,0.9);
+  }
+
+  tr:hover {
+    background: rgba(124,58,237,0.05);
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .action-btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .confirm-btn {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  }
+
+  .confirm-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  }
+
+  .cancel-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+  }
+
+  .cancel-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  }
+
+  .complete-btn {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  }
+
+  .complete-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  }
+
+  .approve-cancel-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+  }
+
+  .approve-cancel-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  }
+
+  .reject-cancel-btn {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+  }
+
+  .reject-cancel-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+  }
+
+  .cancel-request-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: linear-gradient(90deg, #fed7aa, #fdba74);
+    color: #9a3412;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 4px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .empty {
+    text-align:center; color:rgba(255,255,255,0.6); padding:60px 20px; border-radius:15px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .back-btn {
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #e6f0f6;
+    text-decoration: none;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+  }
+
+  .back-btn:hover {
+    color: #ffffff;
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    transform: translateX(-3px);
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+    margin-top: 48px;
+  }
+
+  .stat-card {
+    background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(99,102,241,0.05));
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+  }
+
+  .stat-card h3 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 5px;
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    background-clip: text;
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+  }
+
+  .stat-card p {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  @media (max-width:768px){
+    .controls { flex-direction:column; align-items:stretch; }
+    .filter-box { flex-direction: column; max-width: 100%; }
+    .appointments-table { overflow-x: auto; display: block; }
+    table { min-width: 800px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Back Button -->
+<a href="admin_dashboard.html" class="back-btn">← Back</a>
+
+<header class="wrap">
+  <div>
+    <h1>📅 Booked Appointments</h1>
+    <p>Manage all patient appointments</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="stats" id="stats">
+    <div class="stat-card">
+      <h3 id="totalCount">0</h3>
+      <p>Total Appointments</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="pendingCount">0</h3>
+      <p>Pending</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="confirmedCount">0</h3>
+      <p>Confirmed</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="completedCount">0</h3>
+      <p>Completed</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="cancelRequestCount">0</h3>
+      <p>⚠️ Cancel Requests</p>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="refreshBtn" class="btn">🔄 Refresh</button>
+    <button id="allBtn" class="btn secondary">Show All</button>
+    <button id="pendingBtn" class="btn secondary">Pending Only</button>
+    <button id="cancelRequestBtn" class="btn secondary">⚠️ Cancel Requests</button>
+    
+    <div class="filter-box">
+      <input type="text" id="searchInput" placeholder="Search by patient, doctor, or hospital...">
+      <select id="statusFilter">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="message">Loading appointments...</div>
+
+  <div class="appointments-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Patient</th>
+          <th>Doctor</th>
+          <th>Hospital</th>
+          <th>Symptoms</th>
+          <th>Fee</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="appointmentsTable">
+        <!-- Appointments will be loaded here -->
+      </tbody>
+    </table>
+  </div>
+
+  <div id="empty" class="empty" style="display:none">
+    <h3>No appointments found</h3>
+    <p>Appointments will appear here once patients book them.</p>
+  </div>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { 
+  getFirestore, collection, getDocs, doc, updateDoc, query, orderBy 
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { firebaseConfig } from "../firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let allAppointments = [];
+let currentUserEmail = "";
+
+// Check if admin is logged in
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    alert("Please login as admin first!");
+    window.location.href = "admin_login.html";
+  } else {
+    currentUserEmail = user.email;
+    await loadAppointments();
+  }
+});
+
+// Load appointments
+async function loadAppointments() {
+  try {
+    document.getElementById("message").textContent = "Loading appointments...";
+    
+    const q = query(collection(db, "appointments"), orderBy("bookedAt", "desc"));
+    const snapshot = await getDocs(q);
+    
+    allAppointments = [];
+    snapshot.forEach(doc => {
+      allAppointments.push({ id: doc.id, ...doc.data() });
+    });
+
+    updateStats();
+    displayAppointments(allAppointments);
+    document.getElementById("message").textContent = `Showing ${allAppointments.length} appointments`;
+  } catch (error) {
+    console.error("Error loading appointments:", error);
+    document.getElementById("message").textContent = "Error loading appointments: " + error.message;
+  }
+}
+
+// Update statistics
+function updateStats() {
+  document.getElementById("totalCount").textContent = allAppointments.length;
+  document.getElementById("pendingCount").textContent = 
+    allAppointments.filter(a => a.status === "pending").length;
+  document.getElementById("confirmedCount").textContent = 
+    allAppointments.filter(a => a.status === "confirmed").length;
+  document.getElementById("completedCount").textContent = 
+    allAppointments.filter(a => a.status === "completed").length;
+  document.getElementById("cancelRequestCount").textContent = 
+    allAppointments.filter(a => a.cancelRequest === "requested").length;
+}
+
+// Display appointments
+function displayAppointments(appointments) {
+  const table = document.getElementById("appointmentsTable");
+  const empty = document.getElementById("empty");
+
+  if (appointments.length === 0) {
+    document.querySelector(".appointments-table").style.display = "none";
+    empty.style.display = "block";
+    return;
+  }
+
+  document.querySelector(".appointments-table").style.display = "block";
+  empty.style.display = "none";
+  table.innerHTML = "";
+
+  appointments.forEach(apt => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>
+        <div><strong>${apt.appointmentDate}</strong></div>
+        <div style="color: var(--muted); font-size: 12px;">${apt.appointmentTime}</div>
+      </td>
+      <td>
+        <div><strong>${apt.patientName}</strong></div>
+        <div style="color: var(--muted); font-size: 12px;">${apt.patientPhone}</div>
+        <div style="color: var(--muted); font-size: 12px;">${apt.patientEmail}</div>
+      </td>
+      <td>
+        <div><strong>${apt.doctorName}</strong></div>
+        <div style="color: var(--muted); font-size: 12px;">${apt.specialization}</div>
+      </td>
+      <td>${apt.hospitalName}</td>
+      <td style="max-width: 200px; white-space: normal;">${apt.symptoms}</td>
+      <td><strong>₹${apt.consultationFee}</strong></td>
+      <td>
+        <span class="status-pill status-${apt.status}">
+          ${apt.status.toUpperCase()}
+        </span>
+        ${apt.cancelRequest === 'requested' ? `
+          <div class="cancel-request-badge">⚠️ CANCEL REQUESTED</div>
+        ` : ''}
+      </td>
+      <td>
+        <div class="action-buttons">
+          ${apt.cancelRequest === 'requested' ? `
+            <button class="action-btn approve-cancel-btn" onclick="approveCancellation('${apt.id}')">
+              Approve Cancel
+            </button>
+            <button class="action-btn reject-cancel-btn" onclick="rejectCancellation('${apt.id}')">
+              Reject
+            </button>
+          ` : apt.status === 'pending' ? `
+            <button class="action-btn confirm-btn" onclick="updateStatus('${apt.id}', 'confirmed')">
+              Confirm
+            </button>
+            <button class="action-btn cancel-btn" onclick="updateStatus('${apt.id}', 'cancelled')">
+              Cancel
+            </button>
+          ` : apt.status === 'confirmed' ? `
+            <button class="action-btn complete-btn" onclick="updateStatus('${apt.id}', 'completed')">
+              Complete
+            </button>
+            <button class="action-btn cancel-btn" onclick="updateStatus('${apt.id}', 'cancelled')">
+              Cancel
+            </button>
+          ` : `<span style="color: var(--muted); font-size: 12px;">No actions</span>`}
+        </div>
+      </td>
+    `;
+    table.appendChild(row);
+  });
+}
+
+// Update appointment status
+window.updateStatus = async function(appointmentId, newStatus) {
+  if (!confirm(`Are you sure you want to mark this appointment as ${newStatus}?`)) {
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "appointments", appointmentId), {
+      status: newStatus
+    });
+
+    // Update local data
+    const index = allAppointments.findIndex(a => a.id === appointmentId);
+    if (index !== -1) {
+      allAppointments[index].status = newStatus;
+    }
+
+    updateStats();
+    displayAppointments(allAppointments);
+    alert(`Appointment ${newStatus} successfully!`);
+  } catch (error) {
+    console.error("Error updating status:", error);
+    alert("Error: " + error.message);
+  }
+}
+
+// Approve cancellation request
+window.approveCancellation = async function(appointmentId) {
+  if (!confirm('Approve this cancellation request? The appointment will be cancelled.')) {
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "appointments", appointmentId), {
+      status: 'cancelled',
+      cancelRequest: 'approved',
+      cancelApprovedAt: new Date()
+    });
+
+    // Update local data
+    const index = allAppointments.findIndex(a => a.id === appointmentId);
+    if (index !== -1) {
+      allAppointments[index].status = 'cancelled';
+      allAppointments[index].cancelRequest = 'approved';
+    }
+
+    updateStats();
+    displayAppointments(allAppointments);
+    alert('✓ Cancellation request approved. Appointment has been cancelled.');
+  } catch (error) {
+    console.error("Error approving cancellation:", error);
+    alert("Error: " + error.message);
+  }
+}
+
+// Reject cancellation request
+window.rejectCancellation = async function(appointmentId) {
+  if (!confirm('Reject this cancellation request? The appointment will remain confirmed.')) {
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "appointments", appointmentId), {
+      cancelRequest: 'rejected',
+      cancelRejectedAt: new Date()
+    });
+
+    // Update local data
+    const index = allAppointments.findIndex(a => a.id === appointmentId);
+    if (index !== -1) {
+      allAppointments[index].cancelRequest = 'rejected';
+    }
+
+    displayAppointments(allAppointments);
+    alert('✓ Cancellation request rejected. Appointment remains confirmed.');
+  } catch (error) {
+    console.error("Error rejecting cancellation:", error);
+    alert("Error: " + error.message);
+  }
+}
+
+// Filter and search
+document.getElementById("searchInput").addEventListener("input", filterAppointments);
+document.getElementById("statusFilter").addEventListener("change", filterAppointments);
+
+function filterAppointments() {
+  const searchText = document.getElementById("searchInput").value.toLowerCase();
+  const statusFilter = document.getElementById("statusFilter").value;
+
+  let filtered = allAppointments.filter(apt => {
+    const matchesSearch = 
+      apt.patientName.toLowerCase().includes(searchText) ||
+      apt.doctorName.toLowerCase().includes(searchText) ||
+      apt.hospitalName.toLowerCase().includes(searchText) ||
+      apt.patientEmail.toLowerCase().includes(searchText) ||
+      apt.symptoms.toLowerCase().includes(searchText);
+    
+    const matchesStatus = !statusFilter || apt.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  displayAppointments(filtered);
+  document.getElementById("message").textContent = `Showing ${filtered.length} of ${allAppointments.length} appointments`;
+}
+
+// Button handlers
+document.getElementById("refreshBtn").addEventListener("click", loadAppointments);
+document.getElementById("allBtn").addEventListener("click", () => {
+  displayAppointments(allAppointments);
+  document.getElementById("searchInput").value = "";
+  document.getElementById("statusFilter").value = "";
+});
+document.getElementById("pendingBtn").addEventListener("click", () => {
+  const pending = allAppointments.filter(a => a.status === "pending");
+  displayAppointments(pending);
+});
+document.getElementById("cancelRequestBtn").addEventListener("click", () => {
+  const cancelRequests = allAppointments.filter(a => a.cancelRequest === "requested");
+  displayAppointments(cancelRequests);
+  document.getElementById("message").textContent = `Showing ${cancelRequests.length} cancel requests`;
+});
+</script>
+
+</body>
+</html>
