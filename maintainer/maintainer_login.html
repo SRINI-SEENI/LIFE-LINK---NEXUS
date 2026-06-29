@@ -258,7 +258,7 @@
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                if (user.email === "maintaineroflln404@gmail.com") {
+                if (user.email === atob("bWFpbnRhaW5lcm9mbGxuNDA0QGdtYWlsLmNvbQ==")) {
                     alert("Maintainer logged in successfully!");
                     window.location.href = "maintainer_dashboard.html";
                 } else {

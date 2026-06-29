@@ -157,7 +157,7 @@ function render(data) {
       <table>
         <tr>
           <th>Name</th><th>Gender</th><th>Age</th><th>Phone</th>
-          <th>Email</th><th>Address</th><th>Organ</th><th>Drug Activity</th>
+          <th>Email</th><th>Address</th><th>Organ</th><th>Status</th><th>Drug Activity</th>
         </tr>
       `;
       groups[s][d].forEach(x => {
@@ -170,7 +170,8 @@ function render(data) {
           <td>${x.email || "-"}</td>
           <td>${x.address || "-"}</td>
           <td>${x.organ || "-"}</td>
-          <td>${x.drugactivities || "-"}</td>
+          <td>${x.status || "Pending Verification"}</td>
+          <td>${x.Drugactivities || "-"}</td>
         </tr>
         `;
       });

@@ -355,15 +355,16 @@
     }
   });
 
+  // Prevent form page reload on enter key
+  document.getElementById("profileForm").addEventListener("submit", (e) => e.preventDefault());
+
   // Save changes
   saveBtn.addEventListener("click", async ()=>{
     if(!currentUID) return showToast("Not signed in");
     const upd = {
       name: nameEl.value.trim(),
       phone: phoneEl.value.trim(),
-      address: addressEl.value.trim(),
-      role: roleEl.value, // role is disabled but still pass along
-      updatedAt: new Date().toISOString()
+      address: addressEl.value.trim()
     };
 
     // If you later enable Storage, you could upload govFileDataUrl to storage and save URL.
@@ -389,12 +390,11 @@
         }
       }
 
-      // update firestore
+      // update firestore (only update editable fields)
       await updateDoc(doc(db, "admins", currentUID), upd);
       showToast("Profile saved");
       // refresh displayed name/badge
       displayName.textContent = upd.name || displayName.textContent;
-      roleBadge.textContent = upd.role || roleBadge.textContent;
     } catch(e){
       console.error(e);
       showToast("Save failed: " + (e.message || e));
@@ -428,7 +428,7 @@
   backBtn.addEventListener("click", ()=> window.location.href = "admin_dashboard.html");
   logoutBtn.addEventListener("click", async ()=>{
     await signOut(auth);
-    window.location.href = "index.html";
+    window.location.href = "../index.html";
   });
 
   // small helpful note if admin doc missing

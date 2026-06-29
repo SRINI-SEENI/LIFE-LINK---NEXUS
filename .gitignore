@@ -46,3 +46,4 @@ Thumbs.db
 *.key
 credentials.json
 service-account*.json
+.vercel
