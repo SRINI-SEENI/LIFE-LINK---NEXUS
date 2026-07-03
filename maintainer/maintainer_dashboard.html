@@ -192,6 +192,7 @@
             box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
             transition: all 0.2s;
         }
+
         .btn-allow-extra:hover {
             transform: translateY(-1.5px);
             box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
@@ -209,6 +210,7 @@
             box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
             transition: all 0.2s;
         }
+
         .btn-revoke-extra:hover {
             transform: translateY(-1.5px);
             box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
@@ -256,6 +258,135 @@
                 transform: translateY(0);
             }
         }
+
+        /* Action Cards Styles */
+        .action-card-btn {
+            background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+            border: none;
+            border-radius: 16px;
+            padding: 15px 25px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            min-width: 180px;
+        }
+
+        .action-card-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.35);
+        }
+
+        .action-card-icon {
+            font-size: 28px;
+        }
+
+        .action-card-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Modal Styles */
+        .maintainer-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            animation: fadeInModal 0.25s ease-out;
+        }
+
+        .maintainer-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 750px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            position: relative;
+            animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: left;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #9ca3af;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #1f2937;
+        }
+
+        .modal-table-container {
+            max-height: 50vh;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .btn-remove {
+            padding: 6px 12px;
+            font-size: 11px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.15);
+            transition: all 0.2s;
+        }
+
+        .btn-remove:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes fadeInModal {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleUp {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -268,6 +399,18 @@
         <h1>Maintainer Dashboard</h1>
         <p class="subtitle">Review and verify administrator application requests</p>
 
+        <!-- Manage Options Card Buttons -->
+        <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 35px; flex-wrap: wrap;">
+            <button class="action-card-btn" onclick="openUsersModal()">
+                <span class="action-card-icon">👥</span>
+                <span class="action-card-title">Manage Users</span>
+            </button>
+            <button class="action-card-btn" onclick="openAdminsModal()">
+                <span class="action-card-icon">🛡️</span>
+                <span class="action-card-title">Manage Admins</span>
+            </button>
+        </div>
+
         <div class="table-responsive">
             <table>
                 <thead>
@@ -277,7 +420,7 @@
                         <th>Role</th>
                         <th>Phone</th>
                         <th>Address</th>
-                        <th>Status</th>
+                        <th>Certificate</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -290,9 +433,11 @@
             </table>
         </div>
 
-        <h2 style="color: #4b0082; font-size: 22px; font-weight: 700; margin: 40px 0 10px 0; text-align: left;">Manage Approved Administrators</h2>
-        <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px; text-align: left;">Grant or revoke additional roles (E-Pharmacy or Clinic) to existing administrators</p>
-        
+        <h2 style="color: #4b0082; font-size: 22px; font-weight: 700; margin: 40px 0 10px 0; text-align: left;">Manage
+            Approved Administrators</h2>
+        <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px; text-align: left;">Grant or revoke additional
+            roles (E-Pharmacy or Clinic) to existing administrators</p>
+
         <div class="table-responsive">
             <table>
                 <thead>
@@ -306,10 +451,69 @@
                 </thead>
                 <tbody id="approvedAdminsTable">
                     <tr>
-                        <td colspan="5" style="text-align:center; color: #6b7280; padding: 30px;">⏳ Loading administrators...</td>
+                        <td colspan="5" style="text-align:center; color: #6b7280; padding: 30px;">⏳ Loading
+                            administrators...</td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- Users Management Modal -->
+    <div id="usersModal" class="maintainer-modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('usersModal')">&times;</span>
+            <h2>👥 Manage System Users</h2>
+            <p style="color: #6b7280; font-size: 13px; margin-bottom: 20px;">List of all registered patient profiles.
+                Removing a user deletes their database record.</p>
+
+            <div class="modal-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersModalTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 20px; color: #9ca3af;">Loading users...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admins Management Modal -->
+    <div id="adminsModal" class="maintainer-modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('adminsModal')">&times;</span>
+            <h2>🛡️ Manage System Administrators</h2>
+            <p style="color: #6b7280; font-size: 13px; margin-bottom: 20px;">List of all approved administrators.
+                Removing an administrator revokes their portal access.</p>
+
+            <div class="modal-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminsModalTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 20px; color: #9ca3af;">Loading
+                                administrators...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -319,7 +523,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, updateDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, updateDoc, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
         import { firebaseConfig } from "../firebase-config.js";
 
@@ -345,7 +549,11 @@
                         <td><span style="background: #ede9fe; color: #5b21b6; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${data.role}</span></td>
                         <td>${data.phone}</td>
                         <td>${data.AboutADMIN}</td>
-                        <td><span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">Pending</span></td>
+                        <td>
+                            ${data.certificateLink
+                            ? `<a href="${data.certificateLink}" target="_blank" style="color: #6366f1; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">📄 View link</a>`
+                            : `<span style="color: #9ca3af;">N/A</span>`}
+                        </td>
                         <td>
                             <div style="display: flex; gap: 8px; white-space: nowrap; justify-content: flex-start;">
                                 <button class="approve-btn" style="margin-right: 0;" onclick="approve('${docSnap.id}')">Approve</button>
@@ -382,6 +590,7 @@
                 phone: data.phone,
                 role: data.role,
                 address: data.AboutADMIN,
+                certificateLink: data.certificateLink || "",
                 approved: true,
                 status: "approved",
                 allowedExtraRole: "",
@@ -411,7 +620,7 @@
                 const data = docSnap.data();
                 count++;
                 const isHospital = (data.role || "").toLowerCase() === "clinic" || (data.role || "").toLowerCase() === "hospital" || (data.role || "").toLowerCase() === "doctor";
-                
+
                 let actionBtnHtml = "";
                 if (isHospital) {
                     if (data.allowedExtraRole === "Pharmacy") {
@@ -427,7 +636,7 @@
                     }
                 }
 
-                const extraRoleBadge = data.allowedExtraRole 
+                const extraRoleBadge = data.allowedExtraRole
                     ? `<span style="background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${data.allowedExtraRole}</span>`
                     : `<span style="background: #f3f4f6; color: #6b7280; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">None</span>`;
 
@@ -449,7 +658,7 @@
         }
 
         // ✅ Toggle extra role permissions for admins
-        window.toggleExtraRole = async function(id, roleName, shouldAllow) {
+        window.toggleExtraRole = async function (id, roleName, shouldAllow) {
             const adminRef = doc(db, "admins", id);
             await updateDoc(adminRef, {
                 allowedExtraRole: shouldAllow ? roleName : ""
@@ -463,6 +672,111 @@
             await signOut(auth);
             alert("Logged out successfully!");
             window.location.href = "../index.html";
+        };
+
+        // ✅ Modal Control Functions
+        window.openUsersModal = function () {
+            document.getElementById("usersModal").classList.add("show");
+            loadModalUsers();
+        };
+
+        window.openAdminsModal = function () {
+            document.getElementById("adminsModal").classList.add("show");
+            loadModalAdmins();
+        };
+
+        window.closeModal = function (modalId) {
+            document.getElementById(modalId).classList.remove("show");
+        };
+
+        // ✅ Load users in modal
+        async function loadModalUsers() {
+            const tableBody = document.getElementById("usersModalTableBody");
+            tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #6b7280;">⏳ Loading users...</td></tr>`;
+
+            try {
+                const snapshot = await getDocs(collection(db, "users"));
+                tableBody.innerHTML = "";
+                let count = 0;
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    count++;
+                    const row = `
+                        <tr>
+                            <td style="font-weight: 600;">${data.name || "N/A"}</td>
+                            <td>${data.email || "N/A"}</td>
+                            <td>${data.phone || "N/A"}</td>
+                            <td>
+                                <button class="btn-remove" onclick="removeRecord('users', '${docSnap.id}')">Remove</button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+
+                if (count === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #9ca3af;">No users registered yet.</td></tr>`;
+                }
+            } catch (err) {
+                console.error("Error loading users:", err);
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #ef4444;">Error loading users: ${err.message}</td></tr>`;
+            }
+        }
+
+        // ✅ Load administrators in modal
+        async function loadModalAdmins() {
+            const tableBody = document.getElementById("adminsModalTableBody");
+            tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #6b7280;">⏳ Loading administrators...</td></tr>`;
+
+            try {
+                const snapshot = await getDocs(collection(db, "admins"));
+                tableBody.innerHTML = "";
+                let count = 0;
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    count++;
+                    const row = `
+                        <tr>
+                            <td style="font-weight: 600;">${data.name || "N/A"}</td>
+                            <td>${data.email || "N/A"}</td>
+                            <td><span style="background: #ede9fe; color: #5b21b6; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">${data.role || "N/A"}</span></td>
+                            <td>
+                                <button class="btn-remove" onclick="removeRecord('admins', '${docSnap.id}')">Remove</button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+
+                if (count === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #9ca3af;">No administrators registered yet.</td></tr>`;
+                }
+            } catch (err) {
+                console.error("Error loading admins:", err);
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #ef4444;">Error loading admins: ${err.message}</td></tr>`;
+            }
+        }
+
+        // ✅ Remove user/admin record
+        window.removeRecord = async function (collectionName, id) {
+            const confirmMsg = `⚠️ WARNING:\n\nAre you sure you want to permanently remove this ${collectionName === 'users' ? 'User' : 'Administrator'} account?\nThis action cannot be undone and will delete all user credentials on Firestore.`;
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                await deleteDoc(doc(db, collectionName, id));
+                alert(`✓ Record successfully deleted from the database!`);
+                if (collectionName === 'users') {
+                    loadModalUsers();
+                } else {
+                    loadModalAdmins();
+                    loadApprovedAdmins();
+                }
+            } catch (err) {
+                console.error("Error deleting record:", err);
+                alert("Deletion failed: " + err.message);
+            }
         };
 
         // ✅ Ensure only maintainer can access this page

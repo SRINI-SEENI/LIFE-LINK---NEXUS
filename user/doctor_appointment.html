@@ -1078,6 +1078,7 @@ document.getElementById("appointmentForm").addEventListener("submit", async (e) 
       specialization: selectedDoctorData.specialization,
       hospitalName: selectedDoctorData.hospitalName,
       consultationFee: selectedDoctorData.consultationFee,
+      adminUid: selectedDoctorData.adminUid || "",
       
       patientName: document.getElementById("patientName").value.trim(),
       patientPhone: document.getElementById("patientPhone").value.trim(),

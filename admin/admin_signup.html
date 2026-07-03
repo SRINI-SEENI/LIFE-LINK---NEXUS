@@ -267,6 +267,11 @@
       <textarea id="AboutADMIN" placeholder="Enter your address and professional details (organization name, license number, location, etc.)" rows="4" required></textarea>
     </div>
 
+    <div class="input-group">
+      <label for="certificateLink">Verification Certificate Link (Google Drive / Dropbox)</label>
+      <input type="url" id="certificateLink" placeholder="https://drive.google.com/file/d/..." required />
+    </div>
+
     <button id="signupBtn">Create Account</button>
 
     <p class="footer-text">
@@ -293,9 +298,10 @@
       const phone = document.getElementById("phone").value.trim();
       const role = document.getElementById("role").value;
       const AboutADMIN = document.getElementById("AboutADMIN").value.trim();
+      const certificateLink = document.getElementById("certificateLink").value.trim();
 
-      if (!name || !email || !password || !phone || !role || !AboutADMIN) {
-        alert("Please fill in all fields.");
+      if (!name || !email || !password || !phone || !role || !AboutADMIN || !certificateLink) {
+        alert("Please fill in all fields including the certificate link.");
         return;
       }
 
@@ -312,6 +318,7 @@
           phone,
           role,
           AboutADMIN,
+          certificateLink,
           approved: false,
           createdAt: new Date().toISOString()
         });

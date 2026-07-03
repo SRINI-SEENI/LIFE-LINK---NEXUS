@@ -457,21 +457,32 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "admin_login.html";
   } else {
     currentUserEmail = user.email;
-    await loadAppointments();
+    await loadAppointments(user.uid);
   }
 });
 
 // Load appointments
-async function loadAppointments() {
+async function loadAppointments(adminUid) {
   try {
     document.getElementById("message").textContent = "Loading appointments...";
     
+    // Fetch my doctor IDs to show legacy records too
+    const myDoctorIds = new Set();
+    const doctorsQuery = query(collection(db, "hospitalregister"), where("adminUid", "==", adminUid));
+    const doctorsSnapshot = await getDocs(doctorsQuery);
+    doctorsSnapshot.forEach(docSnap => {
+      myDoctorIds.add(docSnap.id);
+    });
+
     const q = query(collection(db, "appointments"), orderBy("bookedAt", "desc"));
     const snapshot = await getDocs(q);
     
     allAppointments = [];
-    snapshot.forEach(doc => {
-      allAppointments.push({ id: doc.id, ...doc.data() });
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      if (data.adminUid === adminUid || myDoctorIds.has(data.doctorId)) {
+        allAppointments.push({ id: docSnap.id, ...data });
+      }
     });
 
     updateStats();
