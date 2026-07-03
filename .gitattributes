@@ -1,0 +1,10 @@
+# Map logic-heavy interactive dashboard and diagnostic pages to JavaScript for statistics
+user/heart_disease_check.html linguist-language=JavaScript
+user/diabetes_prediction.html linguist-language=JavaScript
+user/user_dashboard.html linguist-language=JavaScript
+user/requests_dashboard.html linguist-language=JavaScript
+admin/admin_dashboard.html linguist-language=JavaScript
+admin/admin_profile.html linguist-language=JavaScript
+admin/blooddonar_verification.html linguist-language=JavaScript
+admin/organdonar_verification.html linguist-language=JavaScript
+maintainer/maintainer_dashboard.html linguist-language=JavaScript

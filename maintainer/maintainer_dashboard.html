@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <title>Maintainer Dashboard - Life Link Nexus</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <style>
         body {
@@ -19,7 +21,7 @@
             position: relative;
             overflow-x: hidden;
         }
-        
+
         .circle {
             position: fixed;
             border-radius: 50%;
@@ -29,6 +31,7 @@
             z-index: 0;
             pointer-events: none;
         }
+
         .circle-1 {
             width: 300px;
             height: 300px;
@@ -36,6 +39,7 @@
             left: 10%;
             background: rgba(173, 216, 255, 0.3);
         }
+
         .circle-2 {
             width: 400px;
             height: 400px;
@@ -43,6 +47,7 @@
             right: 10%;
             background: rgba(206, 188, 255, 0.3);
         }
+
         .circle-3 {
             width: 250px;
             height: 250px;
@@ -50,9 +55,17 @@
             left: 70%;
             background: rgba(180, 200, 255, 0.25);
         }
+
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
         }
 
         .dashboard {
@@ -68,7 +81,7 @@
             text-align: center;
             animation: fadeIn 0.8s ease-out;
         }
-        
+
         h1 {
             color: #4b0082;
             font-size: 32px;
@@ -76,6 +89,7 @@
             margin: 0 0 8px 0;
             letter-spacing: -0.5px;
         }
+
         .subtitle {
             color: #6b7280;
             font-size: 15px;
@@ -87,19 +101,23 @@
             overflow-x: auto;
             border-radius: 16px;
             border: 1.5px solid #e5e7eb;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
             background: white;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        th, td {
+
+        th,
+        td {
             padding: 16px 20px;
             text-align: left;
             font-size: 14px;
             border-bottom: 1.5px solid #f3f4f6;
         }
+
         th {
             background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
             color: white;
@@ -108,17 +126,20 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         td {
             color: #374151;
             font-weight: 500;
         }
+
         tr:last-child td {
             border-bottom: none;
         }
+
         tr:hover td {
             background-color: #f9fafb;
         }
-        
+
         button {
             padding: 8px 16px;
             border: none;
@@ -129,30 +150,36 @@
             font-size: 13px;
             transition: all 0.2s ease;
         }
+
         button:hover {
             transform: translateY(-1px);
         }
+
         button:active {
             transform: translateY(0);
         }
+
         .approve-btn {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
             margin-right: 8px;
         }
+
         .approve-btn:hover {
             background: linear-gradient(135deg, #059669 0%, #047857 100%);
             box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
         }
+
         .reject-btn {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
         }
+
         .reject-btn:hover {
             background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
         }
-        
+
         footer {
             margin-top: auto;
             padding: 20px;
@@ -176,16 +203,24 @@
             margin: 25px auto 10px auto;
             display: block;
         }
+
         .logout-flow-btn:hover {
             background: linear-gradient(135deg, #ff5a5a, #ff8f4c);
             transform: scale(1.08);
-            box-shadow: 0 6px 20px rgba(255,80,80,0.5);
+            box-shadow: 0 6px 20px rgba(255, 80, 80, 0.5);
             letter-spacing: 0.5px;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -214,13 +249,14 @@
                 </thead>
                 <tbody id="adminTable">
                     <tr>
-                        <td colspan="7" style="text-align:center; color: #6b7280; padding: 30px;">⏳ Loading requests...</td>
+                        <td colspan="7" style="text-align:center; color: #6b7280; padding: 30px;">⏳ Loading requests...
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-    
+
     <button class="logout-flow-btn" onclick="logout()">Logout</button>
 
     <footer>© 2025 Life Link Nexus | Maintainer Panel</footer>
@@ -246,8 +282,8 @@
                 const data = docSnap.data();
                 if (data && data.approved === false) {
                     found = true;
-                    const row = 
-                    `<tr>
+                    const row =
+                        `<tr>
                         <td style="font-weight: 600;">${data.name}</td>
                         <td>${data.email}</td>
                         <td><span style="background: #ede9fe; color: #5b21b6; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${data.role}</span></td>
@@ -267,12 +303,12 @@
 
             if (!found) {
                 tableBody.innerHTML =
-                `<tr><td colspan="7" style="text-align:center; color: #6b7280; padding: 30px;">No pending requests 🎉</td></tr>`;
+                    `<tr><td colspan="7" style="text-align:center; color: #6b7280; padding: 30px;">No pending requests 🎉</td></tr>`;
             }
         }
 
         // ✅ Approve function
-        window.approve = async function(id) {
+        window.approve = async function (id) {
             const reqRef = doc(db, "adminRequests", id);
             const reqSnap = await getDoc(reqRef);
             const data = reqSnap.data();
@@ -300,14 +336,14 @@
         };
 
         // ❌ Reject function
-        window.reject = async function(id) {
+        window.reject = async function (id) {
             await updateDoc(doc(db, "adminRequests", id), { approved: "rejected" });
             alert("❌ Request rejected!");
             loadRequests();
         };
 
         // 🚪 Logout function
-        window.logout = async function() {
+        window.logout = async function () {
             await signOut(auth);
             alert("Logged out successfully!");
             window.location.href = "../index.html";
@@ -324,4 +360,5 @@
         });
     </script>
 </body>
+
 </html>
