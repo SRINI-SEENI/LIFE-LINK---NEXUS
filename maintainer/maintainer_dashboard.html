@@ -180,6 +180,40 @@
             box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
         }
 
+        .btn-allow-extra {
+            padding: 6px 12px;
+            font-size: 11.5px;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+            transition: all 0.2s;
+        }
+        .btn-allow-extra:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-revoke-extra {
+            padding: 6px 12px;
+            font-size: 11.5px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
+            transition: all 0.2s;
+        }
+        .btn-revoke-extra:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+        }
+
         footer {
             margin-top: auto;
             padding: 20px;
@@ -251,6 +285,28 @@
                     <tr>
                         <td colspan="7" style="text-align:center; color: #6b7280; padding: 30px;">⏳ Loading requests...
                         </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 style="color: #4b0082; font-size: 22px; font-weight: 700; margin: 40px 0 10px 0; text-align: left;">Manage Approved Administrators</h2>
+        <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px; text-align: left;">Grant or revoke additional roles (E-Pharmacy or Clinic) to existing administrators</p>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Primary Role</th>
+                        <th>Extra Allowed Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="approvedAdminsTable">
+                    <tr>
+                        <td colspan="5" style="text-align:center; color: #6b7280; padding: 30px;">⏳ Loading administrators...</td>
                     </tr>
                 </tbody>
             </table>
@@ -328,11 +384,13 @@
                 address: data.AboutADMIN,
                 approved: true,
                 status: "approved",
+                allowedExtraRole: "",
                 createdAt: new Date().toISOString()
             });
 
             alert(`✅ ${data.name} approved as admin`);
             loadRequests();
+            loadApprovedAdmins();
         };
 
         // ❌ Reject function
@@ -340,6 +398,64 @@
             await updateDoc(doc(db, "adminRequests", id), { approved: "rejected" });
             alert("❌ Request rejected!");
             loadRequests();
+        };
+
+        // ✅ Load all approved administrators
+        async function loadApprovedAdmins() {
+            const tableBody = document.getElementById("approvedAdminsTable");
+            tableBody.innerHTML = "";
+            const snapshot = await getDocs(collection(db, "admins"));
+            let count = 0;
+
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                count++;
+                const isHospital = (data.role || "").toLowerCase() === "clinic" || (data.role || "").toLowerCase() === "hospital" || (data.role || "").toLowerCase() === "doctor";
+                
+                let actionBtnHtml = "";
+                if (isHospital) {
+                    if (data.allowedExtraRole === "Pharmacy") {
+                        actionBtnHtml = `<button class="btn-revoke-extra" onclick="toggleExtraRole('${docSnap.id}', 'Pharmacy', false)">Revoke Pharmacy</button>`;
+                    } else {
+                        actionBtnHtml = `<button class="btn-allow-extra" onclick="toggleExtraRole('${docSnap.id}', 'Pharmacy', true)">Allow Pharmacy</button>`;
+                    }
+                } else {
+                    if (data.allowedExtraRole === "Clinic") {
+                        actionBtnHtml = `<button class="btn-revoke-extra" onclick="toggleExtraRole('${docSnap.id}', 'Clinic', false)">Revoke Clinic</button>`;
+                    } else {
+                        actionBtnHtml = `<button class="btn-allow-extra" onclick="toggleExtraRole('${docSnap.id}', 'Clinic', true)">Allow Clinic</button>`;
+                    }
+                }
+
+                const extraRoleBadge = data.allowedExtraRole 
+                    ? `<span style="background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${data.allowedExtraRole}</span>`
+                    : `<span style="background: #f3f4f6; color: #6b7280; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">None</span>`;
+
+                const row =
+                    `<tr>
+                        <td style="font-weight: 600;">${data.name}</td>
+                        <td>${data.email}</td>
+                        <td><span style="background: #ede9fe; color: #5b21b6; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${data.role}</span></td>
+                        <td>${extraRoleBadge}</td>
+                        <td>${actionBtnHtml}</td>
+                    </tr>`;
+                tableBody.innerHTML += row;
+            });
+
+            if (count === 0) {
+                tableBody.innerHTML =
+                    `<tr><td colspan="5" style="text-align:center; color: #6b7280; padding: 30px;">No approved administrators found.</td></tr>`;
+            }
+        }
+
+        // ✅ Toggle extra role permissions for admins
+        window.toggleExtraRole = async function(id, roleName, shouldAllow) {
+            const adminRef = doc(db, "admins", id);
+            await updateDoc(adminRef, {
+                allowedExtraRole: shouldAllow ? roleName : ""
+            });
+            alert(`Updated extra role permissions for this administrator!`);
+            loadApprovedAdmins();
         };
 
         // 🚪 Logout function
@@ -353,6 +469,7 @@
         onAuthStateChanged(auth, (user) => {
             if (user && user.email === atob("bWFpbnRhaW5lcm9mbGxuNDA0QGdtYWlsLmNvbQ==")) {
                 loadRequests();
+                loadApprovedAdmins();
             } else {
                 alert("Access denied. Only maintainer can view this page.");
                 window.location.href = "maintainer_login.html";

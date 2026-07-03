@@ -359,7 +359,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { firebaseConfig } from "../firebase-config.js";
 
 const app = initializeApp(firebaseConfig);
@@ -369,11 +369,28 @@ const db = getFirestore(app);
 let currentAdmin = null;
 
 // Check if admin is logged in
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     alert("Please login as admin first!");
     window.location.href = "admin_login.html";
   } else {
+    // Check permission
+    const adminDoc = await getDoc(doc(db, "admins", user.uid));
+    if (adminDoc.exists()) {
+      const adminData = adminDoc.data();
+      const role = (adminData.role || "").toLowerCase();
+      const extra = (adminData.allowedExtraRole || "").toLowerCase();
+      if (role !== "clinic" && role !== "hospital" && extra !== "clinic" && extra !== "hospital") {
+        alert("⚠️ Access Denied:\n\nYour profile role is set to Pharmacy. To register a clinic, you must get approval for the 'Clinic' extra role from the administrator.");
+        window.location.href = "admin_dashboard.html";
+        return;
+      }
+    } else {
+      alert("Access Denied: Admin profile not found!");
+      window.location.href = "admin_login.html";
+      return;
+    }
+    
     currentAdmin = user;
     // Check if already registered
     checkExistingRegistration(user.uid);

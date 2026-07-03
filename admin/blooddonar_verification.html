@@ -204,6 +204,40 @@
     box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
   }
 
+  .verify-btn {
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    transition: all 0.2s ease;
+  }
+  .verify-btn:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  }
+
+  .unverify-btn {
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    transition: all 0.2s ease;
+  }
+  .unverify-btn:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+  }
+
   .status-pill {
     display: inline-block;
     padding: 8px 18px;
@@ -492,7 +526,7 @@ function renderCard(id, d){
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = `
-    ${row("Name", d.donorName)}
+    ${row("Name", d.name ?? d.donorName)}
     ${row("Age", d.age)}
     ${row("Gender", d.gender)}
     ${row("Blood Group", d.bloodGroup ?? d.bloodgroup ?? "-")}
@@ -502,11 +536,11 @@ function renderCard(id, d){
     ${row("District", d.district)}
     ${row("Address", d.address)}
 
-    <div style="display:flex; justify-content:space-between; margin-top:10px;">
+    <div style="display:flex; justify-content:space-between; margin-top:10px; align-items:center;">
       <div class="status-pill ${statusClass}">${status}</div>
       <div style="display:flex; gap:8px;">
-        <button class="btn secondary" style="padding:4px 10px; font-size:13px; min-width:55px;" id="v-${id}">Verify</button>
-        <button class="btn" style="padding:4px 10px; font-size:13px; min-width:55px;" id="u-${id}">Unverify</button>
+        <button class="verify-btn" id="v-${id}">Verify</button>
+        <button class="unverify-btn" id="u-${id}">Unverify</button>
       </div>
     </div>
   `;

@@ -300,25 +300,25 @@
       <div class="card-subtitle">Verify blood & organ donors</div>
     </button>
 
-    <button class="dash-btn btn-epharma" onclick="window.location.href='epharmacy_register.html'">
+    <button class="dash-btn btn-epharma" onclick="checkAndNavigate('epharmacy_register.html')">
       <div class="emoji">💊</div>
       <div class="title">Register E-Pharmacy</div>
       <div class="card-subtitle">Register and link new pharmacies</div>
     </button>
 
-    <button class="dash-btn" onclick="window.location.href='epharmacy_orders.html'">
+    <button class="dash-btn" onclick="checkAndNavigate('epharmacy_orders.html')">
       <div class="emoji">📦</div>
       <div class="title">E-Pharmacy Orders</div>
       <div class="card-subtitle">View and manage medicine orders</div>
     </button>
 
-    <button class="dash-btn btn-verify" onclick="window.location.href='hospital_registration.html'">
+    <button class="dash-btn btn-verify" onclick="checkAndNavigate('hospital_registration.html')">
       <div class="emoji">🏥</div>
       <div class="title">Register Clinic</div>
       <div class="card-subtitle">Add doctors and hospital locations</div>
     </button>
 
-    <button class="dash-btn btn-epharma" onclick="window.location.href='booked_appointments.html'">
+    <button class="dash-btn btn-epharma" onclick="checkAndNavigate('booked_appointments.html')">
       <div class="emoji">📅</div>
       <div class="title">Booked Appointments</div>
       <div class="card-subtitle">View booked clinical slots</div>
@@ -351,9 +351,33 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     const admin = snap.data();
+    window.currentAdminData = admin;
     document.getElementById("adminName").innerText = `Welcome, ${admin.name} 🎉`;
     document.getElementById("adminRole").innerText = `Role: ${admin.role || "Administrator"}`;
 });
+
+// Permission check & navigation
+window.checkAndNavigate = function(targetPage) {
+    if (!window.currentAdminData) return;
+    const role = (window.currentAdminData.role || "").toLowerCase();
+    const extra = (window.currentAdminData.allowedExtraRole || "").toLowerCase();
+
+    if (targetPage === 'epharmacy_register.html' || targetPage === 'epharmacy_orders.html') {
+        if (role === 'pharmacy' || extra === 'pharmacy') {
+            window.location.href = targetPage;
+        } else {
+            alert("⚠️ Access Denied:\n\nYour profile role is set to Clinic/Hospital.\nYou cannot access E-Pharmacy features unless the Administrator has allowed it.");
+        }
+    } else if (targetPage === 'hospital_registration.html' || targetPage === 'booked_appointments.html') {
+        if (role === 'clinic' || role === 'hospital' || extra === 'clinic' || extra === 'hospital') {
+            window.location.href = targetPage;
+        } else {
+            alert("⚠️ Access Denied:\n\nYour profile role is set to Pharmacy.\nYou cannot access Clinic/Hospital features unless the Administrator has allowed it.");
+        }
+    } else {
+        window.location.href = targetPage;
+    }
+};
 
 // Logout function
 window.logout = async () => {
