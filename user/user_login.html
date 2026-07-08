@@ -270,23 +270,40 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
     import { firebaseConfig } from "../firebase-config.js";
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    window.login = function() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+    window.login = async function() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          window.location.href = "user_dashboard.html";
-        })
-        .catch(error => {
-          alert("Error: " + error.message);
-        });
+      if (!email || !password) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Verify that this is a regular user/patient account
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+
+        if (!userDoc.exists()) {
+          await signOut(auth);
+          alert("Access Denied:\n\nThis account is not registered as a standard User/Patient. If you are an administrator, please use the Admin Panel login.");
+          return;
+        }
+
+        window.location.href = "user_dashboard.html";
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
     };
   </script>
 </body>

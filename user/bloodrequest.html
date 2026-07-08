@@ -177,14 +177,36 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 
   const name = document.getElementById("name").value.trim();
   const bloodGroup = document.getElementById("bloodGroup").value.trim();
-  const age = document.getElementById("age").value.trim();
+  const ageInputVal = document.getElementById("age").value.trim();
   const contact = document.getElementById("contact").value.trim();
   const email = document.getElementById("email").value.trim();
   const address = document.getElementById("address").value.trim();
 
-  if (!name || !bloodGroup || !age || !contact || !address) {
+  if (!name || !bloodGroup || !ageInputVal || !contact || !address) {
     alert("⚠️ Please fill all required fields");
     return;
+  }
+
+  // Validate Age (1-100 years)
+  const age = parseInt(ageInputVal);
+  if (isNaN(age) || age < 1 || age > 100) {
+    alert("Please enter a valid age between 1 and 100 years.");
+    return;
+  }
+
+  // Validate Phone (Exactly 10 digits starting with 6-9)
+  if (!/^[6-9]\d{9}$/.test(contact)) {
+    alert("Please enter a valid 10-digit contact number starting with 6-9.");
+    return;
+  }
+
+  // Validate Email
+  if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
   }
 
   await addDoc(collection(db, "bloodrequest"), {

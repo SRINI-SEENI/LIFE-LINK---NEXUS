@@ -260,7 +260,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
     import { firebaseConfig } from "../firebase-config.js";
 
@@ -269,8 +269,13 @@
     const db = getFirestore(app);
 
     document.getElementById("loginBtn").addEventListener("click", async () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        alert("Please fill in all fields.");
+        return;
+      }
 
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -285,10 +290,12 @@
             alert("Login successful!");
             window.location.href = "admin_dashboard.html";
           } else {
+            await signOut(auth);
             alert("Your account is pending approval by the maintainer.");
           }
         } else {
-          alert("Admin record not found!");
+          await signOut(auth);
+          alert("Admin record not found! Regular users cannot log in to the Admin Panel.");
         }
 
       } catch (error) {

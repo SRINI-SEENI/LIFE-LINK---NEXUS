@@ -361,7 +361,7 @@
 <header class="wrap">
   <div>
     <h1>📅 Booked Appointments</h1>
-    <p>Manage all patient appointments</p>
+    <p>Manage patient appointments for <span id="hospitalNameHeader" style="color: #a78bfa; font-weight: 700;">your hospital</span></p>
   </div>
 </header>
 
@@ -439,7 +439,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import { 
-  getFirestore, collection, getDocs, doc, updateDoc, query, orderBy, where 
+  getFirestore, collection, getDocs, doc, getDoc, updateDoc, query, orderBy, where 
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { firebaseConfig } from "../firebase-config.js";
 
@@ -457,6 +457,24 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "admin_login.html";
   } else {
     currentUserEmail = user.email;
+    try {
+      const adminSnap = await getDoc(doc(db, "admins", user.uid));
+      if (adminSnap.exists()) {
+        const adminData = adminSnap.data();
+        let displayName = adminData.name || "your hospital";
+
+        // Query the registered hospital name
+        const hq = query(collection(db, "hospitalregister"), where("adminUid", "==", user.uid));
+        const hSnap = await getDocs(hq);
+        if (!hSnap.empty) {
+          displayName = hSnap.docs[0].data().hospitalName;
+        }
+
+        document.getElementById("hospitalNameHeader").textContent = displayName;
+      }
+    } catch (err) {
+      console.error("Error loading admin details:", err);
+    }
     await loadAppointments(user.uid);
   }
 });
@@ -538,7 +556,7 @@ function displayAppointments(appointments) {
         <div><strong>${apt.doctorName}</strong></div>
         <div style="color: var(--muted); font-size: 12px;">${apt.specialization}</div>
       </td>
-      <td>${apt.hospitalName}</td>
+      <td>${apt.hospitalName || "N/A"}</td>
       <td style="max-width: 200px; white-space: normal;">${apt.symptoms}</td>
       <td><strong>₹${apt.consultationFee}</strong></td>
       <td>
