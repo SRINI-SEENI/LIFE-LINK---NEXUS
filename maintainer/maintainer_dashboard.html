@@ -419,8 +419,8 @@
                         <th>Email</th>
                         <th>Role</th>
                         <th>Phone</th>
-                        <th>Address</th>
                         <th>Certificate</th>
+                        <th>Address Proof</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -428,6 +428,33 @@
                     <tr>
                         <td colspan="7" style="text-align:center; color: #6b7280; padding: 30px;">⏳ Loading requests...
                         </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 style="color: #4b0082; font-size: 22px; font-weight: 700; margin: 40px 0 10px 0; text-align: left;">Extra
+            Role Permission Requests</h2>
+        <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px; text-align: left;">Review requests from approved
+            admins to access additional roles (e.g. Clinic admin requesting Pharmacy access)</p>
+
+        <div class="table-responsive" style="margin-bottom: 40px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Admin</th>
+                        <th>Primary Role</th>
+                        <th>Requested Role</th>
+                        <th>Certificate</th>
+                        <th>Address Proof</th>
+                        <th>GPS Images</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="extraRoleRequestsTable">
+                    <tr>
+                        <td colspan="7" style="text-align:center; color: #6b7280; padding: 30px;">⏳ Loading permission
+                            requests...</td>
                     </tr>
                 </tbody>
             </table>
@@ -474,12 +501,13 @@
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
+                            <th>Address Proof</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="usersModalTableBody">
                         <tr>
-                            <td colspan="4" style="text-align: center; padding: 20px; color: #9ca3af;">Loading users...
+                            <td colspan="5" style="text-align: center; padding: 20px; color: #9ca3af;">Loading users...
                             </td>
                         </tr>
                     </tbody>
@@ -548,10 +576,14 @@
                         <td>${data.email}</td>
                         <td><span style="background: #ede9fe; color: #5b21b6; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${data.role}</span></td>
                         <td>${data.phone}</td>
-                        <td>${data.AboutADMIN}</td>
                         <td>
                             ${data.certificateLink
                             ? `<a href="${data.certificateLink}" target="_blank" style="color: #6366f1; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">📄 View link</a>`
+                            : `<span style="color: #9ca3af;">N/A</span>`}
+                        </td>
+                        <td>
+                            ${data.addressProofLink
+                            ? `<a href="${data.addressProofLink}" target="_blank" style="color: #6366f1; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">📄 View link</a>`
                             : `<span style="color: #9ca3af;">N/A</span>`}
                         </td>
                         <td>
@@ -589,8 +621,8 @@
                 email: data.email,
                 phone: data.phone,
                 role: data.role,
-                address: data.AboutADMIN,
                 certificateLink: data.certificateLink || "",
+                addressProofLink: data.addressProofLink || "",
                 approved: true,
                 status: "approved",
                 allowedExtraRole: "",
@@ -692,7 +724,7 @@
         // ✅ Load users in modal
         async function loadModalUsers() {
             const tableBody = document.getElementById("usersModalTableBody");
-            tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #6b7280;">⏳ Loading users...</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px; color: #6b7280;">⏳ Loading users...</td></tr>`;
 
             try {
                 const snapshot = await getDocs(collection(db, "users"));
@@ -708,6 +740,11 @@
                             <td>${data.email || "N/A"}</td>
                             <td>${data.phone || "N/A"}</td>
                             <td>
+                                ${data.addressProofLink
+                                ? `<a href="${data.addressProofLink}" target="_blank" style="color: #6366f1; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">📄 View link</a>`
+                                : `<span style="color: #9ca3af;">N/A</span>`}
+                            </td>
+                            <td>
                                 <button class="btn-remove" onclick="removeRecord('users', '${docSnap.id}')">Remove</button>
                             </td>
                         </tr>
@@ -716,11 +753,11 @@
                 });
 
                 if (count === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #9ca3af;">No users registered yet.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px; color: #9ca3af;">No users registered yet.</td></tr>`;
                 }
             } catch (err) {
                 console.error("Error loading users:", err);
-                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #ef4444;">Error loading users: ${err.message}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px; color: #ef4444;">Error loading users: ${err.message}</td></tr>`;
             }
         }
 
@@ -779,13 +816,121 @@
             }
         };
 
-        // ✅ Ensure only maintainer can access this page
-        onAuthStateChanged(auth, (user) => {
-            if (user && user.email === atob("bWFpbnRhaW5lcm9mbGxuNDA0QGdtYWlsLmNvbQ==")) {
-                loadRequests();
+        // ✅ Load extra role requests
+        async function loadExtraRoleRequests() {
+            const tableBody = document.getElementById("extraRoleRequestsTable");
+            tableBody.innerHTML = "";
+
+            try {
+                const snapshot = await getDocs(collection(db, "extraRoleRequests"));
+                let found = false;
+
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (data && data.status === "pending") {
+                        found = true;
+                        const row = `
+                            <tr>
+                                <td style="font-weight: 600;">
+                                    <div>${data.adminName}</div>
+                                    <div style="font-size: 11px; color: #6b7280;">${data.adminEmail}</div>
+                                </td>
+                                <td><span style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${data.primaryRole}</span></td>
+                                <td><span style="background: #fdf2f8; color: #be185d; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${data.requestedRole}</span></td>
+                                <td>
+                                    <a href="${data.certificateLink}" target="_blank" style="color: #6366f1; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">📄 View Cert</a>
+                                </td>
+                                <td>
+                                    <a href="${data.addressProofLink}" target="_blank" style="color: #6366f1; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">🏠 View Proof</a>
+                                </td>
+                                <td>
+                                    <a href="${data.gpsImagesLink}" target="_blank" style="color: #6366f1; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">📸 View GPS Pics</a>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px; white-space: nowrap;">
+                                        <button class="approve-btn" style="margin-right: 0; padding: 6px 12px; font-size: 12px;" onclick="approveExtraRole('${docSnap.id}')">Approve</button>
+                                        <button class="reject-btn" style="padding: 6px 12px; font-size: 12px;" onclick="declineExtraRole('${docSnap.id}')">Decline</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        tableBody.innerHTML += row;
+                    }
+                });
+
+                if (!found) {
+                    tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: #6b7280; padding: 30px;">No pending permission requests 🎉</td></tr>`;
+                }
+            } catch (err) {
+                console.error("Error loading extra role requests:", err);
+                tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: #ef4444; padding: 30px;">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        // ✅ Approve extra role request
+        window.approveExtraRole = async function (requestId) {
+            try {
+                const reqRef = doc(db, "extraRoleRequests", requestId);
+                const reqSnap = await getDoc(reqRef);
+                if (!reqSnap.exists()) return alert("Request not found");
+                const data = reqSnap.data();
+
+                // 1. Update request status to approved
+                await updateDoc(reqRef, { status: "approved" });
+
+                // 2. Update admin document in Firestore
+                const adminRef = doc(db, "admins", data.adminUid);
+                await updateDoc(adminRef, { allowedExtraRole: data.requestedRole });
+
+                alert(`✓ Request approved. ${data.adminName} has been granted the '${data.requestedRole}' role!`);
+                loadExtraRoleRequests();
                 loadApprovedAdmins();
+            } catch (err) {
+                console.error("Error approving request:", err);
+                alert("Failed to approve: " + err.message);
+            }
+        };
+
+        // ❌ Decline extra role request
+        window.declineExtraRole = async function (requestId) {
+            const confirmDecline = confirm("Are you sure you want to decline this extra role request?\n\nThe administrator will be blocked from submitting a new request for the next 2 months.");
+            if (!confirmDecline) return;
+
+            try {
+                const reqRef = doc(db, "extraRoleRequests", requestId);
+                const reqSnap = await getDoc(reqRef);
+                if (!reqSnap.exists()) return alert("Request not found");
+
+                // Update request to declined and set cooldown timestamp
+                await updateDoc(reqRef, {
+                    status: "declined",
+                    declinedAt: new Date().toISOString()
+                });
+
+                alert(`✓ Request declined. A 2-month cooldown has been applied.`);
+                loadExtraRoleRequests();
+                loadApprovedAdmins();
+            } catch (err) {
+                console.error("Error declining request:", err);
+                alert("Failed to decline request: " + err.message);
+            }
+        };
+
+        // ✅ Ensure only maintainer can access this page
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    // Security Check: Attempt to read maintainer-only database document
+                    await getDoc(doc(db, "maintainer", "config"));
+                    loadRequests();
+                    loadApprovedAdmins();
+                    loadExtraRoleRequests();
+                } catch (permError) {
+                    await signOut(auth);
+                    alert("Access denied. Only the system maintainer can view this dashboard.");
+                    window.location.href = "maintainer_login.html";
+                }
             } else {
-                alert("Access denied. Only maintainer can view this page.");
                 window.location.href = "maintainer_login.html";
             }
         });

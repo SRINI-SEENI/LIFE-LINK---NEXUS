@@ -24,9 +24,9 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 20px;
+      padding: 40px 20px;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     .circle {
@@ -194,6 +194,45 @@
       background: #f9fafb;
     }
 
+    /* Tooltip styling */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      margin-left: 6px;
+      color: #667eea;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 250px;
+      background-color: #1f2937;
+      color: #fff;
+      text-align: left;
+      border-radius: 6px;
+      padding: 8px 12px;
+      position: absolute;
+      z-index: 105;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.2s;
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.4;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      white-space: normal;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
     @media (max-width: 500px) {
       .signup-container {
         padding: 40px 28px;
@@ -222,6 +261,11 @@
     </div>
 
     <div class="input-group">
+      <label for="phone">Phone Number</label>
+      <input type="text" id="phone" placeholder="+91 9876543210" required />
+    </div>
+
+    <div class="input-group">
       <label for="email">Email</label>
       <input type="email" id="email" placeholder="name@example.com" required />
     </div>
@@ -229,6 +273,15 @@
     <div class="input-group">
       <label for="password">Password</label>
       <input type="password" id="password" placeholder="Create a strong password" required />
+    </div>
+
+    <div class="input-group">
+      <label for="addressProofLink">
+        Address Proof Document Link<br>
+        <span style="font-size: 12px; color: #6b7280; font-weight: 500;">(Google Drive / Dropbox)</span>
+        <span class="tooltip">ℹ️<span class="tooltiptext">Upload Aadhar, Driving License, Voter ID, or any government-issued certificate that shows a clear address in the file.</span></span>
+      </label>
+      <input type="url" id="addressProofLink" placeholder="https://drive.google.com/file/d/..." required />
     </div>
 
     <button id="signupBtn">Create Account</button>
@@ -243,7 +296,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-    import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+    import { getFirestore, setDoc, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
     import { firebaseConfig } from "../firebase-config.js";
 
     const app = initializeApp(firebaseConfig);
@@ -252,23 +305,54 @@
 
     document.getElementById("signupBtn").addEventListener("click", async () => {
       const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
+      const addressProofLink = document.getElementById("addressProofLink").value.trim();
 
-      if (!name || !email || !password) {
-        alert("Please fill all fields");
+      if (!name || !phone || !email || !password || !addressProofLink) {
+        alert("Please fill all fields including the address proof document link.");
+        return;
+      }
+
+      // Validate Phone Format (Exactly 10 digits starting with 6-9)
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phoneRegex.test(phone)) {
+        alert("Please enter a valid 10-digit mobile number starting with 6-9.");
+        return;
+      }
+
+      // Validate Email Format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
         return;
       }
 
       try {
+        // Check if phone number is already registered in Firestore
+        const phoneSnap = await getDoc(doc(db, "publicPhones", phone));
+        if (phoneSnap.exists()) {
+          alert("This phone number is already registered with another account!");
+          return;
+        }
+
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // ✅ Store name in Firestore
+        // ✅ Store details in Firestore
         await setDoc(doc(db, "users", user.uid), {
           name: name,
           email: email,
+          phone: phone,
+          addressProofLink: addressProofLink,
           createdAt: new Date().toISOString()
+        });
+
+        // Register phone in publicPhones lookup
+        await setDoc(doc(db, "publicPhones", phone), {
+          uid: user.uid,
+          role: "user"
         });
 
         alert("Account created successfully!");

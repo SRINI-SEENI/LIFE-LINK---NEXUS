@@ -438,12 +438,33 @@ donateForm.addEventListener('submit', async (e) => {
         const user = auth.currentUser;
         if (!user) throw new Error("Not authenticated");
 
+        // Validate Age (18-65 years)
+        const age = parseInt(ageInput.value);
+        if (isNaN(age) || age < 18 || age > 65) {
+            throw new Error("Age must be between 18 and 65 years to donate blood.");
+        }
+
+        // Validate Phone (Exactly 10 digits starting with 6-9)
         const phone = contactInput.value.trim();
-        if (!/^\d{10}$/.test(phone)) throw new Error("Enter valid 10 digit phone number");
+        if (!/^[6-9]\d{9}$/.test(phone)) {
+            throw new Error("Please enter a valid 10-digit contact number starting with 6-9.");
+        }
+
+        // Validate Email
+        const email = emailInput.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            throw new Error("Please enter a valid email address.");
+        }
 
         const districtVal = (districtSelect.style.display === 'none' || !districtSelect.value)
             ? districtManual.value 
             : districtSelect.value;
+
+        // Retrieve addressProofLink from users profile
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        const addressProofLink = userDocSnap.exists() ? userDocSnap.data().addressProofLink || "" : "";
 
         await addDoc(collection(db, "donations"), {
             userId: user.uid,
@@ -458,6 +479,7 @@ donateForm.addEventListener('submit', async (e) => {
             drugStatus: drugInput.value,
             medicallyFit: medicallyInput.value,
             address: addressInput.value,
+            addressProofLink: addressProofLink,
             status: "Pending Verification",
             createdAt: serverTimestamp()
         });

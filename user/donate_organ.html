@@ -456,26 +456,60 @@ document.getElementById("organForm").addEventListener("submit", async (e)=> {
  const medicallyfitnotInput= document.getElementById("MedicallyFit/Not");
 
 
- await addDoc(collection(db, "organdonations"), {
-     uid: currentUid,
-     name: nameInput.value,
-     age: ageInput.value,
-     gender: genderInput.value,
-     organ: organInput.value,
-     bloodgroup: bloodgroupInput.value,
-     Drugactivities: DrugactivitiesInput.value,
-     MedicallyFitNot: medicallyfitnotInput.value,
-     phone: phoneInput.value,
-     email: emailInput.value,
-     state: stateInput.value,
-     district: districtSelect.style.display=="block" ? districtSelect.value : districtManual.value,
-     address: addressInput.value,
-     status: "Pending Verification",
-     timestamp: new Date()
- });
+  // Validate Age (18-100 years)
+  const age = parseInt(ageInput.value);
+  if (isNaN(age) || age < 18 || age > 100) {
+      alert("Age must be between 18 and 100 years to register for organ donation.");
+      return;
+  }
 
- alert("✅ Organ Donation Registered Successfully");
- window.location.href = "user_dashboard.html";
+  // Validate Phone (Exactly 10 digits starting with 6-9)
+  const phone = phoneInput.value.trim();
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+      alert("Please enter a valid 10-digit contact number starting with 6-9.");
+      return;
+  }
+
+  // Validate Email
+  const email = emailInput.value.trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+  }
+
+  // Retrieve addressProofLink from users profile
+  let addressProofLink = "";
+  try {
+      const userDocSnap = await getDoc(doc(db, "users", currentUid));
+      if (userDocSnap.exists()) {
+          addressProofLink = userDocSnap.data().addressProofLink || "";
+      }
+  } catch (err) {
+      console.error("Error fetching address proof:", err);
+  }
+
+  await addDoc(collection(db, "organdonations"), {
+      uid: currentUid,
+      name: nameInput.value,
+      age: age,
+      gender: genderInput.value,
+      organ: organInput.value,
+      bloodgroup: bloodgroupInput.value,
+      Drugactivities: DrugactivitiesInput.value,
+      MedicallyFitNot: medicallyfitnotInput.value,
+      phone: phone,
+      email: email,
+      state: stateInput.value,
+      district: districtSelect.style.display=="block" ? districtSelect.value : districtManual.value,
+      address: addressInput.value,
+      addressProofLink: addressProofLink,
+      status: "Pending Verification",
+      timestamp: new Date()
+  });
+
+  alert("✅ Organ Donation Registered Successfully");
+  window.location.href = "user_dashboard.html";
 
  e.target.reset();
 });
